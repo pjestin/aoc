@@ -8,24 +8,13 @@ function buildOrbitMap() {
         .map(orbit => orbit.trim().split(')'));
     let orbits = {};
     orbitArray.forEach(orbit => {
-        if (!(orbit[0] in orbits)) {
-            orbits[orbit[0]] = [];
-        }
-        orbits[orbit[0]].push(orbit[1]);
+        orbits[orbit[1]] = orbit[0];
     });
     return orbits;
 }
 
 function navigateOrbitMap(orbitMap, object) {
-    if (!(object in orbitMap)) {
-        return 0;
-    } else {
-        let number = 0;
-        orbitMap[object].forEach(orbittingObject => {
-            number += 1 + navigateOrbitMap(orbitMap, orbittingObject);
-        })
-        return number;
-    }
+    return object in orbitMap ? 1 + navigateOrbitMap(orbitMap, orbitMap[object]) : 0;
 }
 
 function getNumberOfOrbits(orbitMap) {
@@ -34,25 +23,14 @@ function getNumberOfOrbits(orbitMap) {
         .reduce((acc, curr) => acc + curr);
 }
 
-function getPath(orbitMap, current, target) {
-    if (!(current in orbitMap)) {
+function getPath(orbitMap, target, current) {
+    if (current === target) {
+        return [target];
+    } else if (!(current in orbitMap)) {
         return null;
-    }
-    else if (orbitMap[current].includes(target)) {
-        return [target, current];
     } else {
-        let path = null;
-        orbitMap[current].forEach(orbittingObject => {
-            let thisPath = getPath(orbitMap, orbittingObject, target);
-            if (!thisPath) {
-                return;
-            } else {
-                path = thisPath;
-            }
-        })
-        if (path) {
-            path.push(current);
-        }
+        let path = getPath(orbitMap, target, orbitMap[current]);
+        path.push(current);
         return path;
     }
 }
