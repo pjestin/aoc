@@ -5,7 +5,7 @@ const fs = require('fs'),
 
 function runIntcode(A, input, i) {
     while (i < A.length && A[i] % 100 !== 99) {
-        let opcode = A[i] % 100;
+        const opcode = A[i] % 100;
         if (opcode === 3) {
             A[A[i + 1]] = input.pop();
             i += 2;
@@ -17,8 +17,8 @@ function runIntcode(A, input, i) {
                 input: input
             };
         } else {
-            let firstParam = A[i] % 1000 - opcode === 0 ? A[A[i + 1]] : A[i + 1];
-            let secondParam = A[i] % 10000 - A[i] % 1000 === 0 ? A[A[i + 2]] : A[i + 2];
+            const firstParam = A[i] % 1000 - opcode === 0 ? A[A[i + 1]] : A[i + 1];
+            const secondParam = A[i] % 10000 - A[i] % 1000 === 0 ? A[A[i + 2]] : A[i + 2];
             if (opcode === 1 || opcode === 2 || opcode === 7 || opcode === 8) {
                 let result;
                 switch (opcode) {
@@ -60,7 +60,6 @@ function runCombination(phaseCodes) {
     computers[0].input.splice(0, 0, 0);
     let computerIndex = 0;
     while (true) {
-        // console.log(`Running computer ${computerIndex}`);
         let computer = computers[computerIndex];
         let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
         computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
@@ -76,9 +75,9 @@ function getCombinations(codes) {
     if (codes.length === 1) {
         return [[codes[0]]];
     }
-    let code = codes.pop();
+    const code = codes.pop();
     let combinations = [];
-    let combinationsWithout = getCombinations(codes);
+    const combinationsWithout = getCombinations(codes);
     combinationsWithout.forEach(combinationWithout => {
         for (let i = 0; i <= combinationWithout.length; ++i) {
             let combinationWith = Array.from(combinationWithout);
@@ -89,13 +88,9 @@ function getCombinations(codes) {
     return combinations;
 }
 
-async function findMaxThrust() {
-    let combinations = getCombinations([5, 6, 7, 8, 9]);
-    const tasks = combinations.map(runCombination);
-    const results = await Promise.all(tasks);
-    let max = Math.max(...results);
-    return max;
+function findMaxThrust() {
+    const combinations = getCombinations([5, 6, 7, 8, 9]);
+    return Math.max(...combinations.map(runCombination));
 }
 
-findMaxThrust().then(result => console.log(result));
-// console.log(runCombination([9, 7, 8, 5, 6]));
+console.log(findMaxThrust());
