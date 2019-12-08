@@ -5,16 +5,23 @@ const fs = require('fs'),
     ROWS = 6,
     COLUMNS = 25;
 
-function getFlatLayers(image_data) {
+function getLayers(image_data) {
     let layers = [];
     for (let i = 0; i < image_data.length; i += ROWS * COLUMNS) {
-        layers.push(image_data.slice(i, i + ROWS * COLUMNS));
+        const layer = image_data.slice(i, i + ROWS * COLUMNS);
+        let rows = []
+        for (let j = 0; j < layer.length; j += COLUMNS) {
+            rows.push(layer.slice(j, j + COLUMNS));
+        }
+        layers.push(rows);
     }
     return layers;
 }
 
 function getNumberOfDigitsInLayer(layer, digit) {
-    return layer.filter(x => x === digit).length;
+    return layer.reduce((count, curRow) =>
+        count + curRow.filter(x => x === digit).length,
+        0);
 }
 
 function getMinimumDigitLayer(layers, digit) {
@@ -28,19 +35,6 @@ function getMinimumDigitLayer(layers, digit) {
         }
     });
     return minIndex;
-}
-
-function getLayers(image_data) {
-    let layers = [];
-    for (let i = 0; i < image_data.length; i += ROWS * COLUMNS) {
-        const layer = image_data.slice(i, i + ROWS * COLUMNS);
-        let rows = []
-        for (let j = 0; j < layer.length; j += COLUMNS) {
-            rows.push(layer.slice(j, j + COLUMNS));
-        }
-        layers.push(rows);
-    }
-    return layers;
 }
 
 function getVisiblePixels(layers) {
@@ -68,11 +62,10 @@ function getImageDisplay(pixels) {
         .reduce((acc, cur) => acc + cur + '\n', '');
 }
 
-const flatLayers = getFlatLayers(IMAGE_DATA);
-const min0Layer = flatLayers[getMinimumDigitLayer(flatLayers, 0)];
+const layers = getLayers(IMAGE_DATA);
+const min0Layer = layers[getMinimumDigitLayer(layers, 0)];
 const digits1And2 = getNumberOfDigitsInLayer(min0Layer, 1) * getNumberOfDigitsInLayer(min0Layer, 2);
 console.log(digits1And2);
 
-const layers = getLayers(IMAGE_DATA);
 const pixels = getVisiblePixels(layers);
 console.log(getImageDisplay(pixels));
