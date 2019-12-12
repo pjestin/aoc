@@ -11,31 +11,23 @@ const INITIAL_POSITIONS = [
         [0, 0, 0]
     ];
 
-function updateVelocities(positions, velocities) {
+function runStep(positions, velocities) {
     positions.forEach((position, moonIndex) => {
         positions.forEach(otherPosition => {
-            for (let i = 0; i < 3; ++i) {
+            [0, 1, 2].forEach(i => {
                 if (position[i] < otherPosition[i]) {
                     velocities[moonIndex][i]++;
                 } else if (position[i] > otherPosition[i]) {
                     velocities[moonIndex][i]--;
                 }
-            }
+            });
         });
     });
-}
-
-function updatePositions(positions, velocities) {
     velocities.forEach((velocity, moonIndex) => {
-        for (let i = 0; i < 3; ++i) {
+        [0, 1, 2].forEach(i => {
             positions[moonIndex][i] += velocity[i];
-        }
+        });
     });
-}
-
-function runStep(positions, velocities) {
-    updateVelocities(positions, velocities);
-    updatePositions(positions, velocities);
 }
 
 function getTotalEnergy(positions, velocities) {
@@ -67,19 +59,26 @@ function arrayEq(A, B) {
 }
 
 function run() {
-    const stringifiedInitialPositions = JSON.stringify(INITIAL_POSITIONS);
-    const stringifiedInitialVelocities = JSON.stringify(INITIAL_VELOCITIES);
-    let positions = JSON.parse(stringifiedInitialPositions);
-    let velocities = JSON.parse(stringifiedInitialVelocities);
+    let positions = JSON.parse(JSON.stringify(INITIAL_POSITIONS));
+    let velocities = JSON.parse(JSON.stringify(INITIAL_VELOCITIES));
     let steps = 1;
     runStep(positions, velocities);
-    while (positions)
-        while ([0, 1, 2, 3].some(index => !arrayEq(positions[index], INITIAL_POSITIONS[index])
-            || !arrayEq(velocities[index], INITIAL_VELOCITIES[index]))) {
-            runStep(positions, velocities);
-            ++steps;
+    while (true) {
+        let stop = true;
+        for (let index = 0; index < 4; ++index) {
+            if (!arrayEq(positions[index], INITIAL_POSITIONS[index])
+                || !arrayEq(velocities[index], INITIAL_VELOCITIES[index])) {
+                stop = false;
+                break;
+            }
         }
+        if (stop) break;
+        runStep(positions, velocities);
+        ++steps;
+        if (steps % 1000000 === 0) console.log(steps);
+    }
     return steps;
 }
 
+// console.log(getTotalEnergyAfterSteps(1000))
 console.log(run());
