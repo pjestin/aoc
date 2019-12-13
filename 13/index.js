@@ -68,21 +68,20 @@ const getJoystickInput = (tiles) => {
 }
 
 const playGame = () => {
-    let computers = [{
+    let computer = {
         memory: Object.assign({}, INITIAL_INTCODE),
         input: [],
         index: 0,
         relativeBase: 0
-    }];
-    computers[0].memory[0] = 2;
+    };
+    computer.memory[0] = 2;
     let blockCount = 1;
     let gameData = {};
     while (blockCount !== 0) {
         let tiles = [];
-        let currentComputer = JSON.parse(JSON.stringify(computers[computers.length - 1]));
         while (true) {
-            currentComputer = runIntcode(currentComputer.memory, currentComputer.input, currentComputer.index, currentComputer.relativeBase);
-            if (currentComputer === null) {
+            computer = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+            if (computer === null) {
                 updateGameData(gameData, tiles);
                 if (countBlockTiles(gameData.tiles) === 0) {
                     console.log(`You won! Score: ${gameData.score}`);
@@ -90,17 +89,16 @@ const playGame = () => {
                     console.log(`You lost! Score: ${gameData.score}`);
                 }
                 return;
-            } else if (currentComputer.needInput) {
+            } else if (computer.needInput) {
                 break;
             }
-            tiles.push(currentComputer.output);
+            tiles.push(computer.output);
         }
         updateGameData(gameData, tiles);
         displayGame(gameData);
         blockCount = countBlockTiles(gameData.tiles);
         const input = getJoystickInput(gameData.tiles);
-        currentComputer.input.push(input);
-        computers.push(currentComputer);
+        computer.input.push(input);
     }
 }
 
