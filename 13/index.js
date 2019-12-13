@@ -15,17 +15,17 @@ const initTiles = (tileArray) => {
     return tiles;
 }
 
-const getGameData = (tileArray) => {
-    let tiles = initTiles(tileArray);
-    let score = 0;
+const updateGameData = (gameData, tileArray) => {
+    if (!gameData.tiles) {
+        gameData.tiles = initTiles(tileArray);
+    }
     for (let i = 0; i < tileArray.length; i += 3) {
         if (tileArray[i] === -1) {
-            score = tileArray[i + 2];
+            gameData.score = tileArray[i + 2];
             continue;
         }
-        tiles[tileArray[i + 1]][tileArray[i]] = tileArray[i + 2];
+        gameData.tiles[tileArray[i + 1]][tileArray[i]] = tileArray[i + 2];
     }
-    return { tiles, score };
 }
 
 const countBlockTiles = (tiles) => {
@@ -84,7 +84,7 @@ const playGame = () => {
             }
             tiles.push(computer.output);
         }
-        gameData = getGameData(tiles);
+        updateGameData(gameData, tiles);
         displayGame(gameData);
         blockCount = countBlockTiles(gameData.tiles);
         if (gameOver(gameData.tiles)) {
