@@ -33,21 +33,6 @@ const countBlockTiles = (tiles) => {
         curRow.reduce((acc, cur) => cur === 2 ? acc + 1 : acc, 0), 0);
 }
 
-const gameOver = (tiles) => {
-    let paddleY = 0;
-    let ballY = 0;
-    for (let y = 0; y < tiles.length; ++y) {
-        for (let x = 0; x < tiles[0].length; ++x) {
-            if (tiles[y][x] === 3) {
-                paddleY = y;
-            } else if (tiles[y][x] === 4) {
-                ballY = y;
-            }
-        }
-    }
-    return ballY > paddleY;
-}
-
 const displayGame = (gameData) => {
     const charMap = {
         0: ' ',
@@ -60,6 +45,18 @@ const displayGame = (gameData) => {
         .reduce((display, curRow) => display + curRow + '\n', '');
     console.log(gameDisplay);
     console.log(`Score: ${gameData.score}`);
+}
+
+const getJoystickInput = () => {
+    const input = readline.question("Joystick input? [a,s,d] ");
+    switch (input) {
+        case 'a':
+            return -1;
+        case 'd':
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 const playGame = () => {
@@ -77,7 +74,7 @@ const playGame = () => {
         while (true) {
             computer = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
             if (computer === null) {
-                console.log('Computer shutdown!');
+                console.log('You lost!');
                 return;
             } else if (computer.needInput) {
                 break;
@@ -87,11 +84,7 @@ const playGame = () => {
         updateGameData(gameData, tiles);
         displayGame(gameData);
         blockCount = countBlockTiles(gameData.tiles);
-        if (gameOver(gameData.tiles)) {
-            console.log('You lost!');
-            return;
-        }
-        computer.input.push(Number(readline.question("Joystick input? ")));
+        computer.input.push(getJoystickInput());
     }
     console.log(`You won! Score: ${gameData.score}`);
 }
