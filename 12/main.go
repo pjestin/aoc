@@ -87,11 +87,8 @@ func gcd(a int, b int) int {
 		big = b
 		small = a
 	}
-	for true {
+	for small != 0 {
 		temp := big % small
-		if temp == 0 {
-			return small
-		}
 		big = small
 		small = temp
 	}
