@@ -1,6 +1,6 @@
 const fs = require('fs'),
     path = require('path'),
-    INPUT_FILE_PATH = path.join(__dirname, 'input-test.txt'),
+    INPUT_FILE_PATH = path.join(__dirname, 'input.txt'),
     INPUT_REACTIONS = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split('\n').map(line => line.split('=>'));
 
 const buildReactions = () => {
@@ -27,8 +27,7 @@ const findIngredientInReactions = (reactions, element) => {
 
 const findOreRequirement = (inputReactions, target) => {
     let reactions = Object.assign({}, inputReactions);
-    let ingredients = {};
-    ingredients[target.element] = target.quantity;
+    let ingredients = Object.assign({}, target);
     while (Object.keys(ingredients).length !== 1 || !('ORE' in ingredients)) {
         let elements = Object.keys(ingredients);
         for (let i = 0; i < elements.length; ++i) {
@@ -57,7 +56,7 @@ const findMaxFuel = (reactions, maxOre) => {
     let number = 0;
     while (digitPower >= 1) {
         for (let digit = 1; digit <= 9; ++digit) {
-            const ore = findOreRequirement(reactions, { element: 'FUEL', quantity: number + digit * digitPower });
+            const ore = findOreRequirement(reactions, { 'FUEL': number + digit * digitPower });
             if (ore > maxOre) {
                 number += (digit - 1) * digitPower;
                 break;
@@ -69,5 +68,5 @@ const findMaxFuel = (reactions, maxOre) => {
 }
 
 const reactions = buildReactions();
-console.log(findOreRequirement(reactions, { element: 'FUEL', quantity: 1 }));
+console.log(findOreRequirement(reactions, { 'FUEL': 1 }));
 console.log(findMaxFuel(reactions, Math.pow(10, 12)));
