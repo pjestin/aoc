@@ -1,8 +1,5 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode'),
-    INPUT_FILE_PATH = path.join(__dirname, 'intcode-input.txt'),
-    INITIAL_INTCODE = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split(',').map(Number);
+const path = require('path'),
+    intcode = require('../lib/intcode');
 
 const initTiles = (tileArray) => {
     const xLen = tileArray.reduce((acc, cur, i) => i % 3 === 0 ? Math.max(acc, cur) : acc, 0) + 1;
@@ -32,18 +29,29 @@ const countBlockTiles = (tiles) => {
         curRow.reduce((acc, cur) => cur === 2 ? acc + 1 : acc, 0), 0);
 }
 
-const displayGame = (gameData) => {
-    const charMap = {
-        0: ' ',
-        1: '█',
-        2: '░',
-        3: '—',
-        4: 'o'
+const getUpdatedTiles = (computer) => {
+    let tiles = [];
+    while (true) {
+        computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+        if (computer === null || computer.needInput) {
+            break;
+        }
+        tiles.push(computer.output);
     }
-    const gameDisplay = gameData.tiles.map(row => row.reduce((rowDisplay, tile) => rowDisplay + charMap[tile], ''))
-        .reduce((display, curRow) => display + curRow + '\n', '');
-    console.log(gameDisplay);
-    console.log(`Score: ${gameData.score}`);
+    return tiles;
+}
+
+const countBlockTilesFromFile = (filePath) => {
+    let gameData = {};
+    let computer = {
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
+        input: [],
+        index: 0,
+        relativeBase: 0
+    };
+    const tiles = getUpdatedTiles(computer);
+    updateGameData(gameData, tiles);
+    return countBlockTiles(gameData.tiles);
 }
 
 const getJoystickInput = (tiles) => {
@@ -67,39 +75,26 @@ const getJoystickInput = (tiles) => {
     }
 }
 
-const playGame = () => {
+const playGame = (filePath) => {
     let computer = {
-        memory: Object.assign({}, INITIAL_INTCODE),
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
         relativeBase: 0
     };
     computer.memory[0] = 2;
-    let blockCount = 1;
     let gameData = {};
-    while (blockCount !== 0) {
-        let tiles = [];
-        while (true) {
-            computer = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-            if (computer === null) {
-                updateGameData(gameData, tiles);
-                if (countBlockTiles(gameData.tiles) === 0) {
-                    console.log(`You won! Score: ${gameData.score}`);
-                } else {
-                    console.log(`You lost! Score: ${gameData.score}`);
-                }
-                return;
-            } else if (computer.needInput) {
-                break;
-            }
-            tiles.push(computer.output);
+    while (true) {
+        const tiles = getUpdatedTiles(computer);
+        if (computer === null) {
+            return gameData.score;
         }
         updateGameData(gameData, tiles);
-        displayGame(gameData);
-        blockCount = countBlockTiles(gameData.tiles);
-        const input = getJoystickInput(gameData.tiles);
-        computer.input.push(input);
+        if (countBlockTiles(gameData.tiles) === 0) {
+            return gameData.score;
+        }
+        computer.input.push(getJoystickInput(gameData.tiles));
     }
 }
 
-playGame();
+module.exports = { countBlockTilesFromFile, playGame };

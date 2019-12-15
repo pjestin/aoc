@@ -1,15 +1,20 @@
-const INITIAL_POSITIONS = [
-    [12, 0, -15],
-    [-8, -5, -10],
-    [7, -17, 1],
-    [2, -11, -6]
-],
-    INITIAL_VELOCITIES = [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
-    ];
+const fs = require('fs'),
+    path = require('path');
+
+function getInitialPositions(filePath) {
+    const absoluteFilePath = path.join(__dirname, filePath);
+    return fs.readFileSync(absoluteFilePath, 'utf8')
+        .trim()
+        .split('\n')
+        .map(row => {
+            const rowString = row.trim().split('<')[1].split('>')[0];
+            return rowString.split(',').map(coordinate => Number(coordinate.trim().split('=')[1]))
+        });
+}
+
+function getInitialVelocities() {
+    return new Array(4).fill(new Array(3).fill(0));
+}
 
 function runStep(positions, velocities) {
     positions.forEach((position, moonIndex) => {
@@ -40,34 +45,25 @@ function getTotalEnergy(positions, velocities) {
     return total;
 }
 
-function getTotalEnergyAfterSteps(steps) {
-    const stringifiedInitialPositions = JSON.stringify(INITIAL_POSITIONS);
-    const stringifiedInitialVelocities = JSON.stringify(INITIAL_VELOCITIES);
-    let positions = JSON.parse(stringifiedInitialPositions);
-    let velocities = JSON.parse(stringifiedInitialVelocities);
-    for (let steps = 0; steps < 1000; ++steps) {
+function getTotalEnergyAfterSteps(filePath, steps) {
+    let positions = JSON.parse(JSON.stringify(getInitialPositions(filePath)));
+    let velocities = JSON.parse(JSON.stringify(getInitialVelocities()));
+    for (let i = 0; i < steps; ++i) {
         runStep(positions, velocities);
     }
     return getTotalEnergy(positions, velocities);
 }
 
-function arrayEq(A, B) {
-    for (let i = 0; i < 3; ++i) {
-        if (A[i] !== B[i]) return false;
-    }
-    return true;
-}
-
-function run() {
-    let positions = JSON.parse(JSON.stringify(INITIAL_POSITIONS));
-    let velocities = JSON.parse(JSON.stringify(INITIAL_VELOCITIES));
+function findCycleOnDim(initialPositions, initialVelocities, dim) {
+    let positions = JSON.parse(JSON.stringify(initialPositions));
+    let velocities = JSON.parse(JSON.stringify(initialVelocities));
     let steps = 1;
     runStep(positions, velocities);
     while (true) {
         let stop = true;
         for (let index = 0; index < 4; ++index) {
-            if (!arrayEq(positions[index], INITIAL_POSITIONS[index])
-                || !arrayEq(velocities[index], INITIAL_VELOCITIES[index])) {
+            if (positions[index][dim] !== initialPositions[index][dim]
+                || velocities[index][dim] !== initialVelocities[index][dim]) {
                 stop = false;
                 break;
             }
@@ -75,10 +71,33 @@ function run() {
         if (stop) break;
         runStep(positions, velocities);
         ++steps;
-        if (steps % 1000000 === 0) console.log(steps);
     }
     return steps;
 }
 
-// console.log(getTotalEnergyAfterSteps(1000))
-console.log(run());
+function gcd(a, b) {
+    if (a < b) {
+        return gcd(b, a);
+    }
+    while (b !== 0) {
+        let temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+function lcm(a, b) {
+    return a * b / gcd(a, b);
+}
+
+function findCycle(filePath) {
+    const initialPositions = getInitialPositions(filePath);
+    const initialVelocities = getInitialVelocities(filePath);
+    const cycleX = findCycleOnDim(initialPositions, initialVelocities, 0);
+    const cycleY = findCycleOnDim(initialPositions, initialVelocities, 1);
+    const cycleZ = findCycleOnDim(initialPositions, initialVelocities, 2);
+    return lcm(cycleX, lcm(cycleY, cycleZ));
+}
+
+module.exports = { getTotalEnergyAfterSteps, findCycle };

@@ -1,22 +1,16 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode');
-
-function getIntcodeInput(inputFilePath) {
-    const file = path.join(__dirname, inputFilePath);
-    return Object.assign({}, fs.readFileSync(file, 'utf8').trim().split(',').map(Number));
-}
+const path = require('path'),
+    intcode = require('../lib/intcode');
 
 function getDiagnosticCodePart1(filePath, systemId) {
     let computer = {
-        memory: getIntcodeInput(filePath),
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         index: 0,
         relativeBase: 0,
         input: [systemId],
         output: 0
     };
     while (true) {
-        let result = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+        let result = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
         if (result !== null && computer.output !== 0) {
             throw `Diagnostic failed, code: ${computer.output}`;
         } else if (result === null) {
@@ -29,12 +23,12 @@ function getDiagnosticCodePart1(filePath, systemId) {
 
 function getDiagnosticCodePart2(filePath, systemId) {
     let computer = {
-        memory: getIntcodeInput(filePath),
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         index: 0,
         relativeBase: 0,
         input: [systemId]
     };
-    computer = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+    computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
     return computer.output;
 }
 

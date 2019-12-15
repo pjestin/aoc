@@ -1,11 +1,5 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode');
-
-function getIntcodeInput(inputFilePath) {
-    const file = path.join(__dirname, inputFilePath);
-    return Object.assign({}, fs.readFileSync(file, 'utf8').trim().split(',').map(Number));
-}
+const path = require('path'),
+    intcode = require('../lib/intcode');
 
 function getCombinations(codes) {
     if (codes.length === 1) {
@@ -35,7 +29,7 @@ function runCombinationPart1(inputIntcode, phaseCodes) {
     computers[0].input.splice(0, 0, 0);
     for (let computerIndex = 0; computerIndex < 5; ++computerIndex) {
         let computer = computers[computerIndex];
-        computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
+        computers[computerIndex] = intcode.runIntcode(computer.memory, computer.input, computer.index);
         if (computerIndex < 4) {
             computers[computerIndex + 1].input.splice(0, 0, computers[computerIndex].output);
         }
@@ -56,7 +50,7 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
     while (true) {
         let computer = computers[computerIndex];
         let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
-        computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
+        computers[computerIndex] = intcode.runIntcode(computer.memory, computer.input, computer.index);
         if (computers[computerIndex] === null) {
             return computers[4].output;
         }
@@ -67,13 +61,13 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
 
 function findMaxThrustPart1(filePath) {
     const combinations = getCombinations([0, 1, 2, 3, 4]);
-    const inputIntcode = getIntcodeInput(filePath);
+    const inputIntcode = intcode.getIntcodeInput(path.join(__dirname, filePath));
     return Math.max(...combinations.map(codes => runCombinationPart1(inputIntcode, codes)));
 }
 
 function findMaxThrustPart2(filePath) {
     const combinations = getCombinations([5, 6, 7, 8, 9]);
-    const inputIntcode = getIntcodeInput(filePath);
+    const inputIntcode = intcode.getIntcodeInput(path.join(__dirname, filePath));
     return Math.max(...combinations.map(codes => runCombinationPart2(inputIntcode, codes)));
 }
 

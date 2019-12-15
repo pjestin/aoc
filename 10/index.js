@@ -1,11 +1,11 @@
 const fs = require('fs'),
-    path = require('path'),
-    INPUT_FILE_PATH = path.join(__dirname, 'asteroid-input.txt'),
-    ASTEROID_MAP = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split('\n').map(row => row.trim().split(''));
+    path = require('path');
 
-function getAsteroidPositions() {
+function getAsteroidPositions(filePath) {
+    const absoluteFilePath = path.join(__dirname, filePath);
+    const asteroidMap = fs.readFileSync(absoluteFilePath, 'utf8').trim().split('\n').map(row => row.trim().split(''));
     let positions = [];
-    ASTEROID_MAP.forEach((row, y) => {
+    asteroidMap.forEach((row, y) => {
         row.forEach((object, x) => {
             if (object === '#') {
                 positions.push({ x: x, y: y });
@@ -49,7 +49,8 @@ function getNumberOfDetectables(asteroidPositions, current) {
     return Object.keys(getAngles(asteroidPositions, current)).length;
 }
 
-function getBestAsteroid(asteroidPositions) {
+function getBestAsteroid(filePath) {
+    const asteroidPositions = getAsteroidPositions(filePath);
     const asteroidsWithSlopes = asteroidPositions.map(asteroid => {
         return {
             x: asteroid.x,
@@ -60,7 +61,10 @@ function getBestAsteroid(asteroidPositions) {
     return asteroidsWithSlopes.reduce((max, cur) => cur.detectables > max.detectables ? cur : max, { detectables: 0 });
 }
 
-function destroyedAsteroids(stationAngles) {
+function destroyedAsteroid200(filePath) {
+    const asteroidPositions = getAsteroidPositions(filePath);
+    const station = getBestAsteroid(filePath);
+    const stationAngles = getAngles(asteroidPositions, station);
     let asteroids = [];
     while (Object.keys(stationAngles).length > 0) {
         Object.keys(stationAngles).sort().forEach(angle => {
@@ -70,13 +74,8 @@ function destroyedAsteroids(stationAngles) {
             }
         });
     }
-    return asteroids;
+    const asteroid = asteroids[199];
+    return 100 * asteroid.x + asteroid.y;
 }
 
-const asteroidPositions = getAsteroidPositions();
-const station = getBestAsteroid(asteroidPositions);
-console.log(`Station is at ${JSON.stringify(station)}`);
-const stationAngles = getAngles(asteroidPositions, station);
-const destroyed = destroyedAsteroids(stationAngles);
-console.log(`Number of destroyed asteroids: ${destroyed.length}`);
-console.log(`200th destroyed asteroid: ${JSON.stringify(destroyed[199])}`)
+module.exports = { getBestAsteroid, destroyedAsteroid200 }

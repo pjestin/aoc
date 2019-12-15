@@ -1,8 +1,5 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode'),
-    INPUT_FILE_PATH = path.join(__dirname, 'intcode-input.txt'),
-    INITIAL_INTCODE = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split(',').map(Number),
+const path = require('path'),
+    intcode = require('../lib/intcode'),
     DIRECTION_VECTOR_MAP = { 1: { x: 0, y: -1 }, 2: { x: 0, y: 1 }, 3: { x: -1, y: 0 }, 4: { x: 1, y: 0 } };
 
 const getStringPosition = (position) => {
@@ -11,7 +8,7 @@ const getStringPosition = (position) => {
 
 const tryMovement = (computer, direction) => {
     computer.input.push(direction);
-    computer = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+    computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
     return computer;
 }
 
@@ -36,7 +33,7 @@ const display = (position, walls, visited) => {
     console.log(display);
 }
 
-const findOxygenSystem = (computer, position, walls, visited) => {
+const findOxygenSystemHelper = (computer, position, walls, visited) => {
     let paths = [];
     for (let direction = 1; direction <= 4; ++direction) {
         const directionVector = DIRECTION_VECTOR_MAP[direction];
@@ -54,7 +51,7 @@ const findOxygenSystem = (computer, position, walls, visited) => {
                 break;
             case 1:
                 visited[nextPositionString] = nextPosition;
-                let nextPath = findOxygenSystem(thisComputer, nextPosition, walls, visited);
+                let nextPath = findOxygenSystemHelper(thisComputer, nextPosition, walls, visited);
                 if (nextPath) {
                     nextPath.push(position);
                 }
@@ -64,7 +61,7 @@ const findOxygenSystem = (computer, position, walls, visited) => {
                 return [position];
         }
     }
-    return paths.reduce((minPath, path) => minPath === null || (path !== null && path.length < minPath.length) ? path : minPath, null);
+    return paths.reduce((minPath, curPath) => minPath === null || (curPath !== null && curPath.length < minPath.length) ? curPath : minPath, null);
 }
 
 const fillOxygen = (position, walls, visited) => {
@@ -82,9 +79,9 @@ const fillOxygen = (position, walls, visited) => {
     return oxygenTimes.length === 0 ? 0 : Math.max(...oxygenTimes);
 }
 
-const run = () => {
+const findOxygenSystem = (filePath) => {
     let computer = {
-        memory: Object.assign({}, INITIAL_INTCODE),
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
         relativeBase: 0
@@ -92,13 +89,23 @@ const run = () => {
     let visited = {};
     let walls = {};
     const position = { x: 0, y: 0 };
-    const path = findOxygenSystem(computer, position, walls, visited);
-    const oxygenSystemPosition = path[0];
-    display(position, walls, visited);
-    console.log(path.length);
-    visited = {};
-    const oxygenTime = fillOxygen(oxygenSystemPosition, walls, visited) - 1;
-    console.log(oxygenTime);
+    const pathToOxygenSystem = findOxygenSystemHelper(computer, position, walls, visited);
+    return pathToOxygenSystem.length;
 }
 
-run();
+const findOxygenTime = (filePath) => {
+    let computer = {
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
+        input: [],
+        index: 0,
+        relativeBase: 0
+    };
+    let visited = {};
+    let walls = {};
+    const position = { x: 0, y: 0 };
+    const pathToOxygenSystem = findOxygenSystemHelper(computer, position, walls, visited);
+    visited = {};
+    return fillOxygen(pathToOxygenSystem[0], walls, visited) - 1;
+}
+
+module.exports = { findOxygenSystem, findOxygenTime };

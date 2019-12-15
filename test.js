@@ -52,4 +52,79 @@ exports['test 07'] = assert => {
     assert.equal(index.findMaxThrustPart2('intcode-input.txt'), 25534964, 'part 2');
 }
 
+exports['test 08'] = assert => {
+    const index = require('./08/index.js');
+    assert.equal(index.get1And2In0MinLayer('image-input-test.txt', 2, 2), 4, 'part 1 test');
+    assert.equal(index.get1And2In0MinLayer('image-input.txt', 6, 25), 2250, 'part 1');
+    assert.equal(index.getImageDisplay('image-input-test.txt', 2, 2), `
+░█
+█░
+`, 'part 2 test');
+    assert.equal(index.getImageDisplay('image-input.txt', 6, 25), `
+████░█░░█░░░██░█░░█░█░░░░
+█░░░░█░░█░░░░█░█░░█░█░░░░
+███░░████░░░░█░█░░█░█░░░░
+█░░░░█░░█░░░░█░█░░█░█░░░░
+█░░░░█░░█░█░░█░█░░█░█░░░░
+█░░░░█░░█░░██░░░██░░████░
+`, 'part 2');
+}
+
+exports['test 09'] = assert => {
+    const index = require('./09/index.js');
+    assert.equal(index.runBoost('intcode-input-test.txt', 1), 1219070632396864, 'part 1 test');
+    assert.equal(index.runBoost('intcode-input.txt', 1), 3507134798, 'part 1');
+    assert.equal(index.runBoost('intcode-input-test.txt', 2), 1219070632396864, 'part 2 test');
+    assert.equal(index.runBoost('intcode-input.txt', 2), 84513, 'part 2');
+}
+
+exports['test 10'] = assert => {
+    const index = require('./10/index.js');
+    assert.equal(index.getBestAsteroid('asteroid-input-test.txt').detectables, 210, 'part 1 test');
+    assert.equal(index.getBestAsteroid('asteroid-input.txt').detectables, 314, 'part 1');
+    assert.equal(index.destroyedAsteroid200('asteroid-input-test.txt'), 802, 'part 2 test');
+    assert.equal(index.destroyedAsteroid200('asteroid-input.txt'), 1513, 'part 2');
+}
+
+exports['test 11'] = assert => {
+    const index = require('./11/index.js');
+    assert.equal(Object.keys(index.paintPanels('intcode-input.txt', false)).length, 2539, 'part 1');
+    assert.equal(index.getPanelDisplay('intcode-input.txt'), `
+░████░█░░░░████░███░░█░░█░░░██░███░░░██░░░░
+░░░░█░█░░░░█░░░░█░░█░█░█░░░░░█░█░░█░█░░█░░░
+░░░█░░█░░░░███░░███░░██░░░░░░█░█░░█░█░░█░░░
+░░█░░░█░░░░█░░░░█░░█░█░█░░░░░█░███░░████░░░
+░█░░░░█░░░░█░░░░█░░█░█░█░░█░░█░█░█░░█░░█░░░
+░████░████░████░███░░█░░█░░██░░█░░█░█░░█░░░
+`, 'part 2');
+}
+
+exports['test 12'] = assert => {
+    const index = require('./12/index.js');
+    assert.equal(index.getTotalEnergyAfterSteps('positions-input-test.txt', 1000), 183, 'part 1 test');
+    assert.equal(index.getTotalEnergyAfterSteps('positions-input.txt', 1000), 7636, 'part 1');
+    assert.equal(index.findCycle('positions-input-test.txt'), 2772, 'part 2 test');
+    assert.equal(index.findCycle('positions-input.txt'), 281691380235984, 'part 2');
+}
+
+exports['test 13'] = assert => {
+    const index = require('./13/index.js');
+    assert.equal(index.countBlockTilesFromFile('intcode-input.txt'), 344, 'part 1');
+    assert.equal(index.playGame('intcode-input.txt'), 17336, 'part 2');
+}
+
+exports['test 14'] = assert => {
+    const index = require('./14/index.js');
+    assert.equal(index.findOreRequirement('input-test.txt', { 'FUEL': 1 }), 2210736, 'part 1 test');
+    assert.equal(index.findOreRequirement('input.txt', { 'FUEL': 1 }), 399063, 'part 1');
+    assert.equal(index.findMaxFuel('input-test.txt', Math.pow(10, 12)), 460664, 'part 2 test');
+    assert.equal(index.findMaxFuel('input.txt', Math.pow(10, 12)), 4215654, 'part 2');
+}
+
+exports['test 15'] = assert => {
+    const index = require('./15/index.js');
+    assert.equal(index.findOxygenSystem('intcode-input.txt'), 222, 'part 1');
+    assert.equal(index.findOxygenTime('intcode-input.txt'), 394, 'part 2');
+}
+
 if (module == require.main) require('test').run(exports)

@@ -1,11 +1,11 @@
 const fs = require('fs'),
-    path = require('path'),
-    INPUT_FILE_PATH = path.join(__dirname, 'input.txt'),
-    INPUT_REACTIONS = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split('\n').map(line => line.split('=>'));
+    path = require('path');
 
-const buildReactions = () => {
+const buildReactions = (filePath) => {
+    const absoluteFilePath = path.join(__dirname, filePath);
+    const inputReactions = fs.readFileSync(absoluteFilePath, 'utf8').trim().split('\n').map(line => line.split('=>'));
     let reactions = {};
-    INPUT_REACTIONS.forEach(reaction => {
+    inputReactions.forEach(reaction => {
         const result = reaction[1].trim();
         const resultArray = result.split(' ');
         let ingredients = {};
@@ -25,8 +25,8 @@ const findIngredientInReactions = (reactions, element) => {
     return Object.values(reactions).find(reaction => element in reaction.ingredients);
 }
 
-const findOreRequirement = (inputReactions, target) => {
-    let reactions = Object.assign({}, inputReactions);
+const findOreRequirement = (filePath, target) => {
+    let reactions = buildReactions(filePath);
     let ingredients = Object.assign({}, target);
     while (Object.keys(ingredients).length !== 1 || !('ORE' in ingredients)) {
         let elements = Object.keys(ingredients);
@@ -51,12 +51,12 @@ const findOreRequirement = (inputReactions, target) => {
     return ingredients['ORE'];
 }
 
-const findMaxFuel = (reactions, maxOre) => {
+const findMaxFuel = (filePath, maxOre) => {
     let digitPower = maxOre;
     let number = 0;
     while (digitPower >= 1) {
         for (let digit = 1; digit <= 9; ++digit) {
-            const ore = findOreRequirement(reactions, { 'FUEL': number + digit * digitPower });
+            const ore = findOreRequirement(filePath, { 'FUEL': number + digit * digitPower });
             if (ore > maxOre) {
                 number += (digit - 1) * digitPower;
                 break;
@@ -67,6 +67,4 @@ const findMaxFuel = (reactions, maxOre) => {
     return number;
 }
 
-const reactions = buildReactions();
-console.log(findOreRequirement(reactions, { 'FUEL': 1 }));
-console.log(findMaxFuel(reactions, Math.pow(10, 12)));
+module.exports = { findOreRequirement, findMaxFuel };

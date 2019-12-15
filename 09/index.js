@@ -1,20 +1,17 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode'),
-    INPUT_FILE_PATH = path.join(__dirname, 'intcode-input.txt'),
-    INITIAL_INTCODE = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split(',').map(Number);
+const path = require('path'),
+    intcode = require('../lib/intcode');
 
-function run() {
-    let memory = Object.assign({}, INITIAL_INTCODE);
+function runBoost(filePath, input) {
+    let memory = intcode.getIntcodeInput(path.join(__dirname, filePath));
     let computer = {
         memory: memory,
-        input: [2],
+        input: [input],
         index: 0,
         relativeBase: 0
     }
     let output = [];
     while (true) {
-        let result = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+        let result = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
         if (result === null) {
             break;
         } else {
@@ -22,7 +19,7 @@ function run() {
             output.push(computer.output);
         }
     }
-    return output;
+    return output[0];
 }
 
-console.log(run())
+module.exports = { runBoost };

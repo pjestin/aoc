@@ -1,17 +1,15 @@
 const fs = require('fs'),
-    path = require('path'),
-    INPUT_FILE_PATH = path.join(__dirname, 'image-input.txt'),
-    IMAGE_DATA = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split('').map(Number),
-    ROWS = 6,
-    COLUMNS = 25;
+    path = require('path');
 
-function getLayers(image_data) {
+function getLayers(filePath, nRows, nColumns) {
+    const absoluteFilePath = path.join(__dirname, filePath);
+    const imageData = fs.readFileSync(absoluteFilePath, 'utf8').trim().split('').map(Number);
     let layers = [];
-    for (let i = 0; i < image_data.length; i += ROWS * COLUMNS) {
-        const layer = image_data.slice(i, i + ROWS * COLUMNS);
+    for (let i = 0; i < imageData.length; i += nRows * nColumns) {
+        const layer = imageData.slice(i, i + nRows * nColumns);
         let rows = []
-        for (let j = 0; j < layer.length; j += COLUMNS) {
-            rows.push(layer.slice(j, j + COLUMNS));
+        for (let j = 0; j < layer.length; j += nColumns) {
+            rows.push(layer.slice(j, j + nColumns));
         }
         layers.push(rows);
     }
@@ -37,13 +35,13 @@ function getMinimumDigitLayer(layers, digit) {
     return minIndex;
 }
 
-function getVisiblePixels(layers) {
-    let picture = new Array(ROWS).fill([]);
-    for (let row = 0; row < ROWS; ++row) {
-        picture[row] = new Array(COLUMNS).fill(null);
+function getVisiblePixels(layers, nRows, nColumns) {
+    let picture = new Array(nRows).fill([]);
+    for (let row = 0; row < nRows; ++row) {
+        picture[row] = new Array(nColumns).fill(null);
     }
-    for (let row = 0; row < ROWS; ++row) {
-        for (let column = 0; column < COLUMNS; ++column) {
+    for (let row = 0; row < nRows; ++row) {
+        for (let column = 0; column < nColumns; ++column) {
             layers.forEach(layer => {
                 if (picture[row][column] === null && layer[row][column] !== 2) {
                     picture[row][column] = layer[row][column];
@@ -54,18 +52,20 @@ function getVisiblePixels(layers) {
     return picture;
 }
 
-function getImageDisplay(pixels) {
-    return pixels.map(row =>
+function get1And2In0MinLayer(filePath, nRows, nColumns) {
+    const layers = getLayers(filePath, nRows, nColumns);
+    const min0Layer = layers[getMinimumDigitLayer(layers, 0)];
+    return getNumberOfDigitsInLayer(min0Layer, 1) * getNumberOfDigitsInLayer(min0Layer, 2);
+}
+
+function getImageDisplay(filePath, nRows, nColumns) {
+    const layers = getLayers(filePath, nRows, nColumns);
+    const pixels = getVisiblePixels(layers, nRows, nColumns);
+    return '\n' + pixels.map(row =>
         row.map(pixel => pixel === 1 ? '█' : '░')
             .reduce((acc, cur) => acc + cur, '')
     )
         .reduce((acc, cur) => acc + cur + '\n', '');
 }
 
-const layers = getLayers(IMAGE_DATA);
-const min0Layer = layers[getMinimumDigitLayer(layers, 0)];
-const digits1And2 = getNumberOfDigitsInLayer(min0Layer, 1) * getNumberOfDigitsInLayer(min0Layer, 2);
-console.log(digits1And2);
-
-const pixels = getVisiblePixels(layers);
-console.log(getImageDisplay(pixels));
+module.exports = { get1And2In0MinLayer, getImageDisplay };

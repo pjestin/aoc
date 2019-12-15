@@ -1,15 +1,12 @@
-const fs = require('fs'),
-    path = require('path'),
-    runIntcode = require('../lib/intcode'),
-    INPUT_FILE_PATH = path.join(__dirname, 'intcode-input.txt'),
-    INITIAL_INTCODE = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split(',').map(Number);
+const path = require('path'),
+    intcode = require('../lib/intcode');
 
-function paintPanels() {
+function paintPanels(filePath, paintStart) {
     let position = { x: 0, y: 0 };
     let direction = { x: 0, y: -1 };
-    let paintedPanels = { '{"x":0,"y":0}': 1 };
+    let paintedPanels = paintStart ? { '{"x":0,"y":0}': 1 } : {};
     let computer = {
-        memory: Object.assign({}, INITIAL_INTCODE),
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
         relativeBase: 0
@@ -17,13 +14,13 @@ function paintPanels() {
     while (true) {
         const stringPosition = JSON.stringify(position);
         computer.input.push(stringPosition in paintedPanels ? paintedPanels[stringPosition] : 0);
-        let colorResult = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+        let colorResult = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
         if (colorResult === null) {
             break;
         } else {
             computer = colorResult;
             paintedPanels[stringPosition] = computer.output;
-            let directionResult = runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+            let directionResult = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
             if (directionResult === null) {
                 break;
             } else {
@@ -38,7 +35,8 @@ function paintPanels() {
     return paintedPanels;
 }
 
-function getPanelDisplay(paintedPanels) {
+function getPanelDisplay(filePath) {
+    const paintedPanels = paintPanels(filePath, true);
     const panelPositions = Object.keys(paintedPanels).map(JSON.parse);
     const panelXs = panelPositions.map(position => position.x);
     const panelYs = panelPositions.map(position => position.y);
@@ -56,18 +54,11 @@ function getPanelDisplay(paintedPanels) {
         panels[-minY + position.y][-minX + position.x] = paintedPanels[stringPosition];
     });
 
-    return panels;
-}
-
-function displayPanels(panelDisplay) {
-    console.log(panelDisplay.map(row =>
+    return '\n' + panels.map(row =>
         row.map(panel => panel === 1 ? '█' : '░')
             .reduce((acc, cur) => acc + cur, '')
     )
-        .reduce((acc, cur) => acc + cur + '\n', ''));
+        .reduce((acc, cur) => acc + cur + '\n', '');
 }
 
-const paintedPanels = paintPanels();
-console.log(Object.keys(paintedPanels).length);
-const panelDisplay = getPanelDisplay(paintedPanels);
-displayPanels(panelDisplay);
+module.exports = { paintPanels, getPanelDisplay };
