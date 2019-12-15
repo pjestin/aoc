@@ -8,7 +8,7 @@ exports['test 02'] = assert => {
     const index = require('./02/index.js');
     assert.equal(index.getIntcodeResult('input-intcode-test.txt', 9, 10), 3500, 'part 1 test');
     assert.equal(index.getIntcodeResult('input-intcode.txt', 12, 2), 3516593, 'part 1');
-    // assert.equal(index.getNounVerbForExpected('input-intcode.txt'), 7749, 'part 2');
+    assert.equal(index.getNounVerbForExpected('input-intcode.txt'), 7749, 'part 2');
 }
 
 exports['test 03'] = assert => {
