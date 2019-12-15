@@ -1,9 +1,6 @@
-const MIN = 125730,
-    MAX = 579381;
-
-function getPossibilities() {
+function getPossibilities(min, max, countCheck) {
     let possibilities = 0;
-    for (let i = MIN; i <= MAX; ++i) {
+    for (let i = min; i <= max; ++i) {
         stringI = i.toString();
         let previousDigit = 0;
         let increasing = true;
@@ -15,11 +12,19 @@ function getPossibilities() {
             previousDigit = digit;
             count[digit]++;
         });
-        if (increasing && count.includes(2)) {
+        if (increasing && countCheck(count)) {
             ++possibilities;
         }
     }
     return possibilities;
 }
 
-console.log(getPossibilities())
+function getPossibilitiesPart1(min, max) {
+    return getPossibilities(min, max, count => Math.max(...count) > 1);
+}
+
+function getPossibilitiesPart2(min, max) {
+    return getPossibilities(min, max, count => count.includes(2));
+}
+
+module.exports = { getPossibilitiesPart1, getPossibilitiesPart2 };

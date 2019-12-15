@@ -1,9 +1,9 @@
 const fs = require('fs'),
-    path = require('path'),
-    INPUT_FILE_PATH = path.join(__dirname, 'wires-input.txt');
+    path = require('path');
 
-function readWiresInput() {
-    return fs.readFileSync(INPUT_FILE_PATH, 'utf8')
+function readWiresInput(filePath) {
+    const inputFilePath = path.join(__dirname, filePath);
+    return fs.readFileSync(inputFilePath, 'utf8')
         .split('\n')
         .map(moves => {
             return moves.split(',')
@@ -73,11 +73,26 @@ function intersect(a, b) {
         });
         previousPointB = pointB;
     });
-    console.log(intersection);
     return intersection;
 }
 
-function getNearestPoint(points) {
+function getIntersections(filePath) {
+    wires = readWiresInput(filePath);
+    wire1Positions = wirePositions(wires[0]);
+    wire2Positions = wirePositions(wires[1]);
+    return intersect(wire1Positions, wire2Positions);
+}
+
+function getNearestPointManhattan(filePath) {
+    const intersections = getIntersections(filePath);
+    return intersections.reduce((min, point) => {
+        const distance = Math.abs(point.x) + Math.abs(point.y);
+        return distance !== 0 && distance < min ? distance : min;
+    }, Infinity);
+}
+
+function getNearestPointSteps(filePath) {
+    const intersections = getIntersections(filePath);
     return intersections.reduce((min, point) => {
         if (point.steps !== 0 && point.steps < min) {
             min = point.steps;
@@ -86,8 +101,4 @@ function getNearestPoint(points) {
     }, Infinity);
 }
 
-wires = readWiresInput();
-wire1Positions = wirePositions(wires[0]);
-wire2Positions = wirePositions(wires[1]);
-intersections = intersect(wire1Positions, wire2Positions);
-console.log(getNearestPoint(intersections));
+module.exports = { getNearestPointManhattan, getNearestPointSteps };

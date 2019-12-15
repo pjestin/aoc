@@ -1,29 +1,10 @@
 const fs = require('fs'),
     path = require('path'),
-    runIntcode = require('../lib/intcode'),
-    INPUT_FILE_PATH = path.join(__dirname, 'intcode-input.txt'),
-    INITIAL_INTCODE = fs.readFileSync(INPUT_FILE_PATH, 'utf8').trim().split(',').map(Number);
+    runIntcode = require('../lib/intcode');
 
-function runCombination(phaseCodes) {
-    let computers = phaseCodes.map(phaseCode => {
-        return {
-            memory: Object.assign({}, INITIAL_INTCODE),
-            input: [phaseCode],
-            index: 0
-        }
-    })
-    computers[0].input.splice(0, 0, 0);
-    let computerIndex = 0;
-    while (true) {
-        let computer = computers[computerIndex];
-        let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
-        computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
-        if (computers[computerIndex] === null) {
-            return computers[4].output;
-        }
-        computers[nextComputerIndex].input.splice(0, 0, computers[computerIndex].output);
-        computerIndex = nextComputerIndex;
-    }
+function getIntcodeInput(inputFilePath) {
+    const file = path.join(__dirname, inputFilePath);
+    return Object.assign({}, fs.readFileSync(file, 'utf8').trim().split(',').map(Number));
 }
 
 function getCombinations(codes) {
@@ -43,9 +24,57 @@ function getCombinations(codes) {
     return combinations;
 }
 
-function findMaxThrust() {
-    const combinations = getCombinations([5, 6, 7, 8, 9]);
-    return Math.max(...combinations.map(runCombination));
+function runCombinationPart1(inputIntcode, phaseCodes) {
+    let computers = phaseCodes.map(phaseCode => {
+        return {
+            memory: Object.assign({}, inputIntcode),
+            input: [phaseCode],
+            index: 0
+        }
+    })
+    computers[0].input.splice(0, 0, 0);
+    for (let computerIndex = 0; computerIndex < 5; ++computerIndex) {
+        let computer = computers[computerIndex];
+        computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
+        if (computerIndex < 4) {
+            computers[computerIndex + 1].input.splice(0, 0, computers[computerIndex].output);
+        }
+    }
+    return computers[4].output;
 }
 
-console.log(findMaxThrust());
+function runCombinationPart2(inputIntcode, phaseCodes) {
+    let computers = phaseCodes.map(phaseCode => {
+        return {
+            memory: Object.assign({}, inputIntcode),
+            input: [phaseCode],
+            index: 0
+        }
+    })
+    computers[0].input.splice(0, 0, 0);
+    let computerIndex = 0;
+    while (true) {
+        let computer = computers[computerIndex];
+        let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
+        computers[computerIndex] = runIntcode(computer.memory, computer.input, computer.index);
+        if (computers[computerIndex] === null) {
+            return computers[4].output;
+        }
+        computers[nextComputerIndex].input.splice(0, 0, computers[computerIndex].output);
+        computerIndex = nextComputerIndex;
+    }
+}
+
+function findMaxThrustPart1(filePath) {
+    const combinations = getCombinations([0, 1, 2, 3, 4]);
+    const inputIntcode = getIntcodeInput(filePath);
+    return Math.max(...combinations.map(codes => runCombinationPart1(inputIntcode, codes)));
+}
+
+function findMaxThrustPart2(filePath) {
+    const combinations = getCombinations([5, 6, 7, 8, 9]);
+    const inputIntcode = getIntcodeInput(filePath);
+    return Math.max(...combinations.map(codes => runCombinationPart2(inputIntcode, codes)));
+}
+
+module.exports = { findMaxThrustPart1, findMaxThrustPart2 };

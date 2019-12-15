@@ -25,7 +25,7 @@ const display = (position, walls, visited) => {
         tiles[i] = new Array(maxX - minX + 1).fill(' ');
     }
     Object.keys(walls).forEach(wallStringPosition => {
-        tiles[walls[wallStringPosition].y - minY][walls[wallStringPosition].x - minX] = '#';
+        tiles[walls[wallStringPosition].y - minY][walls[wallStringPosition].x - minX] = '█';
     });
     Object.keys(visited).forEach(visitedStringPosition => {
         tiles[visited[visitedStringPosition].y - minY][visited[visitedStringPosition].x - minX] = '.';

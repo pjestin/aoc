@@ -8,6 +8,12 @@ function readMassInputs() {
         .map(massLine => parseInt(massLine, 10))
 }
 
+function calculateFuelRequirementPart1() {
+    return readMassInputs()
+        .map(mass => Math.floor(mass / 3) - 2)
+        .reduce((acc, mass) => acc + mass, 0)
+}
+
 function calculateFuelForModule(mass) {
     fuel = Math.floor(mass / 3) - 2;
     if (fuel <= 0) {
@@ -17,15 +23,10 @@ function calculateFuelForModule(mass) {
     }
 }
 
-function calculateFuelRequirement() {
+function calculateFuelRequirementPart2() {
     return readMassInputs()
         .map(calculateFuelForModule)
         .reduce((acc, mass) => acc + mass, 0)
 }
 
-console.time('calculateFuelRequirement');
-let requirement = calculateFuelRequirement();
-console.timeEnd('calculateFuelRequirement');
-console.log(`Fuel requirement: ${requirement}`)
-
-module.exports = { readMassInputs, calculateFuelForModule, calculateFuelRequirement }
+module.exports = { calculateFuelRequirementPart1, calculateFuelRequirementPart2 }
