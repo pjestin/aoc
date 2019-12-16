@@ -127,4 +127,10 @@ exports['test 15'] = assert => {
     assert.equal(index.findOxygenTime('intcode-input.txt'), 394, 'part 2');
 }
 
+exports['test 16'] = assert => {
+    const index = require('./16/index.js');
+    assert.equal(index.applyFft('input-test.txt', 100), 24176176, 'part 1 test');
+    assert.equal(index.applyFft('input.txt', 100), 34694616, 'part 1');
+}
+
 if (module == require.main) require('test').run(exports)
