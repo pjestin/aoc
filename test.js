@@ -129,8 +129,9 @@ exports['test 15'] = assert => {
 
 exports['test 16'] = assert => {
     const index = require('./16/index.js');
-    assert.equal(index.applyFft('input-test.txt', 100), 24176176, 'part 1 test');
-    assert.equal(index.applyFft('input.txt', 100), 34694616, 'part 1');
+    assert.equal(index.applyFft('input-test1.txt', 100, 1, false), 24176176, 'part 1 test');
+    assert.equal(index.applyFft('input.txt', 100, 1, false), 34694616, 'part 1');
+    assert.equal(index.applyFft('input-test2.txt', 100, 10000, true), 84462026, 'part 2 test');
 }
 
 if (module == require.main) require('test').run(exports)
