@@ -65,4 +65,43 @@ const getSumOfAlignmentParameters = (filePath) => {
     }, 0);
 }
 
+const getAscii = (stringToConvert) => {
+    return stringToConvert.split('').map((_, index) => stringToConvert.charCodeAt(index));
+}
+
+const runWithMovement = (filePath) => {
+    let input = getAscii('A,B,B,A,C,A,A,C,B,C\n');
+    input.push(...getAscii('R,8,L,12,R,8\n'));
+    input.push(...getAscii('R,12,L,8,R,10\n'));
+    input.push(...getAscii('R,8,L,8,L,8,R,8,R,10\n'));
+    input.push(...getAscii('y\n'));
+
+    let computer = {
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
+        input: input,
+        index: 0,
+        relativeBase: 0
+    };
+    computer.memory[0] = 2;
+    let outputs = [];
+    while (true) {
+        computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+        if (computer === null) {
+            console.log('Computer stopped');
+            break;
+        } else if (computer.output) {
+            if (computer.output > 127) {
+                return computer.output
+            }
+        } else {
+            console.log('No output');
+            break;
+        }
+    }
+    return outputs.reduce((acc, cur) => acc + cur, '');;
+}
+
 module.exports = { getSumOfAlignmentParameters };
+
+// console.log(getCameraOutput('intcode-input.txt'))
+runWithMovement('intcode-input.txt')
