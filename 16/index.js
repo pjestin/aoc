@@ -6,21 +6,27 @@ const getInputSignal = (filePath) => {
     return fs.readFileSync(absoluteFilePath, 'utf8').trim().split('').map(Number);
 }
 
-const getNextPhase = (signal) => {
+const getCumulativeSignal = (signal) => {
     let sum = 0;
     let signalCumul = signal.map(x => {
         sum += x;
         return sum;
     });
     signalCumul.unshift(0);
+    return signalCumul;
+}
+
+const getNextPhase = (signal) => {
+    const signalCumul = getCumulativeSignal(signal);
     let resultPhase = [];
     for (let digit = 0; digit < signal.length; ++digit) {
         let result = 0;
         for (let index = 0; index <= Math.floor((signal.length - 1) / ((digit + 1) * 4)); ++index) {
-            result += signalCumul[Math.min(4 * (digit + 1) * index + 2 * digit + 1, signalCumul.length - 1)]
-                - signalCumul[Math.min(4 * (digit + 1) * index + digit, signalCumul.length - 1)];
-            result -= signalCumul[Math.min(4 * (digit + 1) * index + 4 * digit + 3, signalCumul.length - 1)]
-                - signalCumul[Math.min(4 * (digit + 1) * index + 3 * digit + 2, signalCumul.length - 1)];
+            const start = 4 * (digit + 1) * index;
+            result += signalCumul[Math.min(start + 2 * digit + 1, signalCumul.length - 1)]
+                - signalCumul[Math.min(start + digit, signalCumul.length - 1)];
+            result -= signalCumul[Math.min(start + 4 * digit + 3, signalCumul.length - 1)]
+                - signalCumul[Math.min(start + 3 * digit + 2, signalCumul.length - 1)];
         }
         resultPhase.push(Math.abs(result) % 10);
     }

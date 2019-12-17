@@ -134,4 +134,9 @@ exports['test 16'] = assert => {
     assert.equal(index.applyFft('input-test2.txt', 100, 10000, true), 84462026, 'part 2 test');
 }
 
+exports['test 17'] = assert => {
+    const index = require('./17/index');
+    assert.equal(index.getSumOfAlignmentParameters('intcode-input.txt'), 4408, 'part 1');
+}
+
 if (module == require.main) require('test').run(exports)
