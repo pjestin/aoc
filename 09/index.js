@@ -9,17 +9,10 @@ function runBoost(filePath, input) {
         index: 0,
         relativeBase: 0
     }
-    let output = [];
-    while (true) {
-        let result = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (result === null) {
-            break;
-        } else {
-            computer = result;
-            output.push(computer.output);
-        }
+    while (!computer.done) {
+        intcode.runIntcode(computer);
     }
-    return output[0];
+    return computer.output;
 }
 
 module.exports = { runBoost };

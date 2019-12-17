@@ -9,14 +9,13 @@ function getDiagnosticCodePart1(filePath, systemId) {
         input: [systemId],
         output: 0
     };
-    while (true) {
-        let result = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (result !== null && computer.output !== 0) {
+    let previousOutput = 0;
+    while (!computer.done) {
+        if (previousOutput !== 0) {
             throw `Diagnostic failed, code: ${computer.output}`;
-        } else if (result === null) {
-            break;
         }
-        computer = result;
+        previousOutput = computer.output;
+        intcode.runIntcode(computer);
     }
     return computer.output;
 }
@@ -28,7 +27,7 @@ function getDiagnosticCodePart2(filePath, systemId) {
         relativeBase: 0,
         input: [systemId]
     };
-    computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+    intcode.runIntcode(computer);
     return computer.output;
 }
 

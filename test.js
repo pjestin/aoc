@@ -137,6 +137,7 @@ exports['test 16'] = assert => {
 exports['test 17'] = assert => {
     const index = require('./17/index');
     assert.equal(index.getSumOfAlignmentParameters('intcode-input.txt'), 4408, 'part 1');
+    assert.equal(index.runWithMovement('intcode-input.txt'), 862452, 'part 2');
 }
 
 if (module == require.main) require('test').run(exports)

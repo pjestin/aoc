@@ -25,13 +25,12 @@ function runCombinationPart1(inputIntcode, phaseCodes) {
             input: [phaseCode],
             index: 0
         }
-    })
-    computers[0].input.splice(0, 0, 0);
+    });
+    computers[0].input.push(0);
     for (let computerIndex = 0; computerIndex < 5; ++computerIndex) {
-        let computer = computers[computerIndex];
-        computers[computerIndex] = intcode.runIntcode(computer.memory, computer.input, computer.index);
+        intcode.runIntcode(computers[computerIndex]);
         if (computerIndex < 4) {
-            computers[computerIndex + 1].input.splice(0, 0, computers[computerIndex].output);
+            computers[computerIndex + 1].input.push(computers[computerIndex].output);
         }
     }
     return computers[4].output;
@@ -45,18 +44,15 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
             index: 0
         }
     })
-    computers[0].input.splice(0, 0, 0);
+    computers[0].input.push(0);
     let computerIndex = 0;
-    while (true) {
-        let computer = computers[computerIndex];
+    while (!computers[computerIndex].done) {
         let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
-        computers[computerIndex] = intcode.runIntcode(computer.memory, computer.input, computer.index);
-        if (computers[computerIndex] === null) {
-            return computers[4].output;
-        }
-        computers[nextComputerIndex].input.splice(0, 0, computers[computerIndex].output);
+        intcode.runIntcode(computers[computerIndex]);
+        computers[nextComputerIndex].input.push(computers[computerIndex].output);
         computerIndex = nextComputerIndex;
     }
+    return computers[4].output;
 }
 
 function findMaxThrustPart1(filePath) {

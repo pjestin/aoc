@@ -9,11 +9,8 @@ const getCameraOutput = (filePath) => {
         relativeBase: 0
     };
     let outputs = [];
-    while (true) {
-        computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (computer === null) {
-            break;
-        }
+    while (!computer.done) {
+        intcode.runIntcode(computer);
         outputs.push(String.fromCharCode(computer.output));
     }
     return outputs.reduce((acc, cur) => acc + cur, '');
@@ -38,16 +35,16 @@ const findIntersections = (cameraOutput) => {
         let crossingScaffolds = 0;
         const position = scaffoldPositions[stringPosition];
         if (getStringPosition({ x: position.x - 1, y: position.y }) in scaffoldPositions) {
-            crossingScaffolds++;
+            ++crossingScaffolds;
         }
         if (getStringPosition({ x: position.x + 1, y: position.y }) in scaffoldPositions) {
-            crossingScaffolds++;
+            ++crossingScaffolds;
         }
         if (getStringPosition({ x: position.x, y: position.y - 1 }) in scaffoldPositions) {
-            crossingScaffolds++;
+            ++crossingScaffolds;
         }
         if (getStringPosition({ x: position.x, y: position.y + 1 }) in scaffoldPositions) {
-            crossingScaffolds++;
+            ++crossingScaffolds;
         }
         if (crossingScaffolds >= 3) {
             scaffoldIntersections[stringPosition] = position;
@@ -83,25 +80,13 @@ const runWithMovement = (filePath) => {
         relativeBase: 0
     };
     computer.memory[0] = 2;
-    let outputs = [];
-    while (true) {
-        computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (computer === null) {
-            console.log('Computer stopped');
-            break;
-        } else if (computer.output) {
-            if (computer.output > 127) {
-                return computer.output
-            }
-        } else {
-            console.log('No output');
-            break;
+    while (!computer.done) {
+        intcode.runIntcode(computer);
+        if (computer.output > 127) {
+            return computer.output
         }
     }
-    return outputs.reduce((acc, cur) => acc + cur, '');;
+    console.log('Computer stopped');
 }
 
-module.exports = { getSumOfAlignmentParameters };
-
-// console.log(getCameraOutput('intcode-input.txt'))
-runWithMovement('intcode-input.txt')
+module.exports = { getSumOfAlignmentParameters, runWithMovement };

@@ -14,17 +14,15 @@ function paintPanels(filePath, paintStart) {
     while (true) {
         const stringPosition = JSON.stringify(position);
         computer.input.push(stringPosition in paintedPanels ? paintedPanels[stringPosition] : 0);
-        let colorResult = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (colorResult === null) {
+        intcode.runIntcode(computer);
+        if (computer.done) {
             break;
         } else {
-            computer = colorResult;
             paintedPanels[stringPosition] = computer.output;
-            let directionResult = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-            if (directionResult === null) {
+            intcode.runIntcode(computer);
+            if (computer.done) {
                 break;
             } else {
-                computer = directionResult;
                 direction = computer.output === 1
                     ? { x: -direction.y, y: direction.x }
                     : { x: direction.y, y: -direction.x };

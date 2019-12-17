@@ -32,8 +32,8 @@ const countBlockTiles = (tiles) => {
 const getUpdatedTiles = (computer) => {
     let tiles = [];
     while (true) {
-        computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
-        if (computer === null || computer.needInput) {
+        intcode.runIntcode(computer);
+        if (computer.done || computer.needInput) {
             break;
         }
         tiles.push(computer.output);
@@ -86,13 +86,11 @@ const playGame = (filePath) => {
     let gameData = {};
     while (true) {
         const tiles = getUpdatedTiles(computer);
-        if (computer === null) {
+        if (computer.done) {
+            updateGameData(gameData, tiles);
             return gameData.score;
         }
         updateGameData(gameData, tiles);
-        if (countBlockTiles(gameData.tiles) === 0) {
-            return gameData.score;
-        }
         computer.input.push(getJoystickInput(gameData.tiles));
     }
 }

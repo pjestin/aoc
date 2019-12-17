@@ -9,10 +9,13 @@ function correctIntcode(A, noun, verb) {
 }
 
 function getIntcodeResult(filePath, noun, verb) {
-    let A = intcode.getIntcodeInput(path.join(__dirname, filePath));
-    correctIntcode(A, noun, verb);
-    intcode.runIntcode(A, [], 0, 0);
-    return A[0];
+    let computer = {
+        memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
+        index: 0,
+    }
+    correctIntcode(computer.memory, noun, verb);
+    intcode.runIntcode(computer);
+    return computer.memory[0];
 }
 
 function getNounVerbForExpected(filePath) {

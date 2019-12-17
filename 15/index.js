@@ -8,7 +8,7 @@ const getStringPosition = (position) => {
 
 const tryMovement = (computer, direction) => {
     computer.input.push(direction);
-    computer = intcode.runIntcode(computer.memory, computer.input, computer.index, computer.relativeBase);
+    intcode.runIntcode(computer);
     return computer;
 }
 
