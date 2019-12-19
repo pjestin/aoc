@@ -56,6 +56,7 @@ const display = (walls, state) => {
 function navigateMapIterative(walls, startState) {
     let stateQueue = [startState];
     let cachedKeyCombinations = {};
+    let maxAcquiredKeys = 0;
     while (stateQueue.length !== 0) {
         const state = stateQueue.shift();
         const stringPosition = getStringPosition(state.position);
@@ -65,6 +66,10 @@ function navigateMapIterative(walls, startState) {
                     state.doors[curDoor].toLowerCase() === state.keys[stringPosition] ? curDoor : doorStringPosition, null);
             state.acquiredKeys.sort();
             state.acquiredKeys.push(state.keys[stringPosition]);
+            // if (state.acquiredKeys.length < maxAcquiredKeys - 1) {
+            //     continue;
+            // }
+            maxAcquiredKeys = state.acquiredKeys.length > maxAcquiredKeys ? state.acquiredKeys.length : maxAcquiredKeys;
             const acquiredKeysString = state.acquiredKeys.reduce((acc, cur) => acc + cur, '');
             if (acquiredKeysString in cachedKeyCombinations) {
                 continue;
@@ -73,14 +78,15 @@ function navigateMapIterative(walls, startState) {
             delete state.keys[stringPosition];
             state.visited = {};
             cachedKeyCombinations[acquiredKeysString] = true;
-            // console.log(`Keys left: ${Object.keys(state.keys).length}`);
+            const nKeys = Object.keys(state.keys).length;
+            console.log(`Keys left: ${nKeys}`);
             // console.log(`Remaining states in queue: ${stateQueue.length}`);
             // console.log(`Acquired keys: ${state.acquiredKeys}`);
             // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
             // display(walls, state);
-        }
-        if (Object.keys(state.keys).length === 0) {
-            return state;
+            if (nKeys === 0) {
+                return state;
+            }
         }
 
         state.visited[stringPosition] = true;
