@@ -56,7 +56,6 @@ const display = (walls, state) => {
 function navigateMapIterative(walls, startState) {
     let stateQueue = [startState];
     let cachedKeyCombinations = {};
-    let maxAcquiredKeys = 0;
     while (stateQueue.length !== 0) {
         const state = stateQueue.shift();
         const stringPosition = getStringPosition(state.position);
@@ -66,10 +65,6 @@ function navigateMapIterative(walls, startState) {
                     state.doors[curDoor].toLowerCase() === state.keys[stringPosition] ? curDoor : doorStringPosition, null);
             state.acquiredKeys.sort();
             state.acquiredKeys.push(state.keys[stringPosition]);
-            // if (state.acquiredKeys.length < maxAcquiredKeys - 1) {
-            //     continue;
-            // }
-            maxAcquiredKeys = state.acquiredKeys.length > maxAcquiredKeys ? state.acquiredKeys.length : maxAcquiredKeys;
             const acquiredKeysString = state.acquiredKeys.reduce((acc, cur) => acc + cur, '');
             if (acquiredKeysString in cachedKeyCombinations) {
                 continue;
@@ -122,4 +117,4 @@ function runNavigation(filePath) {
 
 module.exports = { runNavigation };
 
-console.log(runNavigation('input.txt'));
+console.log(runNavigation('input-test4.txt'));
