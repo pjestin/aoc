@@ -140,6 +140,14 @@ exports['test 17'] = assert => {
     assert.equal(index.runWithMovement('intcode-input.txt'), 862452, 'part 2');
 }
 
+exports['test 18'] = assert => {
+    const index = require('./18/index');
+    assert.equal(index.runNavigation('input-test1.txt'), 6, 'part 1 test 1');
+    assert.equal(index.runNavigation('input-test2.txt'), 86, 'part 1 test 2');
+    assert.equal(index.runNavigation('input-test3.txt'), 81, 'part 1 test 3');
+    assert.equal(index.runNavigation('input-test4.txt'), 136, 'part 1 test 4');
+}
+
 exports['test 19'] = assert => {
     const index = require('./19/index');
     assert.equal(index.getNumberOfBeamPoints('intcode-input.txt', 50, 50), 192, 'part 1');
