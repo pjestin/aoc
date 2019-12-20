@@ -18,7 +18,7 @@ const getInputMap = filePath => {
   let walls = {};
   let keys = {};
   let doors = {};
-  let startPosition = {};
+  let startPositions = [];
   matrix.forEach((row, y) => {
     row.forEach((element, x) => {
       const asciiCode = element.charCodeAt(0);
@@ -29,11 +29,11 @@ const getInputMap = filePath => {
       } else if (asciiCode >= 97 && asciiCode <= 122) {
         keys[getStringPosition({ x, y })] = element;
       } else if (element === "@") {
-        startPosition = { x, y };
+        startPositions.push({ x, y });
       }
     });
   });
-  return [walls, keys, doors, startPosition];
+  return [walls, keys, doors, startPositions];
 };
 
 const display = (walls, state) => {
@@ -59,7 +59,9 @@ const display = (walls, state) => {
     const doorPosition = doorStringPosition.split(";").map(Number);
     tiles[doorPosition[1]][doorPosition[0]] = state.doors[doorStringPosition];
   });
-  tiles[state.position.y][state.position.x] = "@";
+  state.positions.forEach(position => {
+    tiles[position.y][position.x] = "@";
+  })
   const display = tiles
     .map(row => row.reduce((rowDisplay, tile) => rowDisplay + tile, ""))
     .reduce((rowDisplay, curRow) => rowDisplay + curRow + "\n", "");
@@ -71,73 +73,79 @@ function navigateMapIterative(walls, startState) {
   let cachedKeyCombinations = {};
   let visited = {};
   while (stateQueue.length !== 0) {
-    const state = stateQueue.shift();
-    const stringPosition = getStringPosition(state.position);
-    if (stringPosition in state.keys) {
-      const doorStringPosition = Object.keys(state.doors).reduce(
-        (doorStringPosition, curDoor) =>
-          state.doors[curDoor].toLowerCase() === state.keys[stringPosition]
-            ? curDoor
-            : doorStringPosition,
-        null
-      );
-      state.acquiredKeys.sort();
-      state.acquiredKeys.push(state.keys[stringPosition]);
-      state.acquiredKeysString = state.acquiredKeys.reduce(
-        (acc, cur) => acc + cur,
-        ""
-      );
-      if (state.acquiredKeysString in cachedKeyCombinations) {
-        continue;
-      }
-      delete state.doors[doorStringPosition];
-      delete state.keys[stringPosition];
-      cachedKeyCombinations[state.acquiredKeysString] = true;
-      const nKeys = Object.keys(state.keys).length;
-      // console.log(`Steps: ${state.steps}`);
-      // console.log(`Keys left: ${nKeys}`);
-      // console.log(`Remaining states in queue: ${stateQueue.length}`);
-      // console.log(`Acquired keys: ${state.acquiredKeys}`);
-      // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
-      // display(walls, state);
-      if (nKeys === 0) {
-        return state;
-      }
-    }
+    const allBotsState = stateQueue.shift();
+    // console.log([allBotsState.positions, allBotsState.steps]);
+    for (let botIndex = 0; botIndex < allBotsState.positions.length; ++botIndex) {
+      // console.log(`Moving bot ${botIndex}`);
+      let state = JSON.parse(JSON.stringify(allBotsState));
 
-    if (!(state.acquiredKeysString in visited)) {
-      visited[state.acquiredKeysString] = {};
-    }
-    visited[state.acquiredKeysString][stringPosition] = true;
-
-    DIRECTION_VECTORS.forEach(direction => {
-      const nextPosition = {
-        x: state.position.x + direction.x,
-        y: state.position.y + direction.y
-      };
-      const nextPositionString = getStringPosition(nextPosition);
-      if (
-        nextPositionString in visited[state.acquiredKeysString] ||
-        nextPositionString in walls ||
-        nextPositionString in state.doors
-      ) {
-        return;
+      const stringPosition = getStringPosition(state.positions[botIndex]);
+      if (stringPosition in state.keys) {
+        const doorStringPosition = Object.keys(state.doors).reduce(
+          (doorStringPosition, curDoor) =>
+            state.doors[curDoor].toLowerCase() === state.keys[stringPosition]
+              ? curDoor
+              : doorStringPosition,
+          null
+        );
+        state.acquiredKeys.sort();
+        state.acquiredKeys.push(state.keys[stringPosition]);
+        state.acquiredKeysString = state.acquiredKeys.reduce(
+          (acc, cur) => acc + cur,
+          ""
+        );
+        if (state.acquiredKeysString in cachedKeyCombinations) {
+          continue;
+        }
+        delete state.doors[doorStringPosition];
+        delete state.keys[stringPosition];
+        cachedKeyCombinations[state.acquiredKeysString] = true;
+        const nKeys = Object.keys(state.keys).length;
+        // console.log(`Steps: ${state.steps}`);
+        // console.log(`Keys left: ${nKeys}`);
+        // console.log(`Remaining states in queue: ${stateQueue.length}`);
+        // console.log(`Acquired keys: ${state.acquiredKeys}`);
+        // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
+        // display(walls, state);
+        if (nKeys === 0) {
+          return state;
+        }
       }
-      let nextState = JSON.parse(JSON.stringify(state));
-      nextState.position = nextPosition;
-      nextState.steps++;
-      stateQueue.push(nextState);
-    });
+
+      if (!(state.acquiredKeysString in visited)) {
+        visited[state.acquiredKeysString] = {};
+      }
+      visited[state.acquiredKeysString][stringPosition] = true;
+
+      DIRECTION_VECTORS.forEach(direction => {
+        const nextPosition = {
+          x: state.positions[botIndex].x + direction.x,
+          y: state.positions[botIndex].y + direction.y
+        };
+        const nextPositionString = getStringPosition(nextPosition);
+        if (
+          nextPositionString in visited[state.acquiredKeysString] ||
+          nextPositionString in walls ||
+          nextPositionString in state.doors
+        ) {
+          return;
+        }
+        let nextState = JSON.parse(JSON.stringify(state));
+        nextState.positions[botIndex] = nextPosition;
+        nextState.steps++;
+        stateQueue.push(nextState);
+      });
+    }
   }
   return null;
 }
 
 function runNavigation(filePath) {
-  let [walls, keys, doors, startPosition] = getInputMap(filePath);
+  let [walls, keys, doors, startPositions] = getInputMap(filePath);
   let state = {
     keys,
     doors,
-    position: startPosition,
+    positions: startPositions,
     steps: 0,
     acquiredKeys: [],
     acquiredKeysString: ""
