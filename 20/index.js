@@ -1,7 +1,8 @@
 const path = require('path'),
     fs = require('fs'),
     DIRECTION_VECTORS = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }],
-    RIGHT_DOWN = [{ x: 1, y: 0 }, { x: 0, y: 1 }];
+    RIGHT_DOWN = [{ x: 1, y: 0 }, { x: 0, y: 1 }],
+    MAX_LEVEL = 100;
 
 const getPositionString = (position) => `${position.x};${position.y}`;
 
@@ -67,7 +68,7 @@ const getInputMaze = (filePath) => {
             }
         });
         const portalPosition = getPositionObject(portalStringPosition);
-        if (portalPosition.x === matrix[0].length - 3 || portalPosition.x === 2
+        if (portalPosition.x === matrix[0].length - 4 || portalPosition.x === 2
             || portalPosition.y === matrix.length - 3 || portalPosition.y === 2) {
             portals[portalStringPosition].levelChange = -1;
         } else {
@@ -81,23 +82,19 @@ const getInputMaze = (filePath) => {
 const navigateMaze = (filePath, recurse) => {
     const [open, start, end, portals] = getInputMaze(filePath);
     const endPositionString = `${getPositionString(end)};${0}`;
-    const startState = { steps: 0, position: start, visited: {}, level: 0 };
+    const startState = { steps: 0, position: start, level: 0 };
     let stateQueue = [startState];
+    let visited = {};
     while (stateQueue.length !== 0) {
         const state = stateQueue.shift();
         const positionString = getPositionString(state.position);
         const positionStringWithLevel = `${positionString};${state.level}`;
-        if (!(positionString in open) || positionStringWithLevel in state.visited) {
+        if (!(positionString in open) || positionStringWithLevel in visited) {
             continue;
         } else if (positionStringWithLevel === endPositionString) {
             return state.steps;
         }
-        state.visited[positionStringWithLevel] = true;
-
-        if (stateQueue.length % 1000 === 0) {
-            // console.log(`Queue size: ${stateQueue.length}`)
-            // console.log([state.position, state.level, state.steps]);
-        }
+        visited[positionStringWithLevel] = true;
 
         DIRECTION_VECTORS.forEach(direction => {
             const nextPosition = { x: state.position.x + direction.x, y: state.position.y + direction.y };
@@ -109,7 +106,7 @@ const navigateMaze = (filePath, recurse) => {
 
         if (positionString in portals) {
             const levelChange = portals[positionString].levelChange;;
-            if (!recurse || (state.level + levelChange >= 0 && state.level + levelChange <= 10)) {
+            if (!recurse || (state.level + levelChange >= 0 && state.level + levelChange <= MAX_LEVEL)) {
                 const nextPosition = portals[positionString].to;
                 let nextState = JSON.parse(JSON.stringify(state));
                 nextState.position = nextPosition;
