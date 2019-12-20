@@ -56,6 +56,7 @@ const display = (walls, state) => {
 function navigateMapIterative(walls, startState) {
     let stateQueue = [startState];
     let cachedKeyCombinations = {};
+    let visited = {};
     while (stateQueue.length !== 0) {
         const state = stateQueue.shift();
         const stringPosition = getStringPosition(state.position);
@@ -65,16 +66,15 @@ function navigateMapIterative(walls, startState) {
                     state.doors[curDoor].toLowerCase() === state.keys[stringPosition] ? curDoor : doorStringPosition, null);
             state.acquiredKeys.sort();
             state.acquiredKeys.push(state.keys[stringPosition]);
-            const acquiredKeysString = state.acquiredKeys.reduce((acc, cur) => acc + cur, '');
-            if (acquiredKeysString in cachedKeyCombinations) {
+            state.acquiredKeysString = state.acquiredKeys.reduce((acc, cur) => acc + cur, '');
+            if (state.acquiredKeysString in cachedKeyCombinations) {
                 continue;
             }
             delete state.doors[doorStringPosition];
             delete state.keys[stringPosition];
-            state.visited = {};
-            cachedKeyCombinations[acquiredKeysString] = true;
+            cachedKeyCombinations[state.acquiredKeysString] = true;
             const nKeys = Object.keys(state.keys).length;
-            // console.log(`Keys left: ${nKeys}`);
+            console.log(`Keys left: ${nKeys}`);
             // console.log(`Remaining states in queue: ${stateQueue.length}`);
             // console.log(`Acquired keys: ${state.acquiredKeys}`);
             // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
@@ -84,12 +84,15 @@ function navigateMapIterative(walls, startState) {
             }
         }
 
-        state.visited[stringPosition] = true;
+        if (!(state.acquiredKeysString in visited)) {
+            visited[state.acquiredKeysString] = {};
+        }
+        visited[state.acquiredKeysString][stringPosition] = true;
 
         DIRECTION_VECTORS.forEach(direction => {
             const nextPosition = { x: state.position.x + direction.x, y: state.position.y + direction.y };
             const nextPositionString = getStringPosition(nextPosition);
-            if (nextPositionString in state.visited
+            if (nextPositionString in visited[state.acquiredKeysString]
                 || nextPositionString in walls || nextPositionString in state.doors) {
                 return;
             }
@@ -109,10 +112,12 @@ function runNavigation(filePath) {
         doors,
         position: startPosition,
         steps: 0,
-        visited: {},
-        acquiredKeys: []
+        acquiredKeys: [],
+        acquiredKeysString: '',
     };
     return navigateMapIterative(walls, state).steps;
 }
 
 module.exports = { runNavigation };
+
+console.log(runNavigation('input.txt'))
