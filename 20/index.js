@@ -96,7 +96,7 @@ const navigateMaze = (filePath, recurse) => {
 
         if (stateQueue.length % 1000 === 0) {
             // console.log(`Queue size: ${stateQueue.length}`)
-            console.log([state.position, state.level, state.steps]);
+            // console.log([state.position, state.level, state.steps]);
         }
 
         DIRECTION_VECTORS.forEach(direction => {
