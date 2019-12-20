@@ -158,9 +158,10 @@ exports['test 20'] = assert => {
     const index = require('./20/index');
     assert.equal(index.navigateMaze('maze-input-test1.txt', false), 23, 'part 1 test 1');
     assert.equal(index.navigateMaze('maze-input-test2.txt', false), 58, 'part 1 test 2');
+    assert.equal(index.navigateMaze('maze-input-test3.txt', false), 77, 'part 1 test 3');
     assert.equal(index.navigateMaze('maze-input.txt', false), 692, 'part 1');
     assert.equal(index.navigateMaze('maze-input-test1.txt', true), 26, 'part 2 test 1');
-    assert.equal(index.navigateMaze('maze-input-test3.txt', true), 396, 'part 2 test 2');
+    assert.equal(index.navigateMaze('maze-input-test3.txt', true), 396, 'part 2 test 3');
     assert.equal(index.navigateMaze('maze-input.txt', true), 8314, 'part 2');
 }
 
