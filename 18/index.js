@@ -74,7 +74,7 @@ function navigateMapIterative(walls, startState) {
             state.visited = {};
             cachedKeyCombinations[acquiredKeysString] = true;
             const nKeys = Object.keys(state.keys).length;
-            console.log(`Keys left: ${nKeys}`);
+            // console.log(`Keys left: ${nKeys}`);
             // console.log(`Remaining states in queue: ${stateQueue.length}`);
             // console.log(`Acquired keys: ${state.acquiredKeys}`);
             // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
@@ -116,5 +116,3 @@ function runNavigation(filePath) {
 }
 
 module.exports = { runNavigation };
-
-console.log(runNavigation('input-test4.txt'));

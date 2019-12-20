@@ -154,4 +154,11 @@ exports['test 19'] = assert => {
     assert.equal(index.getClosestSquarePosition('intcode-input.txt'), 8381082, 'part 2');
 }
 
+exports['test 20'] = assert => {
+    const index = require('./20/index');
+    assert.equal(index.navigateMaze('maze-input-test1.txt'), 23, 'part 1 test 1');
+    assert.equal(index.navigateMaze('maze-input-test2.txt'), 58, 'part 1 test 2');
+    assert.equal(index.navigateMaze('maze-input.txt'), 692, 'part 1');
+}
+
 if (module == require.main) require('test').run(exports)
