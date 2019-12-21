@@ -165,4 +165,9 @@ exports['test 20'] = assert => {
     assert.equal(index.navigateMaze('maze-input.txt', true), 8314, 'part 2');
 }
 
+exports['test 21'] = assert => {
+    const index = require('./21/index');
+    assert.equal(index.runSpringScript('intcode-input.txt'), 19357544, 'part 1');
+}
+
 if (module == require.main) require('test').run(exports)

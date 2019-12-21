@@ -154,5 +154,3 @@ function runNavigation(filePath) {
 }
 
 module.exports = { runNavigation };
-
-console.log(runNavigation('input-part2-test.txt'))
