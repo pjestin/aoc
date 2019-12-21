@@ -167,7 +167,7 @@ exports['test 20'] = assert => {
 
 exports['test 21'] = assert => {
     const index = require('./21/index');
-    assert.equal(index.runSpringScript('intcode-input.txt'), 19357544, 'part 1');
+    assert.equal(index.walkSpringScript('intcode-input.txt'), 19357544, 'part 1');
 }
 
 if (module == require.main) require('test').run(exports)
