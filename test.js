@@ -190,7 +190,8 @@ exports['test 22'] = assert => {
 
 exports['test 23'] = assert => {
     const index = require('./23/index');
-    assert.equal(index.runComputers('intcode-input.txt')[1], 20225, 'part 1');
+    assert.equal(index.runComputers('intcode-input.txt', false)[1], 20225, 'part 1');
+    assert.equal(index.runComputers('intcode-input.txt', true)[1], 14348, 'part 2');
 }
 
 if (module == require.main) require('test').run(exports)
