@@ -57,7 +57,6 @@ const runInteration = (grid) => {
 const runLifeGame = (filePath) => {
     let grid = getInputGrid(filePath);
     let biodiversityRatings = {};
-    let i = 0;
     while (true) {
         const biodiversityRating = getBiodiversityRating(grid);
         if (biodiversityRating in biodiversityRatings) {
@@ -65,10 +64,7 @@ const runLifeGame = (filePath) => {
         }
         biodiversityRatings[biodiversityRating] = true;
         grid = runInteration(grid);
-        ++i;
     }
 }
 
 module.exports = { runLifeGame };
-
-// console.log(runLifeGame('scan-input.txt'))
