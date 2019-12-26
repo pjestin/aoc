@@ -54,7 +54,7 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
         computers[nextComputerIndex].input.push(computers[computerIndex].output.pop());
         computerIndex = nextComputerIndex;
     }
-    return computers[4].output.pop();
+    return computers[0].input.pop();
 }
 
 function findMaxThrustPart1(filePath) {
