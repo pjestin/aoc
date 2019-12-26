@@ -30,14 +30,9 @@ const countBlockTiles = (tiles) => {
 }
 
 const getUpdatedTiles = (computer) => {
-    let tiles = [];
-    while (true) {
-        intcode.runIntcode(computer);
-        if (computer.done || computer.needInput) {
-            break;
-        }
-        tiles.push(computer.output);
-    }
+    intcode.runIntcode(computer);
+    const tiles = computer.output;
+    computer.output = [];
     return tiles;
 }
 
@@ -47,7 +42,8 @@ const countBlockTilesFromFile = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     const tiles = getUpdatedTiles(computer);
     updateGameData(gameData, tiles);
@@ -80,7 +76,8 @@ const playGame = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     computer.memory[0] = 2;
     let gameData = {};

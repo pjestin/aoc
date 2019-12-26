@@ -6,14 +6,13 @@ const getCameraOutput = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
-    let outputs = [];
-    while (!computer.done) {
-        intcode.runIntcode(computer);
-        outputs.push(String.fromCharCode(computer.output));
-    }
-    return outputs.reduce((acc, cur) => acc + cur, '');
+    intcode.runIntcode(computer);
+    return computer.output
+        .map(code => String.fromCharCode(code))
+        .reduce((acc, cur) => acc + cur, '');
 }
 
 const getStringPosition = (position) => {
@@ -77,16 +76,15 @@ const runWithMovement = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: input,
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     computer.memory[0] = 2;
-    while (!computer.done) {
-        intcode.runIntcode(computer);
-        if (computer.output > 127) {
-            return computer.output
-        }
+    intcode.runIntcode(computer);
+    const nonAscii = computer.output.find(output => output > 127)
+    if (nonAscii) {
+        return nonAscii;
     }
-    console.log('Computer stopped');
 }
 
 module.exports = { getSumOfAlignmentParameters, runWithMovement };

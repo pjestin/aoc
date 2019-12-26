@@ -9,26 +9,19 @@ function paintPanels(filePath, paintStart) {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     }
-    while (true) {
+    while (!computer.done) {
         const stringPosition = JSON.stringify(position);
         computer.input.push(stringPosition in paintedPanels ? paintedPanels[stringPosition] : 0);
         intcode.runIntcode(computer);
-        if (computer.done) {
-            break;
-        } else {
-            paintedPanels[stringPosition] = computer.output;
-            intcode.runIntcode(computer);
-            if (computer.done) {
-                break;
-            } else {
-                direction = computer.output === 1
-                    ? { x: -direction.y, y: direction.x }
-                    : { x: direction.y, y: -direction.x };
-                position = { x: position.x + direction.x, y: position.y + direction.y };
-            }
-        }
+        paintedPanels[stringPosition] = computer.output[0];
+        direction = computer.output[1] === 1
+            ? { x: -direction.y, y: direction.x }
+            : { x: direction.y, y: -direction.x };
+        position = { x: position.x + direction.x, y: position.y + direction.y };
+        computer.output = [];
     }
     return paintedPanels;
 }

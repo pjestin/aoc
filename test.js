@@ -188,4 +188,9 @@ exports['test 22'] = assert => {
     assert.equal(index.shuffleDeck('shuffle-input.txt', 10007)[1510], 2019, 'part 1 ');
 }
 
+exports['test 23'] = assert => {
+    const index = require('./23/index');
+    assert.equal(index.runComputers('intcode-input.txt')[1], 20225, 'part 1');
+}
+
 if (module == require.main) require('test').run(exports)

@@ -23,17 +23,18 @@ function runCombinationPart1(inputIntcode, phaseCodes) {
         return {
             memory: Object.assign({}, inputIntcode),
             input: [phaseCode],
-            index: 0
+            index: 0,
+            output: []
         }
     });
     computers[0].input.push(0);
     for (let computerIndex = 0; computerIndex < 5; ++computerIndex) {
         intcode.runIntcode(computers[computerIndex]);
         if (computerIndex < 4) {
-            computers[computerIndex + 1].input.push(computers[computerIndex].output);
+            computers[computerIndex + 1].input.push(computers[computerIndex].output.pop());
         }
     }
-    return computers[4].output;
+    return computers[4].output.pop();
 }
 
 function runCombinationPart2(inputIntcode, phaseCodes) {
@@ -41,7 +42,8 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
         return {
             memory: Object.assign({}, inputIntcode),
             input: [phaseCode],
-            index: 0
+            index: 0,
+            output: []
         }
     })
     computers[0].input.push(0);
@@ -49,10 +51,10 @@ function runCombinationPart2(inputIntcode, phaseCodes) {
     while (!computers[computerIndex].done) {
         let nextComputerIndex = computerIndex === 4 ? 0 : computerIndex + 1;
         intcode.runIntcode(computers[computerIndex]);
-        computers[nextComputerIndex].input.push(computers[computerIndex].output);
+        computers[nextComputerIndex].input.push(computers[computerIndex].output.pop());
         computerIndex = nextComputerIndex;
     }
-    return computers[4].output;
+    return computers[4].output.pop();
 }
 
 function findMaxThrustPart1(filePath) {

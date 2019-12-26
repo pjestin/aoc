@@ -12,14 +12,11 @@ const getNumberOfBeamPoints = (filePath, maxX, maxY) => {
                 memory: Object.assign({}, intcodeInput),
                 input: [x, y],
                 index: 0,
-                relativeBase: 0
+                relativeBase: 0,
+                output: []
             };
             intcode.runIntcode(computer);
-            if (computer.needInput) {
-                throw 'Something wrong with computer';
-            } else if (computer.done) {
-                throw 'Computer stopped!'
-            } else if (computer.output === 1) {
+            if (computer.output.pop() === 1) {
                 beamPositions[getStringPosition({ x, y })] = { x, y };
             }
         }
@@ -32,10 +29,11 @@ const isPositionInBeam = (intcodeInput, position) => {
         memory: Object.assign({}, intcodeInput),
         input: [position.x, position.y],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     intcode.runIntcode(computer);
-    return computer.output === 1;
+    return computer.output.pop() === 1;
 }
 
 const getClosestSquarePosition = (filePath) => {

@@ -10,7 +10,8 @@ const walkSpringScript = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     computer.input.push(...getAscii('NOT A J\n'));
     computer.input.push(...getAscii('NOT B T\n'));
@@ -19,15 +20,14 @@ const walkSpringScript = (filePath) => {
     computer.input.push(...getAscii('OR T J\n'));
     computer.input.push(...getAscii('AND D J\n'));
     computer.input.push(...getAscii('WALK\n'));
-    let outputs = [];
-    while (!computer.done && !computer.needInput) {
-        intcode.runIntcode(computer);
-        if (computer.output > 127) {
-            return computer.output;
-        }
-        outputs.push(String.fromCharCode(computer.output));
+    intcode.runIntcode(computer);
+    const nonAscii = computer.output.find(output => output > 127);
+    if (nonAscii) {
+        return nonAscii;
     }
-    return outputs.reduce((acc, cur) => acc + cur, '');
+    return computer.output
+        .map(code => String.fromCharCode(code))
+        .reduce((acc, cur) => acc + cur, '');
 }
 
 const runSpringScript = (filePath) => {
@@ -35,7 +35,8 @@ const runSpringScript = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
 
     computer.input.push(...getAscii('NOT D J\n'));
@@ -49,15 +50,14 @@ const runSpringScript = (filePath) => {
 
     computer.input.push(...getAscii('RUN\n'));
 
-    let outputs = [];
-    while (!computer.done && !computer.needInput) {
-        intcode.runIntcode(computer);
-        if (computer.output > 127) {
-            return computer.output;
-        }
-        outputs.push(String.fromCharCode(computer.output));
+    intcode.runIntcode(computer);
+    const nonAscii = computer.output.find(output => output > 127);
+    if (nonAscii) {
+        return nonAscii;
     }
-    return outputs.reduce((acc, cur) => acc + cur, '');
+    return computer.output
+        .map(code => String.fromCharCode(code))
+        .reduce((acc, cur) => acc + cur, '');
 }
 
 module.exports = { walkSpringScript, runSpringScript };

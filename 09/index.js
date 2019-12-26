@@ -7,12 +7,11 @@ function runBoost(filePath, input) {
         memory: memory,
         input: [input],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     }
-    while (!computer.done) {
-        intcode.runIntcode(computer);
-    }
-    return computer.output;
+    intcode.runIntcode(computer);
+    return computer.output.pop();
 }
 
 module.exports = { runBoost };

@@ -44,7 +44,7 @@ const findOxygenSystemHelper = (computer, position, walls, visited) => {
         }
         let thisComputer = JSON.parse(JSON.stringify(computer));
         thisComputer = tryMovement(thisComputer, direction);
-        let status = thisComputer.output;
+        let status = thisComputer.output.pop();
         switch (status) {
             case 0:
                 walls[nextPositionString] = nextPosition;
@@ -84,7 +84,8 @@ const findOxygenSystem = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     let visited = {};
     let walls = {};
@@ -98,7 +99,8 @@ const findOxygenTime = (filePath) => {
         memory: intcode.getIntcodeInput(path.join(__dirname, filePath)),
         input: [],
         index: 0,
-        relativeBase: 0
+        relativeBase: 0,
+        output: []
     };
     let visited = {};
     let walls = {};
