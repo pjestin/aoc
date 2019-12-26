@@ -9,6 +9,11 @@ const path = require("path"),
 
 const getStringPosition = position => `${position.x};${position.y}`;
 
+const getPositionObject = (positionString) => {
+  const positionArray = positionString.split(';').map(Number);
+  return { x: positionArray[0], y: positionArray[1] };
+}
+
 const getInputMap = filePath => {
   const absoluteFilePath = path.join(__dirname, filePath);
   const matrix = fs
@@ -68,6 +73,23 @@ const display = (walls, state) => {
   console.log(display);
 };
 
+function noKeyInQuadrant(keys, startPositions, botIndex) {
+  let centre = startPositions.reduce((centrePosition, position) => {
+    return { x: centrePosition.x + position.x, y: centrePosition.y + position.y };
+  },
+    { x: 0, y: 0 });
+  centre = { x: centre.x / 4, y: centre.y / 4 };
+  let foundKey = false;
+  Object.keys(keys).forEach(stringPosition => {
+    const position = getPositionObject(stringPosition);
+    if ((position.x - centre.x) * (startPositions[botIndex].x - centre.x) > 0 &&
+      (position.y - centre.y) * (startPositions[botIndex].y - centre.y)) {
+      foundKey = true;
+    }
+  });
+  return !foundKey;
+}
+
 function navigateMapIterative(walls, startState) {
   let stateQueue = [startState];
   let cachedKeyCombinations = {};
@@ -77,6 +99,10 @@ function navigateMapIterative(walls, startState) {
     // console.log([allBotsState.positions, allBotsState.steps]);
     for (let botIndex = 0; botIndex < allBotsState.positions.length; ++botIndex) {
       // console.log(`Moving bot ${botIndex}`);
+      if (allBotsState.positions.length > 1 && noKeyInQuadrant(allBotsState.keys, startState.positions, botIndex)) {
+        continue;
+      }
+
       let state = JSON.parse(JSON.stringify(allBotsState));
 
       const stringPosition = getStringPosition(state.positions[botIndex]);
@@ -88,21 +114,23 @@ function navigateMapIterative(walls, startState) {
               : doorStringPosition,
           null
         );
-        state.acquiredKeys.sort();
-        state.acquiredKeys.push(state.keys[stringPosition]);
+        state.acquiredKeys[botIndex].sort();
+        state.acquiredKeys[botIndex].push(state.keys[stringPosition]);
         state.acquiredKeysString = state.acquiredKeys.reduce(
-          (acc, cur) => acc + cur,
+          (acc, botKeys) => acc + botKeys.reduce((botAcc, cur) => botAcc + cur, ''),
           ""
         );
         if (state.acquiredKeysString in cachedKeyCombinations) {
           continue;
         }
+        // console.log(`Acquired key: ${state.keys[stringPosition]}`);
         delete state.doors[doorStringPosition];
         delete state.keys[stringPosition];
         cachedKeyCombinations[state.acquiredKeysString] = true;
         const nKeys = Object.keys(state.keys).length;
+        stateQueue.push(state);
         // console.log(`Steps: ${state.steps}`);
-        // console.log(`Keys left: ${nKeys}`);
+        console.log(`Keys left: ${nKeys}`);
         // console.log(`Remaining states in queue: ${stateQueue.length}`);
         // console.log(`Acquired keys: ${state.acquiredKeys}`);
         // console.log(`Number of combinations: ${Object.keys(cachedKeyCombinations).length}`)
@@ -147,10 +175,12 @@ function runNavigation(filePath) {
     doors,
     positions: startPositions,
     steps: 0,
-    acquiredKeys: [],
+    acquiredKeys: new Array(startPositions.length).fill([]),
     acquiredKeysString: ""
   };
   return navigateMapIterative(walls, state).steps;
 }
 
 module.exports = { runNavigation };
+
+console.log(runNavigation('input-part2.txt'))

@@ -1,3 +1,13 @@
+function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
 exports['test 01'] = assert => {
     const index = require('./01/index.js');
     assert.equal(index.calculateFuelRequirementPart1(), 3452245, 'part 1');
@@ -145,7 +155,9 @@ exports['test 18'] = assert => {
     assert.equal(index.runNavigation('input-test1.txt'), 6, 'part 1 test 1');
     assert.equal(index.runNavigation('input-test2.txt'), 86, 'part 1 test 2');
     assert.equal(index.runNavigation('input-test3.txt'), 81, 'part 1 test 3');
-    assert.equal(index.runNavigation('input-test4.txt'), 136, 'part 1 test 4');
+    assert.equal(index.runNavigation('input-part2-test1.txt'), 8, 'part 2 test 1');
+    assert.equal(index.runNavigation('input-part2-test2.txt'), 32, 'part 2 test 2');
+    assert.equal(index.runNavigation('input-part2-test3.txt'), 72, 'part 2 test 3');
 }
 
 exports['test 19'] = assert => {
@@ -168,6 +180,12 @@ exports['test 20'] = assert => {
 exports['test 21'] = assert => {
     const index = require('./21/index');
     assert.equal(index.walkSpringScript('intcode-input.txt'), 19357544, 'part 1');
+}
+
+exports['test 22'] = assert => {
+    const index = require('./22/index');
+    assert.equal(arraysEqual(index.shuffleDeck('shuffle-input-test1.txt', 10), [3, 0, 7, 4, 1, 8, 5, 2, 9, 6]), true, 'part 1 test');
+    assert.equal(index.shuffleDeck('shuffle-input.txt', 10007)[1510], 2019, 'part 1 ');
 }
 
 if (module == require.main) require('test').run(exports)

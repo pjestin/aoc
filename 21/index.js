@@ -37,22 +37,18 @@ const runSpringScript = (filePath) => {
         index: 0,
         relativeBase: 0
     };
-    computer.input.push(...getAscii('NOT D T\n'));
-    computer.input.push(...getAscii('OR B T\n'));
-    computer.input.push(...getAscii('OR E T\n'));
+
     computer.input.push(...getAscii('NOT D J\n'));
-    computer.input.push(...getAscii('OR C J\n'));
-    computer.input.push(...getAscii('OR F J\n'));
-    computer.input.push(...getAscii('AND T J\n'));
-    computer.input.push(...getAscii('NOT J J\n'));
+    computer.input.push(...getAscii('OR E J\n'));
+    computer.input.push(...getAscii('OR H J\n'));
 
     computer.input.push(...getAscii('NOT A T\n'));
-    computer.input.push(...getAscii('OR T J\n'));
-
-    computer.input.push(...getAscii('OR E J\n'));
+    computer.input.push(...getAscii('AND T J\n'));
 
     computer.input.push(...getAscii('AND D J\n'));
+
     computer.input.push(...getAscii('RUN\n'));
+
     let outputs = [];
     while (!computer.done && !computer.needInput) {
         intcode.runIntcode(computer);
@@ -66,4 +62,4 @@ const runSpringScript = (filePath) => {
 
 module.exports = { walkSpringScript, runSpringScript };
 
-console.log(runSpringScript('intcode-input.txt'))
+// console.log(runSpringScript('intcode-input.txt'))
