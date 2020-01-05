@@ -28,7 +28,6 @@ const runDroidProgram = (filePath) => {
         computer.output = [];
         if (computer.needInput) {
             const command = readline.question() + '\n';
-            // console.log(command);
             computer.input = toAscii(command);
         }
     }
