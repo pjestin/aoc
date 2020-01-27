@@ -202,7 +202,9 @@ exports['test 21'] = assert => {
 exports['test 24'] = assert => {
     const index = require('./24/index');
     assert.equal(index.runLifeGame('scan-input-test.txt'), 2129920, 'part 1 test');
-    assert.equal(index.runLifeGame('scan-input.txt'), 32776479, 'part 1 ');
+    assert.equal(index.runLifeGame('scan-input.txt'), 32776479, 'part 1');
+    assert.equal(index.runRecursiveLifeGame('scan-input-test.txt', 10), 99, 'part 2 test');
+    assert.equal(index.runRecursiveLifeGame('scan-input.txt', 200), 2017, 'part 2');
 }
 
 if (module == require.main) require('test').run(exports)
