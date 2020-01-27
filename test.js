@@ -194,11 +194,6 @@ exports['test 23'] = assert => {
     assert.equal(index.runComputers('intcode-input.txt', true)[1], 14348, 'part 2');
 }
 
-exports['test 21'] = assert => {
-    const index = require('./21/index');
-    assert.equal(index.walkSpringScript('intcode-input.txt'), 19357544, 'part 1');
-}
-
 exports['test 24'] = assert => {
     const index = require('./24/index');
     assert.equal(index.runLifeGame('scan-input-test.txt'), 2129920, 'part 1 test');
