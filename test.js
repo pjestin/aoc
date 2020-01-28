@@ -184,8 +184,11 @@ exports['test 21'] = assert => {
 
 exports['test 22'] = assert => {
     const index = require('./22/index');
-    assert.equal(arraysEqual(index.shuffleDeck('shuffle-input-test1.txt', 10), [3, 0, 7, 4, 1, 8, 5, 2, 9, 6]), true, 'part 1 test');
-    assert.equal(index.shuffleDeck('shuffle-input.txt', 10007)[1510], 2019, 'part 1 ');
+    assert.equal(index.getCardPosition('shuffle-input-test1.txt', 10, 2, 1), 7, 'part 1 test 1');
+    assert.equal(index.getCardPosition('shuffle-input-test2.txt', 10, 5, 1), 2, 'part 1 test 2');
+    assert.equal(index.getCardPosition('shuffle-input.txt', 10007, 2019, 1), 1510, 'part 1 ');
+    assert.equal(index.findNthCard('shuffle-input-test1.txt', 10, 7, 1), 2, 'part 2 test 1');
+    assert.equal(index.findNthCard('shuffle-input-test2.txt', 10, 2, 1), 5, 'part 2 test 2');
 }
 
 exports['test 23'] = assert => {
