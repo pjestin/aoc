@@ -180,6 +180,7 @@ exports['test 20'] = assert => {
 exports['test 21'] = assert => {
     const index = require('./21/index');
     assert.equal(index.walkSpringScript('intcode-input.txt'), 19357544, 'part 1');
+    assert.equal(index.runSpringScript('intcode-input.txt'), 1144498646, 'part 2');
 }
 
 exports['test 22'] = assert => {

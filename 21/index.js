@@ -39,15 +39,19 @@ const runSpringScript = (filePath) => {
         output: []
     };
 
-    computer.input.push(...getAscii('NOT D J\n'));
-    computer.input.push(...getAscii('OR E J\n'));
-    computer.input.push(...getAscii('OR H J\n'));
-
-    computer.input.push(...getAscii('NOT A T\n'));
-    computer.input.push(...getAscii('AND T J\n'));
-
+    computer.input.push(...getAscii('NOT C J\n'));
     computer.input.push(...getAscii('AND D J\n'));
-
+    computer.input.push(...getAscii('NOT H T\n'));
+    computer.input.push(...getAscii('NOT T T\n'));
+    computer.input.push(...getAscii('OR E T\n'));
+    computer.input.push(...getAscii('AND T J\n'));
+    computer.input.push(...getAscii('NOT A T\n'));
+    computer.input.push(...getAscii('OR T J\n'));
+    computer.input.push(...getAscii('NOT B T\n'));
+    computer.input.push(...getAscii('NOT T T\n'));
+    computer.input.push(...getAscii('OR E T\n'));
+    computer.input.push(...getAscii('NOT T T\n'));
+    computer.input.push(...getAscii('OR T J\n'));
     computer.input.push(...getAscii('RUN\n'));
 
     intcode.runIntcode(computer);
