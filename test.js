@@ -190,6 +190,7 @@ exports['test 22'] = assert => {
     assert.equal(index.getCardPosition('shuffle-input.txt', 10007, 2019, 1), 1510, 'part 1 ');
     assert.equal(index.findNthCard('shuffle-input-test1.txt', 10, 7, 1), 2, 'part 2 test 1');
     assert.equal(index.findNthCard('shuffle-input-test2.txt', 10, 2, 1), 5, 'part 2 test 2');
+    assert.equal(index.findNthCard('shuffle-input.txt', 119315717514047, 2020, 101741582076661), 10307144922975, 'part 2');
 }
 
 exports['test 23'] = assert => {

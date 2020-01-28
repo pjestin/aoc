@@ -1,5 +1,6 @@
 const path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    BigInteger = require('biginteger').BigInteger;
 
 function mod(n, m) {
     return ((n % m) + m) % m;
@@ -24,40 +25,23 @@ const getInputShuffle = (filePath) => {
     });
 }
 
-// const transforms = {
-//     stack: (i, d, _) => d - 1 - i,
-//     cut: (i, d, n) => {
-//         const N = mod(-n, d);
-//         return i < N ? i + d - N : i - N;
-//     },
-//     // increment: (i, d, n) => mod(i * n, d),
-//     increment: (i, d, n) => {
-//         for (let k = 0; k <= n; ++k) {
-//             if (mod(k * d + i, n) === 0) {
-//                 return (k * d + i) / n;
-//             }
-//         }
-//         return null;
-//     }
-// };
-
 const transforms = {
-    stack: (d) => {
+    stack: () => {
         return {
-            slope: -1,
-            offset: d - 1,
+            slope: BigInteger(-1),
+            offset: BigInteger(-1),
         };
     },
     cut: (n) => {
         return {
-            slope: 1,
-            offset: -n,
+            slope: BigInteger(1),
+            offset: BigInteger(-n),
         };
     },
     increment: (n) => {
         return {
-            slope: n,
-            offset: 0
+            slope: BigInteger(n),
+            offset: BigInteger(0)
         };
     },
 }
@@ -65,22 +49,20 @@ const transforms = {
 const convolveTransforms = (t1, t2, d) => {
     // t2 o t1
     return {
-        slope: mod(t1.slope * t2.slope, d),
-        offset: mod(t2.slope * t1.offset + t2.offset, d)
-        // slope: t1.slope * t2.slope,
-        // offset: t2.slope * t1.offset + t2.offset
+        slope: t1.slope.multiply(t2.slope).remainder(d),
+        offset: t2.slope.multiply(t1.offset).add(t2.offset).remainder(d),
     }
 }
 
 const buildInputTransform = (instructions, d) => {
     return instructions.reduce((transform, instruction) => {
-        let thisTransform = transforms[instruction.type](instruction.arg ? instruction.arg : d);
+        let thisTransform = transforms[instruction.type](instruction.arg);
         return convolveTransforms(transform, thisTransform, d);
     },
-    {
-        slope: 1,
-        offset: 0,
-    });
+        {
+            slope: BigInteger(1),
+            offset: BigInteger(0),
+        });
 }
 
 const repeatTransform = (transform, d, nRepeat) => {
@@ -99,65 +81,27 @@ const getCardPosition = (filePath, d, n, nRepeat) => {
     const instructions = getInputShuffle(filePath);
     const inputTransform = buildInputTransform(instructions, d);
     const repeatedTransform = repeatTransform(inputTransform, d, nRepeat);
-    return mod(repeatedTransform.slope * n + repeatedTransform.offset, d);
+    return mod(repeatedTransform.slope.multiply(n).add(repeatedTransform.offset).remainder(d).valueOf(), d);
 }
 
 const findDiophantineSolution = (a, b) => {
-    console.log([a, b])
     let rest = mod(a, b);
     if (!rest) return null
-	if (rest === 1) {
-		return [1, -Math.floor(a / b)];
-	} else {
-		let [previousX, previousY] = findDiophantineSolution(b, rest);
-		return [previousY, previousX - previousY * Math.floor(a / b)];
-	}
-}
-
-const findDiophantineSolutionWithOffset = (a, b, c) => {
-    let [x, y] = findDiophantineSolution(a, b);
-    console.log([x, y])
-	return [x * c, y * c];
-}
-
-const iterateForDiophantineSolution = (a, b, c) => {
-    // for (let y = 0; y <= a; ++y) {
-    //     if (y % 1000000000 === 0) console.log([y, mod(c + b * y, a)])
-    //     if (mod(c + b * y, a) === 0) {
-    //         return (c + b * y) / a;
-    //     }
-    // }
-    let x = 0;
-    for (let k = 0; k < a; ++k) {
-        if (mod(k, 1000000) === 0) console.log(k)
-        x = Math.floor((c + k * b) / a) - 1;
-        // console.log([c - a * x, -k * b])
-        while (c - a * x >= -k * b) {
-            if (mod(x, 1000000) === 0) console.log([x, mod(c - a * x, b)])
-            if (mod(c - a * x, b) === 0) {
-                return x;
-            }
-            ++x;
-        }
+    if (rest === 1) {
+        return [1, -Math.floor(a / b)];
+    } else {
+        let [previousX, previousY] = findDiophantineSolution(b, rest);
+        return [previousY, previousX - previousY * Math.floor(a / b)];
     }
 }
 
 const findNthCard = (filePath, d, n, nRepeat) => {
     const instructions = getInputShuffle(filePath);
     const inputTransform = buildInputTransform(instructions, d);
-    // console.log(inputTransform);
     const repeatedTransform = repeatTransform(inputTransform, d, nRepeat);
-    // console.log(repeatedTransform);
-    // console.log(`${repeatedTransform.slope} x + ${d} y = ${mod(n - repeatedTransform.offset, d)}`);
-    // const diophantineSolution = findDiophantineSolutionWithOffset(repeatedTransform.slope, d, mod(n - repeatedTransform.offset, d));
-    // console.log(diophantineSolution);
-    // console.log(repeatedTransform.slope * diophantineSolution[0] + d * diophantineSolution[1]);
-    // return diophantineSolution[0];
-    return iterateForDiophantineSolution(repeatedTransform.slope, d, mod(n - repeatedTransform.offset, d));
+    const diophantineSolution = findDiophantineSolution(repeatedTransform.slope, d);
+    const c = n - repeatedTransform.offset;
+    return mod(BigInteger(diophantineSolution[0]).multiply(c).remainder(d).valueOf(), d);
 }
 
 module.exports = { getCardPosition, findNthCard };
-
-// console.log(findNthCard('shuffle-input.txt', 119315717514047, 2020, 101741582076661));
-// console.log(repeatTransform({slope: 4, offset: 2}, 10, 2))
-console.log(iterateForDiophantineSolution(23275640837161, 119315717514047, 41334641720380))
