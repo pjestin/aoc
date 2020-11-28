@@ -1,20 +1,16 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.nio.file.Paths;
 import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.util.List;
 
 public class Day01Test {
-  private Path inputFilePath;
-  private List<String> inputLines;
+  private static List<String> inputLines;
 
-  @BeforeEach
-  public void setUp() throws FileNotFoundException {
-    inputFilePath = Paths.get("src", "test", "resources", "day01-input.txt");
-    inputLines = FileUtils.readLines(inputFilePath);
+  @BeforeAll
+  public static void setUp() throws FileNotFoundException {
+    inputLines = FileUtils.readLines(Paths.get("src", "test", "resources", "day01-input.txt"));
   }
 
   @Test
