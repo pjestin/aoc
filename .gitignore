@@ -25,6 +25,7 @@ hs_err_pid*
 # VS Code
 .project
 .settings
+.vscode
 
 # Java
 .classpath
