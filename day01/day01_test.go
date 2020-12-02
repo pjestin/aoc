@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/pjestin/aoc2020/lib"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var lines, linesTest []string
@@ -22,18 +22,18 @@ func setup() {
 
 func TestFindExpenseReportSum(t *testing.T) {
 	res, err := FindExpenseReportSum(linesTest)
-	assert.Nil(t, err)
-	assert.Equal(t, 514579, res)
+	require.Nil(t, err)
+	require.Equal(t, 514579, res)
 	res, err = FindExpenseReportSum(lines)
-	assert.Nil(t, err)
-	assert.Equal(t, 145875, res)
+	require.Nil(t, err)
+	require.Equal(t, 145875, res)
 }
 
 func TestFindExpenseReportTripleSum(t *testing.T) {
 	res, err := FindExpenseReportTripleSum(linesTest)
-	assert.Nil(t, err)
-	assert.Equal(t, 241861950, res)
+	require.Nil(t, err)
+	require.Equal(t, 241861950, res)
 	res, err = FindExpenseReportTripleSum(lines)
-	assert.Nil(t, err)
-	assert.Equal(t, 69596112, res)
+	require.Nil(t, err)
+	require.Equal(t, 69596112, res)
 }

@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-const SumTarget = 2020
+const sumTarget = 2020
 
-func ConvertToInts(lines []string) (elements []int, err error) {
+func convertToInts(lines []string) (elements []int, err error) {
 	for _, line := range lines {
 		element, err := strconv.Atoi(line)
 		if err != nil {
@@ -18,33 +18,35 @@ func ConvertToInts(lines []string) (elements []int, err error) {
 	return
 }
 
+// FindExpenseReportSum finds the pair of elements in the input slice whose sum is equal to the target sum and returns their product
 func FindExpenseReportSum(lines []string) (int, error) {
-	elements, err := ConvertToInts(lines)
+	elements, err := convertToInts(lines)
 	if err != nil {
 		return 0, err
 	}
 	previousElements := make(map[int]bool)
 	for _, element := range elements {
-		_, present := previousElements[SumTarget-element]
+		_, present := previousElements[sumTarget-element]
 		if present {
-			return (SumTarget - element) * element, nil
+			return (sumTarget - element) * element, nil
 		}
 		previousElements[element] = true
 	}
 	return 0, errors.New("Not found")
 }
 
+// FindExpenseReportTripleSum finds the trio of elements in the input slice whose sum is equal to the target sum and returns their product
 func FindExpenseReportTripleSum(lines []string) (int, error) {
-	elements, err := ConvertToInts(lines)
+	elements, err := convertToInts(lines)
 	if err != nil {
 		return 0, err
 	}
 	for i, a := range elements {
 		previousElements := make(map[int]bool)
 		for _, b := range elements[i+1:] {
-			_, present := previousElements[SumTarget-a-b]
+			_, present := previousElements[sumTarget-a-b]
 			if present {
-				return (SumTarget - a - b) * a * b, nil
+				return (sumTarget - a - b) * a * b, nil
 			}
 			previousElements[b] = true
 		}
