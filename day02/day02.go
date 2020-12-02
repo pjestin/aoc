@@ -9,7 +9,7 @@ import (
 type passwordWithPolicy struct {
 	policyArg1      int
 	policyArg2      int
-	policyCharacter string
+	policyCharacter byte
 	password        string
 }
 
@@ -32,7 +32,7 @@ func parsePasswordsWithPolicies(lines []string) ([]passwordWithPolicy, error) {
 		res = append(res, passwordWithPolicy{
 			policyArg1:      policyArg1,
 			policyArg2:      policyArg2,
-			policyCharacter: parts[3],
+			policyCharacter: parts[3][0],
 			password:        parts[4],
 		})
 	}
@@ -51,7 +51,7 @@ func ValidatePasswordsPart1(lines []string) (int, error) {
 	}
 	validPasswordCount := 0
 	for _, password := range passwords {
-		count := strings.Count(password.password, password.policyCharacter)
+		count := strings.Count(password.password, string(password.policyCharacter))
 		if count >= password.policyArg1 && count <= password.policyArg2 {
 			validPasswordCount++
 		}
@@ -67,8 +67,8 @@ func ValidatePasswordsPart2(lines []string) (int, error) {
 	}
 	validPasswordCount := 0
 	for _, password := range passwords {
-		if xor(string(password.password[password.policyArg1-1]) == password.policyCharacter,
-			string(password.password[password.policyArg2-1]) == password.policyCharacter) {
+		if xor(password.password[password.policyArg1-1] == password.policyCharacter,
+			password.password[password.policyArg2-1] == password.policyCharacter) {
 			validPasswordCount++
 		}
 	}
