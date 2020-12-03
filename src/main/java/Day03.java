@@ -28,6 +28,11 @@ public class Day03 {
       }
       return squareHashes;
     }
+
+    public boolean overlaps(Claim other) {
+      return other.x + other.width > x && x + width > other.x
+        && other.y + other.height > y && y + height > other.y;
+    }
   }
 
   private static final String PATTERN = "^#(\\d+) @ (\\d+),(\\d+): (\\d+)x(\\d+)$";
@@ -78,17 +83,16 @@ public class Day03 {
 
   public static int getNonOverlappingClaimId(List<String> lines) {
     List<Claim> claims = getClaimsFromLines(lines);
-    Map<String, Integer> counts = getSquareClaimCounts(claims);
-    for (Claim claim : claims) {
-      List<String> squareHashes = claim.getSquareHashes();
-      boolean foundOverlappingSquare = false;
-      for (String squareHash : squareHashes) {
-        if (counts.get(squareHash) > 1) {
-          foundOverlappingSquare = true;
+    for (int i = 0; i < claims.size(); i++) {
+      boolean foundOverlap = false;
+      Claim claim = claims.get(i);
+      for (int j = 0; j < claims.size(); j++) {
+        if (i != j && claim.overlaps(claims.get(j))) {
+          foundOverlap = true;
           break;
         }
       }
-      if (!foundOverlappingSquare) {
+      if (!foundOverlap) {
         return claim.id;
       }
     }
