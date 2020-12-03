@@ -29,6 +29,16 @@ public class Day05 {
     return sb.toString();
   }
 
+  private static String stripPolymerFromUnitType(String polymer, char unitType) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < polymer.length(); i++) {
+      if (toLowerCase(polymer.charAt(i)) != unitType) {
+        sb.append(polymer.charAt(i));
+      }
+    }
+    return sb.toString();
+  }
+
   public static int getNbUnits(String polymer) {
     String transformedPolymer;
     while (true) {
@@ -39,5 +49,17 @@ public class Day05 {
       polymer = transformedPolymer;
     }
     return polymer.length();
+  }
+
+  public static int getOptimizedNbUnits(String polymer) {
+    int minNbUnits = -1;
+    for(char unitType = 'a'; unitType <='z'; unitType++) {
+      String strippedPolymer = stripPolymerFromUnitType(polymer, unitType);
+      int nbUnits = getNbUnits(strippedPolymer);
+      if (minNbUnits == -1 || nbUnits < minNbUnits) {
+        minNbUnits = nbUnits;
+      }
+    }
+    return minNbUnits;
   }
 }

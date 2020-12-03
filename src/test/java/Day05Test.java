@@ -21,4 +21,10 @@ public class Day05Test {
     assertEquals(10, Day05.getNbUnits(inputTestLines.get(0)));
     assertEquals(11118, Day05.getNbUnits(inputLines.get(0)));
   }
+
+  @Test
+  public void getOptimizedNbUnitsTest() {
+    assertEquals(4, Day05.getOptimizedNbUnits(inputTestLines.get(0)));
+    assertEquals(6948, Day05.getOptimizedNbUnits(inputLines.get(0)));
+  }
 }
