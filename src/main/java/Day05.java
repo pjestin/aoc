@@ -1,29 +1,18 @@
 import static java.lang.Character.toLowerCase;
 import static java.lang.Character.isLowerCase;
-import java.util.Set;
-import java.util.HashSet;
 
 public class Day05 {
   private static String transform(String polymer) {
-    Set<Integer> tranformIndices = new HashSet<>();
+    StringBuilder sb = new StringBuilder();
     int i = 0;
-    while (i < polymer.length() - 1) {
-      if ((toLowerCase(polymer.charAt(i)) == toLowerCase(polymer.charAt(i + 1)))
+    while (i < polymer.length()) {
+      if (i < polymer.length() - 1
+          && (toLowerCase(polymer.charAt(i)) == toLowerCase(polymer.charAt(i + 1)))
           && (isLowerCase(polymer.charAt(i)) ^ isLowerCase(polymer.charAt(i + 1)))) {
-        tranformIndices.add(i);
-        tranformIndices.add(i + 1);
         i += 2;
       } else {
-        i++;
-      }
-    }
-    if (tranformIndices.isEmpty()) {
-      return polymer;
-    }
-    StringBuilder sb = new StringBuilder();
-    for (i = 0; i < polymer.length(); i++) {
-      if (!tranformIndices.contains(i)) {
         sb.append(polymer.charAt(i));
+        i++;
       }
     }
     return sb.toString();
@@ -39,7 +28,7 @@ public class Day05 {
     return sb.toString();
   }
 
-  public static int getNbUnits(String polymer) {
+  private static String fullyTransform(String polymer) {
     String transformedPolymer;
     while (true) {
       transformedPolymer = transform(polymer);
@@ -48,13 +37,18 @@ public class Day05 {
       }
       polymer = transformedPolymer;
     }
-    return polymer.length();
+    return polymer;
+  }
+
+  public static int getNbUnits(String polymer) {
+    return fullyTransform(polymer).length();
   }
 
   public static int getOptimizedNbUnits(String polymer) {
+    String transformedPolymer = fullyTransform(polymer);
     int minNbUnits = -1;
-    for(char unitType = 'a'; unitType <='z'; unitType++) {
-      String strippedPolymer = stripPolymerFromUnitType(polymer, unitType);
+    for(char unitType = 'a'; unitType <= 'z'; unitType++) {
+      String strippedPolymer = stripPolymerFromUnitType(transformedPolymer, unitType);
       int nbUnits = getNbUnits(strippedPolymer);
       if (minNbUnits == -1 || nbUnits < minNbUnits) {
         minNbUnits = nbUnits;
