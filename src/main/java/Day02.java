@@ -10,11 +10,7 @@ public class Day02 {
       Map<Character, Integer> counts = new HashMap<>();
       char[] chars = line.toCharArray();
       for (char ch : chars) {
-        if (counts.containsKey(ch)) {
-          counts.put(ch, counts.get(ch) + 1);
-        } else {
-          counts.put(ch, 1);
-        }
+        counts.put(ch, counts.getOrDefault(ch, 0) + 1);
       }
       for (int count : counts.values()) {
         if (count == 2) {

@@ -59,11 +59,7 @@ public class Day03 {
     for (Claim claim : claims) {
       List<String> squareHashes = claim.getSquareHashes();
       for (String squareHash : squareHashes) {
-        if (counts.containsKey(squareHash)) {
-          counts.put(squareHash, counts.get(squareHash) + 1);
-        } else {
-          counts.put(squareHash, 1);
-        }
+        counts.put(squareHash, counts.getOrDefault(squareHash, 0) + 1);
       }
     }
     return counts;

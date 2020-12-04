@@ -94,11 +94,7 @@ public class Day06 {
       if (locationIndex == -1 || infiniteAreaLocationIndices.contains(locationIndex)) {
         continue;
       }
-      if (areaCounts.containsKey(locationIndex)) {
-        areaCounts.put(locationIndex, areaCounts.get(locationIndex) + 1);
-      } else {
-        areaCounts.put(locationIndex, 1);
-      }
+      areaCounts.put(locationIndex, areaCounts.getOrDefault(locationIndex, 0) + 1);
     }
     int maxArea = 0;
     for (int area : areaCounts.values()) {
@@ -128,7 +124,6 @@ public class Day06 {
     Boundaries boundaries = findBoundaries(locations);
     Map<String, Integer> closestLocations = findClosestLocations(boundaries, locations);
     Set<Integer> infiniteAreaLocationIndices = findInifiniteAreaLocationIndices(boundaries, closestLocations);
-
     return findMaxArea(closestLocations, infiniteAreaLocationIndices);
   }
 

@@ -41,11 +41,7 @@ public class Day04 {
         }
         Map<Integer, Integer> sleepMinutes = guardSleepMinutes.get(guardId);
         for (int minute = fellAsleepAt; minute < parseInt(wakeUpMatcher.group(1)); minute++) {
-          if (sleepMinutes.containsKey(minute)) {
-            sleepMinutes.put(minute, sleepMinutes.get(minute) + 1);
-          } else {
-            sleepMinutes.put(minute, 1);
-          }
+          sleepMinutes.put(minute, sleepMinutes.getOrDefault(minute, 0) + 1);
         }
         guardSleepMinutes.put(guardId, sleepMinutes);
       }
