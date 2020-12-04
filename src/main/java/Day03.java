@@ -65,33 +65,19 @@ public class Day03 {
     return counts;
   }
 
-  public static int getNbOverlappingClaims(List<String> lines) {
+  public static long getNbOverlappingClaims(List<String> lines) {
     List<Claim> claims = getClaimsFromLines(lines);
     Map<String, Integer> counts = getSquareClaimCounts(claims);
-    int overlapCount = 0;
-    for (int countValue : counts.values()) {
-      if (countValue > 1) {
-        overlapCount++;
-      }
-    }
-    return overlapCount;
+    return counts.values().stream().filter(countValue -> countValue > 1).count();
   }
 
   public static int getNonOverlappingClaimId(List<String> lines) {
     List<Claim> claims = getClaimsFromLines(lines);
-    for (int i = 0; i < claims.size(); i++) {
-      boolean foundOverlap = false;
-      Claim claim = claims.get(i);
-      for (int j = 0; j < claims.size(); j++) {
-        if (i != j && claim.overlaps(claims.get(j))) {
-          foundOverlap = true;
-          break;
-        }
-      }
-      if (!foundOverlap) {
-        return claim.id;
-      }
-    }
-    return -1;
+    return claims
+      .stream()
+      .filter(claim -> claims.stream().filter(otherClaim -> otherClaim != claim && claim.overlaps(otherClaim)).count() == 0)
+      .findAny()
+      .get()
+      .id;
   }
 }

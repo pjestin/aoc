@@ -5,11 +5,7 @@ import java.util.HashSet;
 
 public class Day01 {
   public static int getFrequency(List<String> lines) {
-    int frequency = 0;
-    for (String line : lines) {
-      frequency += Integer.parseInt(line);
-    }
-    return frequency;
+    return lines.stream().map(Integer::parseInt).reduce(0, Integer::sum);
   }
 
   public static Integer getFirstReoccurringFrequency(List<String> lines) {

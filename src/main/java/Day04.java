@@ -53,10 +53,7 @@ public class Day04 {
     int maxSleepMinutes = 0;
     int maxSleepGuardId = 0;
     for (Map.Entry<Integer, Map<Integer, Integer>> entry : guardSleepMinutes.entrySet()) {
-      int sleepMinutes = 0;
-      for (int minutes : entry.getValue().values()) {
-        sleepMinutes += minutes;
-      }
+      int sleepMinutes = entry.getValue().values().stream().reduce(0, Integer::sum);
       if (sleepMinutes > maxSleepMinutes) {
         maxSleepMinutes = sleepMinutes;
         maxSleepGuardId = entry.getKey();

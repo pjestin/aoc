@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.Integer;
+import java.util.Collections;
 import static java.lang.Integer.parseInt;
 
 public class Day06 {
@@ -96,11 +97,7 @@ public class Day06 {
       }
       areaCounts.put(locationIndex, areaCounts.getOrDefault(locationIndex, 0) + 1);
     }
-    int maxArea = 0;
-    for (int area : areaCounts.values()) {
-      maxArea = Math.max(area, maxArea);
-    }
-    return maxArea;
+    return Collections.max(areaCounts.values());
   }
 
   public static int countRegionArea(List<Position> locations, Boundaries boundaries, int maxDistanceSum) {
