@@ -21,4 +21,10 @@ public class Day06Test {
     assertEquals(17, Day06.getMaxFiniteArea(inputTestLines));
     assertEquals(4771, Day06.getMaxFiniteArea(inputLines));
   }
+
+  @Test
+  public void getRegionAreaTest() {
+    assertEquals(16, Day06.getRegionArea(inputTestLines, 32));
+    assertEquals(39149, Day06.getRegionArea(inputLines, 10000));
+  }
 }

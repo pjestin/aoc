@@ -30,6 +30,14 @@ public class Day06 {
     public int maxY = Integer.MIN_VALUE;
   }
 
+  private static List<Position> parseLocations(List<String> lines) {
+    List<Position> locations = new ArrayList<>();
+    for (String line : lines) {
+      locations.add(Position.parseFromLine(line));
+    }
+    return locations;
+  }
+
   private static String getPositionHash(int x, int y) {
     return String.format("%d;%d", x, y);
   }
@@ -99,15 +107,34 @@ public class Day06 {
     return maxArea;
   }
 
-  public static int getMaxFiniteArea(List<String> lines) {
-    List<Position> locations = new ArrayList<>();
-    for (String line : lines) {
-      locations.add(Position.parseFromLine(line));
+  public static int countRegionArea(List<Position> locations, Boundaries boundaries, int maxDistanceSum) {
+    int areaCount = 0;
+    for (int x = boundaries.minX; x <= boundaries.maxX; x++) {
+      for (int y = boundaries.minY; y <= boundaries.maxY; y++) {
+        int distanceSum = 0;
+        for (Position location : locations) {
+          distanceSum += Math.abs(location.x - x) + Math.abs(location.y - y);
+        }
+        if (distanceSum < maxDistanceSum) {
+          areaCount++;
+        }
+      }
     }
+    return areaCount;
+  }
+
+  public static int getMaxFiniteArea(List<String> lines) {
+    List<Position> locations = parseLocations(lines);
     Boundaries boundaries = findBoundaries(locations);
     Map<String, Integer> closestLocations = findClosestLocations(boundaries, locations);
     Set<Integer> infiniteAreaLocationIndices = findInifiniteAreaLocationIndices(boundaries, closestLocations);
 
     return findMaxArea(closestLocations, infiniteAreaLocationIndices);
+  }
+
+  public static int getRegionArea(List<String> lines, int maxDistanceSum) {
+    List<Position> locations = parseLocations(lines);
+    Boundaries boundaries = findBoundaries(locations);
+    return countRegionArea(locations, boundaries, maxDistanceSum);
   }
 }
