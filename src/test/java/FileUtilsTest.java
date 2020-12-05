@@ -11,7 +11,7 @@ public class FileUtilsTest {
   @Test
   public void readLinesTestSuccess() throws FileNotFoundException {
     List<String> testFileContent = Arrays.asList("abc", "efgh");
-    Path filePath = Paths.get("src", "test", "resources", "test-file.txt");
+    Path filePath = Paths.get("src", "test", "resources", "file-utils", "test-file.txt");
     assertEquals(testFileContent, FileUtils.readLines(filePath));
   }
 

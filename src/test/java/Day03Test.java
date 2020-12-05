@@ -10,8 +10,8 @@ public class Day03Test {
 
   @BeforeAll
   public static void setUp() throws FileNotFoundException {
-    inputTestLines = FileUtils.readLines(Paths.get("src", "test", "resources", "day03-input-test.txt"));
-    inputLines = FileUtils.readLines(Paths.get("src", "test", "resources", "day03-input.txt"));
+    inputTestLines = FileUtils.readLines(Paths.get("src", "test", "resources", "day03", "input-test.txt"));
+    inputLines = FileUtils.readLines(Paths.get("src", "test", "resources", "day03", "input.txt"));
   }
 
   @Test
