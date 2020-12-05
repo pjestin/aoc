@@ -21,4 +21,10 @@ public class Day07Test {
     assertEquals("CABDFE", Day07.getTaskOrder(inputTestLines));
     assertEquals("CFGHAEMNBPRDISVWQUZJYTKLOX", Day07.getTaskOrder(inputLines));
   }
+
+  @Test
+  public void getTotalTaskTimeWithWorkersTest() {
+    assertEquals(15, Day07.getTotalTaskTimeWithWorkers(inputTestLines, 0, 2));
+    assertEquals(828, Day07.getTotalTaskTimeWithWorkers(inputLines, 60, 5));
+  }
 }
