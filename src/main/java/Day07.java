@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day07 {
-  public static class Worker {
+  private static class Worker {
     public char task = '0';
     public int remainingEffort = 0;
 
