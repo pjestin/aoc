@@ -37,4 +37,10 @@ public class Day10Test {
                    + "#####...######...###.#..#....#..#....#..#........###.....####.\n";
     assertEquals(message, Day10.displayStarMessage(inputLines));
   }
+
+  @Test
+  public void getMinVarianceStarConfigTimeTest() {
+    assertEquals(3, Day10.getMinVarianceStarConfigTime(inputTestLines));
+    assertEquals(10476, Day10.getMinVarianceStarConfigTime(inputLines));
+  }
 }

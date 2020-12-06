@@ -44,9 +44,10 @@ public class Day10 {
     return varX + varY;
   }
 
-  private static List<Star> getMinVarianceStarConfig(List<String> lines) {
+  public static int getMinVarianceStarConfigTime(List<String> lines) {
     List<Star> stars = parseStars(lines);
     double previousVariance = Double.POSITIVE_INFINITY;
+    int time = 0;
     while (true) {
       stars.parallelStream().forEach(star -> {
         star.x += star.dx;
@@ -57,10 +58,17 @@ public class Day10 {
         break;
       }
       previousVariance = variance;
+      time++;
     }
+    return time;
+  }
+
+  private static List<Star> getMinVarianceStarConfig(List<String> lines) {
+    int minVarianceTime = getMinVarianceStarConfigTime(lines);
+    List<Star> stars = parseStars(lines);
     stars.parallelStream().forEach(star -> {
-      star.x -= star.dx;
-      star.y -= star.dy;
+      star.x += minVarianceTime * star.dx;
+      star.y += minVarianceTime * star.dy;
     });
     return stars;
   }
