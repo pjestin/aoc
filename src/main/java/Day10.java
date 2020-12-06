@@ -30,10 +30,19 @@ public class Day10 {
       int dy = parseInt(matcher.group(4));
       return new Star(x, y, dx, dy);
     }
+
+    public void advance(int steps) {
+      x += steps * dx;
+      y += steps * dy;
+    }
   }
 
   private static List<Star> parseStars(List<String> lines) {
     return lines.stream().map(Star::parse).collect(Collectors.toList());
+  }
+
+  private static void advanceStars(List<Star> stars, int step) {
+    stars.parallelStream().forEach(star -> star.advance(step));
   }
 
   private static double getVariance(List<Star> stars) {
@@ -44,37 +53,51 @@ public class Day10 {
     return varX + varY;
   }
 
-  public static int getMinVarianceStarConfigTime(List<String> lines) {
-    List<Star> stars = parseStars(lines);
-    double previousVariance = Double.POSITIVE_INFINITY;
-    int time = 0;
-    while (true) {
-      stars.parallelStream().forEach(star -> {
-        star.x += star.dx;
-        star.y += star.dy;
-      });
-      double variance = getVariance(stars);
-      if (variance > previousVariance) {
-        break;
-      }
-      previousVariance = variance;
-      time++;
-    }
-    return time;
+  private static boolean isVarianceIncreasing(List<Star> stars) {
+    double variance = getVariance(stars);
+    advanceStars(stars, 1);
+    double nextVariance = getVariance(stars);
+    advanceStars(stars, -1);
+    return nextVariance > variance;
   }
 
-  private static List<Star> getMinVarianceStarConfig(List<String> lines) {
-    int minVarianceTime = getMinVarianceStarConfigTime(lines);
+  public static int getMinVarianceStarConfigTime(List<String> lines) {
     List<Star> stars = parseStars(lines);
-    stars.parallelStream().forEach(star -> {
-      star.x += minVarianceTime * star.dx;
-      star.y += minVarianceTime * star.dy;
-    });
-    return stars;
+    int time = 0;
+    int step = 1;
+    while (true) {
+      advanceStars(stars, step);
+      time += step;
+      if (isVarianceIncreasing(stars)) {
+        break;
+      }
+      step *= 2;
+    }
+    while (true) {
+      step /= 2;
+      if (step == 1) {
+        break;
+      }
+      if (isVarianceIncreasing(stars)) {
+        advanceStars(stars, -step);
+        time -= step;
+      } else {
+        advanceStars(stars, step);
+        time += step;
+      }
+    }
+    advanceStars(stars, -1);
+    if (isVarianceIncreasing(stars)) {
+      return time - 1;
+    } else {
+      return time;
+    }
   }
 
   public static String displayStarMessage(List<String> lines) {
-    List<Star> stars = getMinVarianceStarConfig(lines);
+    int minVarianceTime = getMinVarianceStarConfigTime(lines);
+    List<Star> stars = parseStars(lines);
+    advanceStars(stars, minVarianceTime);
     int minX = stars.parallelStream().map(star -> star.x).min(Integer::compare).get();
     int maxX = stars.parallelStream().map(star -> star.x).max(Integer::compare).get();
     int minY = stars.parallelStream().map(star -> star.y).min(Integer::compare).get();
