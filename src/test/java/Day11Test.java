@@ -8,4 +8,11 @@ public class Day11Test {
     assertEquals("21,61", Day11.getMaxPowerLevelSquareCoordinates(42));
     assertEquals("235,20", Day11.getMaxPowerLevelSquareCoordinates(7165));
   }
+
+  @Test
+  public void getMaxPowerLevelCoordinatesAndSizeTest() {
+    assertEquals("90,269,16", Day11.getMaxPowerLevelCoordinatesAndSize(18));
+    assertEquals("232,251,12", Day11.getMaxPowerLevelCoordinatesAndSize(42));
+    assertEquals("237,223,14", Day11.getMaxPowerLevelCoordinatesAndSize(7165));
+  }
 }
