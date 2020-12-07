@@ -42,15 +42,15 @@ public class Day11 {
     int maxPowerLevelX = 1;
     int maxPowerLevelY = 1;
     int maxPowerLevelSize = 1;
-    for (int x = 1; x < GRID_SIZE; x++) {
-      for (int y = 1; y < GRID_SIZE; y++) {
-        for (int size = 1; size < Math.min(GRID_SIZE - x, GRID_SIZE - y); size++) {
-          int powerLevel = 0;
-          for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-              powerLevel += powerLevels[x + i - 1][y + j - 1];
-            }
+    for (int x = 1; x <= GRID_SIZE; x++) {
+      for (int y = 1; y <= GRID_SIZE; y++) {
+        int powerLevel = 0;
+        for (int size = 1; size <= GRID_SIZE - Math.max(x, y) + 1; size++) {
+          for (int i = 1; i < size; i++) {
+            powerLevel += powerLevels[x + i - 2][y + size - 2];
+            powerLevel += powerLevels[x + size - 2][y + i - 2];
           }
+          powerLevel += powerLevels[x + size - 2][y + size - 2];
           if (powerLevel > maxPowerLevel) {
             maxPowerLevel = powerLevel;
             maxPowerLevelX = x;
