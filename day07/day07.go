@@ -8,7 +8,7 @@ import (
 )
 
 type luggageAssociation struct {
-	luggage      string
+	luggage      *luggageGraphNode
 	multiplicity uint64
 }
 
@@ -18,8 +18,8 @@ type luggageGraphNode struct {
 	containedBy []luggageAssociation
 }
 
-func parseLuggageGraph(lines []string) (map[string]luggageGraphNode, error) {
-	graphMap := make(map[string]luggageGraphNode)
+func parseLuggageGraph(lines []string) (map[string]*luggageGraphNode, error) {
+	graphMap := make(map[string]*luggageGraphNode)
 	bagGroupPattern, err := regexp.Compile("^(\\w+ \\w+) bags contain ((?:\\d+ \\w+ \\w+ bags?,? ?)+).$")
 	if err != nil {
 		return nil, err
@@ -36,11 +36,11 @@ func parseLuggageGraph(lines []string) (map[string]luggageGraphNode, error) {
 		bagName := bagGroupMatch[1]
 		bagNode, present := graphMap[bagName]
 		if !present {
-			bagNode = luggageGraphNode{name: bagName}
+			bagNode = &luggageGraphNode{name: bagName}
 		}
 		containedBagGroups := strings.Split(bagGroupMatch[2], ",")
-		for _, containedBag := range containedBagGroups {
-			bagMatch := bagPattern.FindStringSubmatch(containedBag)
+		for _, containedBagGroup := range containedBagGroups {
+			bagMatch := bagPattern.FindStringSubmatch(containedBagGroup)
 			if bagMatch == nil {
 				return nil, errors.New("No regex matches bag group")
 			}
@@ -51,10 +51,10 @@ func parseLuggageGraph(lines []string) (map[string]luggageGraphNode, error) {
 			containedBagName := bagMatch[2]
 			containedBag, present := graphMap[containedBagName]
 			if !present {
-				containedBag = luggageGraphNode{name: containedBagName}
+				containedBag = &luggageGraphNode{name: containedBagName}
 			}
-			bagNode.contains = append(bagNode.contains, luggageAssociation{multiplicity: multiplicity, luggage: containedBagName})
-			containedBag.containedBy = append(containedBag.containedBy, luggageAssociation{multiplicity: multiplicity, luggage: bagName})
+			bagNode.contains = append(bagNode.contains, luggageAssociation{multiplicity: multiplicity, luggage: containedBag})
+			containedBag.containedBy = append(containedBag.containedBy, luggageAssociation{multiplicity: multiplicity, luggage: bagNode})
 			graphMap[containedBagName] = containedBag
 		}
 		graphMap[bagName] = bagNode
@@ -62,18 +62,17 @@ func parseLuggageGraph(lines []string) (map[string]luggageGraphNode, error) {
 	return graphMap, nil
 }
 
-func buildContainingBagSet(luggage string, currentLuggage string, luggageGraph map[string]luggageGraphNode) map[string]bool {
+func buildContainingBagSet(luggage string, currentNode *luggageGraphNode) map[string]bool {
 	bagSet := make(map[string]bool)
-	if currentLuggage != luggage {
-		_, present := bagSet[currentLuggage]
+	if currentNode.name != luggage {
+		_, present := bagSet[currentNode.name]
 		if present {
 			return bagSet
 		}
-		bagSet[currentLuggage] = true
+		bagSet[currentNode.name] = true
 	}
-	node := luggageGraph[currentLuggage]
-	for _, containedBy := range node.containedBy {
-		thisBagSet := buildContainingBagSet(luggage, containedBy.luggage, luggageGraph)
+	for _, containedBy := range currentNode.containedBy {
+		thisBagSet := buildContainingBagSet(luggage, containedBy.luggage)
 		for bag := range thisBagSet {
 			bagSet[bag] = true
 		}
@@ -81,14 +80,10 @@ func buildContainingBagSet(luggage string, currentLuggage string, luggageGraph m
 	return bagSet
 }
 
-func countBags(currentLuggage string, luggageGraph map[string]luggageGraphNode) uint64 {
-	node, present := luggageGraph[currentLuggage]
-	if !present {
-		return 0
-	}
+func countBags(currentNode *luggageGraphNode) uint64 {
 	sum := uint64(1)
-	for _, containedLuggageAssociation := range node.contains {
-		sum += containedLuggageAssociation.multiplicity * countBags(containedLuggageAssociation.luggage, luggageGraph)
+	for _, containedLuggageAssociation := range currentNode.contains {
+		sum += containedLuggageAssociation.multiplicity * countBags(containedLuggageAssociation.luggage)
 	}
 	return sum
 }
@@ -99,7 +94,8 @@ func CountCanContainShinyGold(lines []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	bagSet := buildContainingBagSet("shiny gold", "shiny gold", luggageGraph)
+	startNode := luggageGraph["shiny gold"]
+	bagSet := buildContainingBagSet("shiny gold", startNode)
 	return len(bagSet), nil
 }
 
@@ -109,5 +105,6 @@ func CountBagsInShinyGold(lines []string) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return countBags("shiny gold", luggageGraph) - 1, nil
+	startNode := luggageGraph["shiny gold"]
+	return countBags(startNode) - 1, nil
 }
