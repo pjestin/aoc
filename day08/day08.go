@@ -11,8 +11,8 @@ type instruction struct {
 	argument  int64
 }
 
-func parseInstructions(lines []string) ([]*instruction, error) {
-	var instructions []*instruction
+func parseInstructions(lines []string) ([]instruction, error) {
+	var instructions []instruction
 	for _, line := range lines {
 		splitLine := strings.Split(line, " ")
 		arg, err := strconv.ParseInt(splitLine[1], 10, 64)
@@ -20,12 +20,12 @@ func parseInstructions(lines []string) ([]*instruction, error) {
 			return nil, err
 		}
 		ins := instruction{operation: splitLine[0], argument: arg}
-		instructions = append(instructions, &ins)
+		instructions = append(instructions, ins)
 	}
 	return instructions, nil
 }
 
-func tryProgram(instructions []*instruction) (int64, error) {
+func tryProgram(instructions []instruction) (int64, error) {
 	var index int64
 	var acc int64
 	visitedIndices := make(map[int64]bool)
@@ -62,7 +62,7 @@ func InspectInfiniteLoop(lines []string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	acc, err := tryProgram(instructions)
+	acc, _ := tryProgram(instructions)
 	return acc, nil
 }
 
@@ -73,14 +73,13 @@ func RepairProgram(lines []string) (int64, error) {
 		return 0, err
 	}
 	for indexToRepair := range instructions {
-		ins := instructions[indexToRepair]
-		if ins.operation == "nop" || ins.operation == "jmp" {
-			switchOperation(ins)
+		if instructions[indexToRepair].operation == "nop" || instructions[indexToRepair].operation == "jmp" {
+			switchOperation(&instructions[indexToRepair])
 			acc, err := tryProgram(instructions)
 			if err == nil {
 				return acc, nil
 			}
-			switchOperation(ins)
+			switchOperation(&instructions[indexToRepair])
 		}
 	}
 	return 0, errors.New("Program could not be fixed")
