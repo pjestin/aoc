@@ -16,7 +16,13 @@ public class Day12Test {
 
   @Test
   public void getPlantChecksumAfterTwentyGenerationsTest() {
-    assertEquals(325, Day12.getPlantChecksumAfterTwentyGenerations(inputTestLines));
-    assertEquals(3120, Day12.getPlantChecksumAfterTwentyGenerations(inputLines));
+    assertEquals(325, Day12.getPlantChecksumAfterGenerations(inputTestLines, 20));
+    assertEquals(3120, Day12.getPlantChecksumAfterGenerations(inputLines, 20));
+  }
+
+  @Test
+  public void getPlantChecksumAfterFiftyBillionGenerationsTest() {
+    assertEquals(999999999374L, Day12.getPlantChecksumAfterGenerations(inputTestLines, 50000000000L));
+    assertEquals(2950000001598L, Day12.getPlantChecksumAfterGenerations(inputLines, 50000000000L));
   }
 }
