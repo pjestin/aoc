@@ -143,4 +143,28 @@ public class Day13 {
       }
     }
   }
+
+  public static String getLastRemainingCartCoordinates(List<String> lines) {
+    Map<Vector, Character> tracks = parseTracks(lines);
+    TreeMap<Vector, Cart> carts = parseCarts(lines);
+    while (true) {
+      for (Cart cart : carts.values().stream().collect(Collectors.toList())) {
+        if (!carts.containsKey(cart.position)) {
+          continue;
+        }
+        carts.remove(cart.position);
+        cart.position.add(cart.direction);
+        if (carts.containsKey(cart.position)) {
+          carts.remove(cart.position);
+          continue;
+        }
+        carts.put(cart.position, cart);
+        changeCartDirection(cart, tracks);
+      }
+      if (carts.size() <= 1) {
+        return carts.keySet().iterator().next().toString();
+      }
+    }
+
+  }
 }
