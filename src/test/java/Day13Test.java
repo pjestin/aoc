@@ -24,6 +24,6 @@ public class Day13Test {
   @Test
   public void getLastRemainingCartCoordinatesTest() {
     assertEquals("6,4", Day13.getLastRemainingCartCoordinates(inputTest2Lines));
-    assertEquals("73,121", Day13.getLastRemainingCartCoordinates(inputLines)); // 90,83
+    assertEquals("73,121", Day13.getLastRemainingCartCoordinates(inputLines));
   }
 }
