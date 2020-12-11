@@ -5,41 +5,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class Day13 {
-  private static class Vector implements Comparable<Vector> {
-    public int x;
-    public int y;
-
-    public Vector(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%d,%d", x, y);
-    }
-
-    @Override
-    public int hashCode() {
-      return toString().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      return obj instanceof Vector && obj.hashCode() == hashCode();
-    }
-
-    @Override
-    public int compareTo(Vector other) {
-      return Integer.compare(hashCode(), other.hashCode());
-    }
-
-    public void add(Vector other) {
-      x += other.x;
-      y += other.y;
-    }
-  }
-
   private static class Cart {
     public Vector position;
     public Vector direction;
