@@ -1,125 +1,84 @@
 package day11
 
-import "fmt"
-
 type seat struct {
-	x        int
-	y        int
+	present  bool
 	occupied bool
 }
 
-func formatPosition(x int, y int) string {
-	return fmt.Sprintf("%d;%d", x, y)
-}
-
-func parseSeats(lines []string) map[string]seat {
-	seatMap := make(map[string]seat)
+func parseSeats(lines []string) [][]seat {
+	seatGrid := make([][]seat, len(lines))
 	for y, line := range lines {
+		seatGrid[y] = make([]seat, len(line))
 		for x, ch := range line {
-			if rune(ch) == 'L' {
-				seatMap[formatPosition(x, y)] = seat{x: x, y: y, occupied: false}
-			}
+			seatGrid[y][x] = seat{present: rune(ch) == 'L', occupied: false}
 		}
 	}
-	return seatMap
+	return seatGrid
 }
 
-func isSeatOccupied(x int, y int, seatMap map[string]seat) bool {
-	s, present := seatMap[formatPosition(x, y)]
-	return present && s.occupied
+func isAdjacentSeatOccupied(x int, y int, dx int, dy int, seatGrid [][]seat, checkFirstVisibleSeat bool) int {
+	if checkFirstVisibleSeat {
+		visibleSeatX := x + dx
+		visibleSeatY := y + dy
+		for visibleSeatX >= 0 && visibleSeatX < len(seatGrid[0]) && visibleSeatY >= 0 && visibleSeatY < len(seatGrid) {
+			if seatGrid[visibleSeatY][visibleSeatX].occupied {
+				return 1
+			} else if seatGrid[visibleSeatY][visibleSeatX].present {
+				return 0
+			}
+			visibleSeatX += dx
+			visibleSeatY += dy
+		}
+		return 0
+	}
+	if x+dx >= 0 && x+dx < len(seatGrid[0]) && y+dy >= 0 && y+dy < len(seatGrid) && seatGrid[y+dy][x+dx].occupied {
+		return 1
+	}
+	return 0
 }
 
-func countOccupiedAdjacentSeats(s seat, seatMap map[string]seat) int {
+func countOccupiedAdjacentSeats(x int, y int, seatGrid [][]seat, extendedRule bool) int {
 	adjacentOccupiedSeats := 0
 	for dx := -1; dx <= 1; dx++ {
-		if isSeatOccupied(s.x+dx, s.y-1, seatMap) {
-			adjacentOccupiedSeats++
-		}
-		if isSeatOccupied(s.x+dx, s.y+1, seatMap) {
-			adjacentOccupiedSeats++
-		}
+		adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, dx, 1, seatGrid, extendedRule)
+		adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, dx, -1, seatGrid, extendedRule)
 	}
-	if isSeatOccupied(s.x+1, s.y, seatMap) {
-		adjacentOccupiedSeats++
-	}
-	if isSeatOccupied(s.x-1, s.y, seatMap) {
-		adjacentOccupiedSeats++
-	}
+	adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, 1, 0, seatGrid, extendedRule)
+	adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, -1, 0, seatGrid, extendedRule)
 	return adjacentOccupiedSeats
 }
 
-func isOccupiedSeatVisibleInDirection(s seat, seatMap map[string]seat, dx int, dy int) bool {
-	for i := 1; i < 100; i++ {
-		x := s.x + i*dx
-		y := s.y + i*dy
-		visibleSeat, present := seatMap[formatPosition(x, y)]
-		if present {
-			return visibleSeat.occupied
-		}
-	}
-	return false
-}
-
-func countOccupiedVisibleSeats(s seat, seatMap map[string]seat) int {
-	visibleOccupiedSeats := 0
-	for dx := -1; dx <= 1; dx++ {
-		if isOccupiedSeatVisibleInDirection(s, seatMap, dx, -1) {
-			visibleOccupiedSeats++
-		}
-		if isOccupiedSeatVisibleInDirection(s, seatMap, dx, 1) {
-			visibleOccupiedSeats++
-		}
-	}
-	if isOccupiedSeatVisibleInDirection(s, seatMap, -1, 0) {
-		visibleOccupiedSeats++
-	}
-	if isOccupiedSeatVisibleInDirection(s, seatMap, 1, 0) {
-		visibleOccupiedSeats++
-	}
-	return visibleOccupiedSeats
-}
-
-func runSeatRound(seatMap map[string]seat) (map[string]seat, bool) {
-	newSeatMap := make(map[string]seat)
+func runSeatRound(seatGrid [][]seat, extendedRule bool) ([][]seat, bool) {
+	newSeatGrid := make([][]seat, len(seatGrid))
 	madeChange := false
-	for seatPosition, s := range seatMap {
-		occupied := s.occupied
-		adjacentOccupiedSeats := countOccupiedAdjacentSeats(s, seatMap)
-		if s.occupied && adjacentOccupiedSeats >= 4 {
-			occupied = false
-			madeChange = true
-		} else if !s.occupied && adjacentOccupiedSeats == 0 {
-			occupied = true
-			madeChange = true
+	for y, seatLine := range seatGrid {
+		newSeatGrid[y] = make([]seat, len(seatLine))
+		for x, s := range seatLine {
+			if !s.present {
+				continue
+			}
+			occupied := s.occupied
+			adjacentOccupiedSeats := countOccupiedAdjacentSeats(x, y, seatGrid, extendedRule)
+			if s.occupied && (adjacentOccupiedSeats >= 5 || (adjacentOccupiedSeats == 4 && !extendedRule)) {
+				occupied = false
+				madeChange = true
+			} else if !s.occupied && adjacentOccupiedSeats == 0 {
+				occupied = true
+				madeChange = true
+			}
+			newSeatGrid[y][x] = seat{present: true, occupied: occupied}
 		}
-		newSeatMap[seatPosition] = seat{x: s.x, y: s.y, occupied: occupied}
 	}
-	return newSeatMap, madeChange
+	return newSeatGrid, madeChange
 }
 
-func runSeatRoundExtendedRule(seatMap map[string]seat) (map[string]seat, bool) {
-	newSeatMap := make(map[string]seat)
-	madeChange := false
-	for seatPosition, s := range seatMap {
-		occupied := s.occupied
-		visibleOccupiedSeats := countOccupiedVisibleSeats(s, seatMap)
-		if s.occupied && visibleOccupiedSeats >= 5 {
-			occupied = false
-			madeChange = true
-		} else if !s.occupied && visibleOccupiedSeats == 0 {
-			occupied = true
-			madeChange = true
-		}
-		newSeatMap[seatPosition] = seat{x: s.x, y: s.y, occupied: occupied}
-	}
-	return newSeatMap, madeChange
-}
-
-func countOccupiedSeats(seatMap map[string]seat) int {
+func countOccupiedSeats(seatGrid [][]seat) int {
 	occupiedSeats := 0
-	for _, s := range seatMap {
-		if s.occupied {
-			occupiedSeats++
+	for _, seatLine := range seatGrid {
+		for _, s := range seatLine {
+			if s.occupied {
+				occupiedSeats++
+			}
 		}
 	}
 	return occupiedSeats
@@ -127,12 +86,12 @@ func countOccupiedSeats(seatMap map[string]seat) int {
 
 // CountOccupiedSeats runs the seat rounds until no changes are made and returns the number of occupied seats
 func CountOccupiedSeats(lines []string) int {
-	seatMap := parseSeats(lines)
+	seatGrid := parseSeats(lines)
 	madeChange := true
 	for madeChange {
-		seatMap, madeChange = runSeatRound(seatMap)
+		seatGrid, madeChange = runSeatRound(seatGrid, false)
 	}
-	return countOccupiedSeats(seatMap)
+	return countOccupiedSeats(seatGrid)
 }
 
 // CountOccupiedSeatsExtendedRule runs the seat rounds with extended rules and returns the number of occupied seats
@@ -140,7 +99,7 @@ func CountOccupiedSeatsExtendedRule(lines []string) int {
 	seatMap := parseSeats(lines)
 	madeChange := true
 	for madeChange {
-		seatMap, madeChange = runSeatRoundExtendedRule(seatMap)
+		seatMap, madeChange = runSeatRound(seatMap, true)
 	}
 	return countOccupiedSeats(seatMap)
 }

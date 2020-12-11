@@ -20,12 +20,12 @@ func setup() {
 	lines, _ = lib.ReadLines("input.txt")
 }
 
-// func TestCountOccupiedSeats(t *testing.T) {
-// 	res := CountOccupiedSeats(linesTest)
-// 	require.Equal(t, 37, res)
-// 	res = CountOccupiedSeats(lines)
-// 	require.Equal(t, 2299, res)
-// }
+func TestCountOccupiedSeats(t *testing.T) {
+	res := CountOccupiedSeats(linesTest)
+	require.Equal(t, 37, res)
+	res = CountOccupiedSeats(lines)
+	require.Equal(t, 2299, res)
+}
 
 func TestCountOccupiedSeatsExtendedRule(t *testing.T) {
 	res := CountOccupiedSeatsExtendedRule(linesTest)
