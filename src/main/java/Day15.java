@@ -111,7 +111,7 @@ public class Day15 {
       return;
     }
 
-    System.out.println(String.format("Moving unit at %s", unit.position));
+    // System.out.println(String.format("Moving unit at %s", unit.position));
     Set<Vector> enemyRanges = getEnemyRanges(!unit.isElf, units, walls);
     Set<Vector> visited = new HashSet<>();
     LinkedList<State> queue = new LinkedList<>();
@@ -125,7 +125,7 @@ public class Day15 {
       // System.out.println(String.format("At %s", position));
       visited.add(position);
       if (enemyRanges.contains(position)) {
-        System.out.println(String.format("Found enemy range at %s, moving to %s", position, state.path.peek()));
+        // System.out.println(String.format("Found enemy range at %s, moving to %s", position, state.path.peek()));
         units.remove(unit.position);
         unit.position = state.path.peek();
         units.put(unit.position, unit);
@@ -145,10 +145,10 @@ public class Day15 {
   private static void attack(Unit unit, TreeMap<Vector, Unit> units) {
     Unit unitInRange = getUnitInRange(unit, units);
     if (unitInRange != null) {
-      System.out.println(String.format("Attacking %s with unit at %s", unitInRange.position, unit.position));
+      // System.out.println(String.format("Attacking %s with unit at %s", unitInRange.position, unit.position));
       unitInRange.hp -= Unit.ATTACK_POINTS;
       if (unitInRange.hp <= 0) {
-        System.out.println("They died!");
+        // System.out.println("They died!");
         units.remove(unitInRange.position);
       }
     }
@@ -159,7 +159,7 @@ public class Day15 {
     boolean onlyGoblins = true;
     int totalHps = 0;
     for (Unit unit : units.values()) {
-      System.out.println(String.format("position: %s; HP: %d; isElf? %b", unit.position, unit.hp, unit.isElf));
+      // System.out.println(String.format("position: %s; HP: %d; isElf? %b", unit.position, unit.hp, unit.isElf));
       onlyElves &= unit.isElf;
       onlyGoblins &= !unit.isElf;
       totalHps += unit.hp;
@@ -176,11 +176,11 @@ public class Day15 {
     TreeMap<Vector, Unit> units = parseUnits(lines);
     int roundIndex = 0;
     while (true) {
-      System.out.println(String.format("Round %d", roundIndex));
+      // System.out.println(String.format("Round %d", roundIndex));
       for (Unit unit : units.values().stream().collect(Collectors.toList())) {
         OptionalInt result = getResult(units);
         if (result.isPresent()) {
-          System.out.println(String.format("Battle ended, last completed round: %d, total remaining HP: %d", roundIndex, result.getAsInt()));
+          // System.out.println(String.format("Battle ended, last completed round: %d, total remaining HP: %d", roundIndex, result.getAsInt()));
           return result.getAsInt() * roundIndex;
         }
         moveUnit(unit, units, walls);
