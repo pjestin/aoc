@@ -1,41 +1,38 @@
 package day03
 
-type slope struct {
-	dx int
-	dy int
-}
+import "github.com/pjestin/aoc2020/lib"
 
-var slopes = []slope{
-	{dx: 1, dy: 1},
-	{dx: 3, dy: 1},
-	{dx: 5, dy: 1},
-	{dx: 7, dy: 1},
-	{dx: 1, dy: 2},
+var slopes = []lib.Vector{
+	{X: 1, Y: 1},
+	{X: 3, Y: 1},
+	{X: 5, Y: 1},
+	{X: 7, Y: 1},
+	{X: 1, Y: 2},
 }
 
 var defaultSlope = slopes[1]
 
-func countTreesInSlope(lines []string, sl slope) int {
-	var treeCount, x int
-	for y := 0; y < len(lines); y += sl.dy {
+func countTreesInSlope(lines []string, sl lib.Vector) int64 {
+	var treeCount, x int64
+	for y := int64(0); y < int64(len(lines)); y += sl.Y {
 		if string(lines[y][x]) == "#" {
 			treeCount++
 		}
-		x = (x + sl.dx) % len(lines[y])
+		x = (x + sl.X) % int64(len(lines[y]))
 	}
 	return treeCount
 }
 
 // CountTreesInDefaultSlope counts the number of trees on the default slope
-func CountTreesInDefaultSlope(lines []string) int {
+func CountTreesInDefaultSlope(lines []string) int64 {
 	return countTreesInSlope(lines, defaultSlope)
 }
 
 // FindProductOfTreeCountsInSlopes loops over the slopes to count their trees and returns the product of counts
-func FindProductOfTreeCountsInSlopes(lines []string) uint64 {
-	var product uint64 = 1
+func FindProductOfTreeCountsInSlopes(lines []string) int64 {
+	var product int64 = 1
 	for _, sl := range slopes {
-		product *= uint64(countTreesInSlope(lines, sl))
+		product *= countTreesInSlope(lines, sl)
 	}
 	return product
 }

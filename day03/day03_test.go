@@ -22,14 +22,14 @@ func setup() {
 
 func TestCountTreesInDefaultSlope(t *testing.T) {
 	res := CountTreesInDefaultSlope(linesTest)
-	require.Equal(t, 7, res)
+	require.Equal(t, int64(7), res)
 	res = CountTreesInDefaultSlope(lines)
-	require.Equal(t, 151, res)
+	require.Equal(t, int64(151), res)
 }
 
 func TestFindProductOfTreeCountsInSlopes(t *testing.T) {
 	res := FindProductOfTreeCountsInSlopes(linesTest)
-	require.Equal(t, uint64(336), res)
+	require.Equal(t, int64(336), res)
 	res = FindProductOfTreeCountsInSlopes(lines)
-	require.Equal(t, uint64(7540141059), res)
+	require.Equal(t, int64(7540141059), res)
 }

@@ -1,5 +1,7 @@
 package day11
 
+import "github.com/pjestin/aoc2020/lib"
+
 type seat struct {
 	present  bool
 	occupied bool
@@ -16,35 +18,33 @@ func parseSeats(lines []string) [][]seat {
 	return seatGrid
 }
 
-func isAdjacentSeatOccupied(x int, y int, dx int, dy int, seatGrid [][]seat, checkFirstVisibleSeat bool) int {
+func isAdjacentSeatOccupied(position lib.Vector, direction lib.Vector, seatGrid [][]seat, checkFirstVisibleSeat bool) bool {
+	position.Add(direction)
 	if checkFirstVisibleSeat {
-		visibleSeatX := x + dx
-		visibleSeatY := y + dy
-		for visibleSeatX >= 0 && visibleSeatX < len(seatGrid[0]) && visibleSeatY >= 0 && visibleSeatY < len(seatGrid) {
-			if seatGrid[visibleSeatY][visibleSeatX].occupied {
-				return 1
-			} else if seatGrid[visibleSeatY][visibleSeatX].present {
-				return 0
+		for position.X >= 0 && position.X < int64(len(seatGrid[0])) && position.Y >= 0 && position.Y < int64(len(seatGrid)) {
+			if seatGrid[position.Y][position.X].occupied {
+				return true
+			} else if seatGrid[position.Y][position.X].present {
+				return false
 			}
-			visibleSeatX += dx
-			visibleSeatY += dy
+			position.Add(direction)
 		}
-		return 0
+		return false
 	}
-	if x+dx >= 0 && x+dx < len(seatGrid[0]) && y+dy >= 0 && y+dy < len(seatGrid) && seatGrid[y+dy][x+dx].occupied {
-		return 1
+	if position.X >= 0 && position.X < int64(len(seatGrid[0])) && position.Y >= 0 && position.Y < int64(len(seatGrid)) && seatGrid[position.Y][position.X].occupied {
+		return true
 	}
-	return 0
+	return false
 }
 
-func countOccupiedAdjacentSeats(x int, y int, seatGrid [][]seat, extendedRule bool) int {
+func countOccupiedAdjacentSeats(v lib.Vector, seatGrid [][]seat, extendedRule bool) int {
 	adjacentOccupiedSeats := 0
-	for dx := -1; dx <= 1; dx++ {
-		adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, dx, 1, seatGrid, extendedRule)
-		adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, dx, -1, seatGrid, extendedRule)
+	directions := []lib.Vector{{X: -1, Y: -1}, {X: -1, Y: 0}, {X: -1, Y: 1}, {X: 0, Y: -1}, {X: 0, Y: 1}, {X: 1, Y: -1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
+	for _, direction := range directions {
+		if isAdjacentSeatOccupied(v, direction, seatGrid, extendedRule) {
+			adjacentOccupiedSeats++
+		}
 	}
-	adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, 1, 0, seatGrid, extendedRule)
-	adjacentOccupiedSeats += isAdjacentSeatOccupied(x, y, -1, 0, seatGrid, extendedRule)
 	return adjacentOccupiedSeats
 }
 
@@ -58,7 +58,7 @@ func runSeatRound(seatGrid [][]seat, extendedRule bool) ([][]seat, bool) {
 				continue
 			}
 			occupied := s.occupied
-			adjacentOccupiedSeats := countOccupiedAdjacentSeats(x, y, seatGrid, extendedRule)
+			adjacentOccupiedSeats := countOccupiedAdjacentSeats(lib.Vector{X: int64(x), Y: int64(y)}, seatGrid, extendedRule)
 			if s.occupied && (adjacentOccupiedSeats >= 5 || (adjacentOccupiedSeats == 4 && !extendedRule)) {
 				occupied = false
 				madeChange = true
