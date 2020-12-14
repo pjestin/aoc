@@ -22,6 +22,6 @@ public class Day16Test {
 
   @Test
   public void runInputProgramTest() throws Exception {
-    assertEquals(567, Day16.runInputProgram(inputLines));
+    assertEquals(610, Day16.runInputProgram(inputLines));
   }
 }

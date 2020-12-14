@@ -175,21 +175,25 @@ class Day16 {
 
   private static Map<Integer, String> buildOpcodeMap(List<Sample> samples) throws Exception {
     Map<Integer, Set<String>> opcodePossibilities = new HashMap<>();
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < OPCODES.size(); i++) {
       opcodePossibilities.put(i, new HashSet<>(OPCODES));
     }
     for (Sample sample : samples) {
       Set<String> possibleOpcodes = getPossibleOpcodes(sample);
       Set<String> possibilities = opcodePossibilities.get(sample.instruction.opcode);
       possibilities.retainAll(possibleOpcodes);
-      opcodePossibilities.put(sample.instruction.opcode, possibilities);
     }
     Map<Integer, String> opcodeMap = new HashMap<>();
-    for (Map.Entry<Integer, Set<String>> possibility : opcodePossibilities.entrySet()) {
-      if (possibility.getValue().size() != 1) {
-        throw new Exception(String.format("Problem during opcode map building, map set does not have size 1: %d;%s", possibility.getKey(), possibility.getValue()));
+    while (opcodeMap.size() != OPCODES.size()) {
+      for (int i = 0; i < OPCODES.size(); i++) {
+        if (opcodePossibilities.get(i).size() == 1) {
+          String stringOpcode = opcodePossibilities.get(i).iterator().next();
+          opcodeMap.put(i, stringOpcode);
+          for (Set<String> possibilities : opcodePossibilities.values()) {
+            possibilities.remove(stringOpcode);
+          }
+        }
       }
-      opcodeMap.put(possibility.getKey(), possibility.getValue().iterator().next());
     }
     return opcodeMap;
   }
