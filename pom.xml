@@ -1,7 +1,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
  
-  <groupId>pjestin.com.github</groupId>
+  <groupId>com.pjestin</groupId>
   <artifactId>aoc2018</artifactId>
   <version>1</version>
 
