@@ -92,6 +92,24 @@ func parseTickets(lines []string) ([]field, []int, [][]int, error) {
 	return fields, myTicket, nearbyTickets, nil
 }
 
+func isTicketFieldValid(ticketField int, f field) bool {
+	for _, fieldRange := range f.ranges {
+		if ticketField >= fieldRange.begin && ticketField <= fieldRange.end {
+			return true
+		}
+	}
+	return false
+}
+
+func isValidForAnyField(ticketField int, fields []field) bool {
+	for _, f := range fields {
+		if isTicketFieldValid(ticketField, f) {
+			return true
+		}
+	}
+	return false
+}
+
 func GetTicketErrorRate(lines []string) (int, error) {
 	fields, _, nearbyTickets, err := parseTickets(lines)
 	if err != nil {
@@ -100,21 +118,7 @@ func GetTicketErrorRate(lines []string) (int, error) {
 	errorRate := 0
 	for _, ticket := range nearbyTickets {
 		for _, ticketField := range ticket {
-			valid := false
-			for _, f := range fields {
-				match := false
-				for _, fieldRange := range f.ranges {
-					if ticketField >= fieldRange.begin && ticketField <= fieldRange.end {
-						match = true
-						break
-					}
-				}
-				if match {
-					valid = true
-					break
-				}
-			}
-			if !valid {
+			if !isValidForAnyField(ticketField, fields) {
 				errorRate += ticketField
 			}
 		}
@@ -127,22 +131,9 @@ func getValidNearbyTickets(nearbyTickets [][]int, fields []field) [][]int {
 	for _, ticket := range nearbyTickets {
 		ticketValid := true
 		for _, ticketField := range ticket {
-			fieldValid := false
-			for _, f := range fields {
-				match := false
-				for _, fieldRange := range f.ranges {
-					if ticketField >= fieldRange.begin && ticketField <= fieldRange.end {
-						match = true
-						break
-					}
-				}
-				if match {
-					fieldValid = true
-					break
-				}
-			}
-			if !fieldValid {
+			if !isValidForAnyField(ticketField, fields) {
 				ticketValid = false
+				break
 			}
 		}
 		if ticketValid {
@@ -163,14 +154,7 @@ func getFieldPossibilties(validTickets [][]int, fields []field) [][]int {
 		for ticketFieldIndex, ticketField := range ticket {
 			thisFieldPossibilities := make([]int, 0, len(fields))
 			for fieldIndex, f := range fields {
-				match := false
-				for _, fieldRange := range f.ranges {
-					if ticketField >= fieldRange.begin && ticketField <= fieldRange.end {
-						match = true
-						break
-					}
-				}
-				if match {
+				if isTicketFieldValid(ticketField, f) {
 					thisFieldPossibilities = append(thisFieldPossibilities, fieldIndex)
 				}
 			}
