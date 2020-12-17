@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-type cube struct {
-	dimensions []int
-}
-
 func formatPosition(position []int) string {
 	dimensionStrings := make([]string, len(position))
 	for i := 0; i < len(position); i++ {
@@ -17,8 +13,8 @@ func formatPosition(position []int) string {
 	return strings.Join(dimensionStrings, ";")
 }
 
-func parseCubes(lines []string, dim int) map[string]cube {
-	cubes := make(map[string]cube)
+func parseCubes(lines []string, dim int) map[string][]int {
+	cubes := make(map[string][]int)
 	for y := 0; y < len(lines); y++ {
 		line := lines[y]
 		for x := 0; x < len(line); x++ {
@@ -26,24 +22,24 @@ func parseCubes(lines []string, dim int) map[string]cube {
 				dimensions := make([]int, dim)
 				dimensions[0] = x
 				dimensions[1] = y
-				cubes[formatPosition(dimensions)] = cube{dimensions: dimensions}
+				cubes[formatPosition(dimensions)] = dimensions
 			}
 		}
 	}
 	return cubes
 }
 
-func getBoundaries(cubes map[string]cube, dim int) ([]int, []int) {
+func getBoundaries(cubes map[string][]int, dim int) ([]int, []int) {
 	minBoundaries := make([]int, dim)
 	maxBoundaries := make([]int, dim)
 	first := true
 	for _, c := range cubes {
 		for dimIndex := 0; dimIndex < dim; dimIndex++ {
-			if first || c.dimensions[dimIndex] < minBoundaries[dimIndex] {
-				minBoundaries[dimIndex] = c.dimensions[dimIndex]
+			if first || c[dimIndex] < minBoundaries[dimIndex] {
+				minBoundaries[dimIndex] = c[dimIndex]
 			}
-			if first || c.dimensions[dimIndex] > maxBoundaries[dimIndex] {
-				maxBoundaries[dimIndex] = c.dimensions[dimIndex]
+			if first || c[dimIndex] > maxBoundaries[dimIndex] {
+				maxBoundaries[dimIndex] = c[dimIndex]
 			}
 		}
 		first = false
@@ -51,12 +47,13 @@ func getBoundaries(cubes map[string]cube, dim int) ([]int, []int) {
 	return minBoundaries, maxBoundaries
 }
 
-func countNeighbouringCubes(position []int, neighboorPosition []int, cubes map[string]cube, dimIndex int) int {
+func countNeighbouringCubes(position []int, neighboorPosition []int, cubes map[string][]int, dimIndex int) int {
 	if dimIndex == len(position) {
 		samePosition := true
 		for i := 0; i < len(position); i++ {
 			if position[i] != neighboorPosition[i] {
 				samePosition = false
+				break
 			}
 		}
 		if samePosition {
@@ -77,7 +74,7 @@ func countNeighbouringCubes(position []int, neighboorPosition []int, cubes map[s
 	return count
 }
 
-func inspectPosition(position []int, minBoundaries []int, maxBoundaries []int, cubes map[string]cube, nextCubes map[string]cube, dimIndex int) {
+func updateAtPosition(position []int, minBoundaries []int, maxBoundaries []int, cubes map[string][]int, nextCubes map[string][]int, dimIndex int) {
 	if dimIndex == len(position) {
 		neighboorPosition := make([]int, len(position))
 		neighbouringCubes := countNeighbouringCubes(position, neighboorPosition, cubes, 0)
@@ -86,21 +83,21 @@ func inspectPosition(position []int, minBoundaries []int, maxBoundaries []int, c
 		if neighbouringCubes == 3 || (active && neighbouringCubes == 2) {
 			thisPosition := make([]int, len(position))
 			copy(thisPosition, position)
-			nextCubes[positionString] = cube{dimensions: thisPosition}
+			nextCubes[positionString] = thisPosition
 		}
 		return
 	}
 	for xi := minBoundaries[dimIndex] - 1; xi <= maxBoundaries[dimIndex]+1; xi++ {
 		position[dimIndex] = xi
-		inspectPosition(position, minBoundaries, maxBoundaries, cubes, nextCubes, dimIndex+1)
+		updateAtPosition(position, minBoundaries, maxBoundaries, cubes, nextCubes, dimIndex+1)
 	}
 }
 
-func runCycle(cubes map[string]cube, dim int) map[string]cube {
-	nextCubes := make(map[string]cube)
+func runCycle(cubes map[string][]int, dim int) map[string][]int {
+	nextCubes := make(map[string][]int)
 	minBoundaries, maxBoundaries := getBoundaries(cubes, dim)
 	position := make([]int, dim)
-	inspectPosition(position, minBoundaries, maxBoundaries, cubes, nextCubes, 0)
+	updateAtPosition(position, minBoundaries, maxBoundaries, cubes, nextCubes, 0)
 	return nextCubes
 }
 
