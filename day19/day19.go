@@ -63,7 +63,7 @@ func checkMessageRule(message string, rules map[int]rule, ruleIndex int, message
 		return rune(message[messageIndex]) == r.litteral, messageIndex + 1, nil
 	}
 	for _, option := range r.ruleIndicesOptions {
-		// fmt.Println("Matching with", option)
+		// fmt.Println("Matching with", option, "rule", ruleIndex)
 		optionMatch := true
 		thisOptionMessageIndex := messageIndex
 		for _, ruleIndex := range option {
@@ -80,7 +80,7 @@ func checkMessageRule(message string, rules map[int]rule, ruleIndex int, message
 			thisOptionMessageIndex = newMessageIndex
 		}
 		if optionMatch {
-			// fmt.Println("An option matches for rule", ruleIndex, ":", option, "at", messageIndex, "; returning message index", thisOptionMessageIndex)
+			// fmt.Println("An option matches for rule", ruleIndex, ":", option, "at", messageIndex, "; returning message index", thisOptionMessageIndex, "; substring:", message[messageIndex:thisOptionMessageIndex])
 			return true, thisOptionMessageIndex, nil
 		}
 	}
@@ -92,6 +92,7 @@ func checkMessage(message string, rules map[int]rule) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	// fmt.Println("Result for", message, ":", check, ";", lastMessageIndex)
 	return check && lastMessageIndex == len(message), nil
 }
 
