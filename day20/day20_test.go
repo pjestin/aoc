@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var lines, linesTest []string
+var lines, linesTest, seaMonsterLines []string
 
 func TestMain(m *testing.M) {
 	setup()
@@ -18,13 +18,23 @@ func TestMain(m *testing.M) {
 func setup() {
 	linesTest, _ = lib.ReadLines("input-test.txt")
 	lines, _ = lib.ReadLines("input.txt")
+	seaMonsterLines, _ = lib.ReadLines("sea-monster.txt")
 }
 
-func TestAssembleTiles(t *testing.T) {
-	res, err := AssembleTiles(linesTest)
+func TestGetGridCornerIdProduct(t *testing.T) {
+	res, err := GetGridCornerIdProduct(linesTest)
 	require.Nil(t, err)
 	require.Equal(t, uint64(20899048083289), res)
-	res, err = AssembleTiles(lines)
+	res, err = GetGridCornerIdProduct(lines)
 	require.Nil(t, err)
 	require.Equal(t, uint64(12519494280967), res)
+}
+
+func TestFindSeaMonster(t *testing.T) {
+	res, err := FindSeaMonster(linesTest, seaMonsterLines)
+	require.Nil(t, err)
+	require.Equal(t, 273, res)
+	res, err = FindSeaMonster(lines, seaMonsterLines)
+	require.Nil(t, err)
+	require.Equal(t, 2442, res)
 }
