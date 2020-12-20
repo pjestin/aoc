@@ -50,7 +50,6 @@ func parseRulesAndMessages(lines []string) (map[int]rule, []string, error) {
 }
 
 func checkMessageRule(message string, rules map[int]rule, ruleIndex int, messageIndex int) (bool, int, error) {
-	// fmt.Println("Checking", message, "at", messageIndex, "; ruleIndex:", ruleIndex)
 	if messageIndex >= len(message) {
 		return false, 0, nil
 	}
@@ -59,28 +58,23 @@ func checkMessageRule(message string, rules map[int]rule, ruleIndex int, message
 		return false, 0, errors.New("Rule index does not exist")
 	}
 	if r.ruleIndicesOptions == nil {
-		// fmt.Println("Litteral matches:", rune(message[messageIndex]) == r.litteral)
 		return rune(message[messageIndex]) == r.litteral, messageIndex + 1, nil
 	}
 	for _, option := range r.ruleIndicesOptions {
-		// fmt.Println("Matching with", option, "rule", ruleIndex)
 		optionMatch := true
 		thisOptionMessageIndex := messageIndex
 		for _, ruleIndex := range option {
-			// fmt.Println("Checking rule", ruleIndex)
 			check, newMessageIndex, err := checkMessageRule(message, rules, ruleIndex, thisOptionMessageIndex)
 			if err != nil {
 				return false, 0, err
 			}
 			if !check {
-				// fmt.Println("This option doesn't match")
 				optionMatch = false
 				break
 			}
 			thisOptionMessageIndex = newMessageIndex
 		}
 		if optionMatch {
-			// fmt.Println("An option matches for rule", ruleIndex, ":", option, "at", messageIndex, "; returning message index", thisOptionMessageIndex, "; substring:", message[messageIndex:thisOptionMessageIndex])
 			return true, thisOptionMessageIndex, nil
 		}
 	}
@@ -92,7 +86,6 @@ func checkMessage(message string, rules map[int]rule) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	// fmt.Println("Result for", message, ":", check, ";", lastMessageIndex)
 	return check && lastMessageIndex == len(message), nil
 }
 
@@ -115,16 +108,34 @@ func CountMatchingMessages(lines []string) (int, error) {
 	return count, nil
 }
 
+func checkMessageRuleWithLoops(message string, rules map[int]rule) (bool, error) {
+	for splitIndex := 1; splitIndex < len(message)-1; splitIndex++ {
+		check8, lastMessageIndex8, err := checkMessageRule(message[:splitIndex], rules, 8, 0)
+		if err != nil {
+			return false, err
+		}
+		check11, lastMessageIndex11, err := checkMessageRule(message[splitIndex:], rules, 11, 0)
+		if err != nil {
+			return false, err
+		}
+		if check8 && lastMessageIndex8 == splitIndex && check11 && lastMessageIndex11 == len(message)-splitIndex {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// CountMatchingMessagesWithRuleFix fixes the rules 8 and 11 and checks each message with loop behavior
 func CountMatchingMessagesWithRuleFix(lines []string) (int, error) {
 	rules, messages, err := parseRulesAndMessages(lines)
 	if err != nil {
 		return 0, err
 	}
-	rules[8] = rule{ruleIndicesOptions: [][]int{{42}, {42, 8}}}
-	rules[11] = rule{ruleIndicesOptions: [][]int{{42, 31}, {42, 11, 31}}}
+	rules[8] = rule{ruleIndicesOptions: [][]int{{42, 8}, {42}}}
+	rules[11] = rule{ruleIndicesOptions: [][]int{{42, 11, 31}, {42, 31}}}
 	count := 0
 	for _, message := range messages {
-		check, err := checkMessage(message, rules)
+		check, err := checkMessageRuleWithLoops(message, rules)
 		if err != nil {
 			return 0, err
 		}

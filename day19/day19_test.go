@@ -33,11 +33,11 @@ func TestCountMatchingMessages(t *testing.T) {
 	require.Equal(t, 122, res)
 }
 
-// func TestCountMatchingMessagesWithRuleFix(t *testing.T) {
-// 	res, err := CountMatchingMessagesWithRuleFix(linesTest2)
-// 	require.Nil(t, err)
-// 	require.Equal(t, 12, res)
-// 	res, err = CountMatchingMessagesWithRuleFix(lines)
-// 	require.Nil(t, err)
-// 	require.Equal(t, 122, res) // 163 too low
-// }
+func TestCountMatchingMessagesWithRuleFix(t *testing.T) {
+	res, err := CountMatchingMessagesWithRuleFix(linesTest2)
+	require.Nil(t, err)
+	require.Equal(t, 12, res)
+	res, err = CountMatchingMessagesWithRuleFix(lines)
+	require.Nil(t, err)
+	require.Equal(t, 287, res)
+}
