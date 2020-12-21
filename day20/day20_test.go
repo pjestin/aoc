@@ -21,11 +21,11 @@ func setup() {
 	seaMonsterLines, _ = lib.ReadLines("sea-monster.txt")
 }
 
-func TestGetGridCornerIdProduct(t *testing.T) {
-	res, err := GetGridCornerIdProduct(linesTest)
+func TestGetGridCornerIDProduct(t *testing.T) {
+	res, err := GetGridCornerIDProduct(linesTest)
 	require.Nil(t, err)
 	require.Equal(t, uint64(20899048083289), res)
-	res, err = GetGridCornerIdProduct(lines)
+	res, err = GetGridCornerIDProduct(lines)
 	require.Nil(t, err)
 	require.Equal(t, uint64(12519494280967), res)
 }

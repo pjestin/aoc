@@ -122,20 +122,34 @@ func findMatchingTile(t tile, tiles []tile, edge1 int, matchedTileIds map[uint64
 func findCorner(tiles []tile) (tile, error) {
 	emptyMap := make(map[uint64]bool)
 	for _, t := range tiles {
-		for flipping := 0; flipping < 2; flipping++ {
-			for rotation := 0; rotation < 4; rotation++ {
-				matchingTileEdge0 := findMatchingTile(t, tiles, 0, emptyMap)
-				matchingTileEdge1 := findMatchingTile(t, tiles, 1, emptyMap)
-				matchingTileEdge2 := findMatchingTile(t, tiles, 2, emptyMap)
-				matchingTileEdge3 := findMatchingTile(t, tiles, 3, emptyMap)
-				if matchingTileEdge0.data == nil && matchingTileEdge1.data != nil && matchingTileEdge2.data != nil && matchingTileEdge3.data == nil {
-					// Border match at right and bottom
-					return t, nil
-				}
-				t.data = rotate(t.data)
-			}
-			t.data = flip(t.data)
+		matchingEdge0 := findMatchingTile(t, tiles, 0, emptyMap).data != nil
+		matchingEdge1 := findMatchingTile(t, tiles, 1, emptyMap).data != nil
+		matchingEdge2 := findMatchingTile(t, tiles, 2, emptyMap).data != nil
+		matchingEdge3 := findMatchingTile(t, tiles, 3, emptyMap).data != nil
+		countMatch := 0
+		if matchingEdge0 {
+			countMatch++
 		}
+		if matchingEdge1 {
+			countMatch++
+		}
+		if matchingEdge2 {
+			countMatch++
+		}
+		if matchingEdge3 {
+			countMatch++
+		}
+		if countMatch != 2 {
+			continue
+		}
+		if matchingEdge2 && matchingEdge3 {
+			t.data = rotate(t.data)
+		} else if matchingEdge3 && matchingEdge0 {
+			t.data = rotate(rotate(t.data))
+		} else if matchingEdge0 && matchingEdge1 {
+			t.data = rotate(rotate(rotate(t.data)))
+		}
+		return t, nil
 	}
 	return tile{}, errors.New("Corner not found")
 }
@@ -170,8 +184,8 @@ func assembleTiles(tiles []tile) ([][]tile, error) {
 	return tileGrid, nil
 }
 
-// GetGridCornerIdProduct flips and rotates input tiles to assemble them together
-func GetGridCornerIdProduct(lines []string) (uint64, error) {
+// GetGridCornerIDProduct flips and rotates input tiles to assemble them together
+func GetGridCornerIDProduct(lines []string) (uint64, error) {
 	tiles, err := parseTiles(lines)
 	if err != nil {
 		return 0, err
