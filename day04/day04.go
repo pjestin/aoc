@@ -77,7 +77,7 @@ func isPassportDataValid(p map[string]string) bool {
 			}
 		case "ecl":
 			validEyeColors := []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}
-			if !lib.Contains(validEyeColors, value) {
+			if !lib.ContainsString(validEyeColors, value) {
 				return false
 			}
 		case "pid":
