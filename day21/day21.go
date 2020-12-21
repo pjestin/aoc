@@ -1,6 +1,7 @@
 package day21
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/pjestin/aoc2020/lib"
@@ -38,43 +39,34 @@ func buildPossibilities(foods []food) map[string][]string {
 	return possibilities
 }
 
-func prunePossibilities(possibilities *map[string][]string) {
-	matchedAllergens := make(map[string]bool)
-	allergens := make([]string, 0, len(*possibilities))
-	for allergen := range *possibilities {
+func prunePossibilities(possibilities map[string][]string) map[string]string {
+	allergenIngredientMap := make(map[string]string)
+	allergens := make([]string, 0, len(possibilities))
+	for allergen := range possibilities {
 		allergens = append(allergens, allergen)
 	}
-	change := true
-	for change {
-		change = false
+	for len(allergenIngredientMap) < len(possibilities) {
 		for _, allergen := range allergens {
-			_, matched := matchedAllergens[allergen]
-			if !matched && len((*possibilities)[allergen]) == 1 {
-				matchedAllergens[allergen] = true
+			if len(possibilities[allergen]) == 1 {
+				onlyPossibility := possibilities[allergen][0]
+				allergenIngredientMap[allergen] = onlyPossibility
 				for _, otherAllergen := range allergens {
-					if otherAllergen != allergen {
-						(*possibilities)[otherAllergen] = lib.RemoveString((*possibilities)[otherAllergen], allergen)
-					}
+					possibilities[otherAllergen] = lib.RemoveString(possibilities[otherAllergen], onlyPossibility)
 				}
-				change = true
 			}
 		}
 	}
+	return allergenIngredientMap
 }
 
-func findAllergenFreeIngredientCount(foods []food, possibilities map[string][]string) int {
+func findAllergenFreeIngredientCount(foods []food, allergenIngredientMap map[string]string) int {
 	count := 0
 	for _, food := range foods {
 		for _, ingredient := range food.ingredients {
 			hasAllergen := false
-			for _, mappedIngredients := range possibilities {
-				for _, mappedIngredient := range mappedIngredients {
-					if mappedIngredient == ingredient {
-						hasAllergen = true
-						break
-					}
-				}
-				if hasAllergen {
+			for _, mappedIngredient := range allergenIngredientMap {
+				if mappedIngredient == ingredient {
+					hasAllergen = true
 					break
 				}
 			}
@@ -90,6 +82,27 @@ func findAllergenFreeIngredientCount(foods []food, possibilities map[string][]st
 func CountAllergenFreeIngredients(lines []string) int {
 	foods := parseFoodList(lines)
 	possibilities := buildPossibilities(foods)
-	prunePossibilities(&possibilities)
-	return findAllergenFreeIngredientCount(foods, possibilities)
+	allergenIngredientMap := prunePossibilities(possibilities)
+	return findAllergenFreeIngredientCount(foods, allergenIngredientMap)
+}
+
+func getSortedIngredientList(allergenIngredientMap map[string]string) string {
+	sortedAllergens := make([]string, 0, len(allergenIngredientMap))
+	for allergen := range allergenIngredientMap {
+		sortedAllergens = append(sortedAllergens, allergen)
+	}
+	sort.Slice(sortedAllergens, func(i, j int) bool { return sortedAllergens[i] < sortedAllergens[j] })
+	ingredients := make([]string, 0, len(sortedAllergens))
+	for _, allergen := range sortedAllergens {
+		ingredients = append(ingredients, allergenIngredientMap[allergen])
+	}
+	return strings.Join(ingredients, ",")
+}
+
+// GetDangerousIngredientList builds the allergen to ingredient map, then returns a comma-separated list of dangerous ingredients
+func GetDangerousIngredientList(lines []string) string {
+	foods := parseFoodList(lines)
+	possibilities := buildPossibilities(foods)
+	allergenIngredientMap := prunePossibilities(possibilities)
+	return getSortedIngredientList(allergenIngredientMap)
 }

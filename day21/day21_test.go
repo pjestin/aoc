@@ -26,3 +26,10 @@ func TestCountAllergenFreeIngredients(t *testing.T) {
 	res = CountAllergenFreeIngredients(lines)
 	require.Equal(t, 2779, res)
 }
+
+func TestGetDangerousIngredientList(t *testing.T) {
+	res := GetDangerousIngredientList(linesTest)
+	require.Equal(t, "mxmxvkd,sqjhc,fvjkl", res)
+	res = GetDangerousIngredientList(lines)
+	require.Equal(t, "lkv,lfcppl,jhsrjlj,jrhvk,zkls,qjltjd,xslr,rfpbpn", res)
+}
