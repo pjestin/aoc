@@ -10,23 +10,16 @@ import (
 type deck struct {
 	playerID int
 	cards    []int
-	start    int
-	end      int
 }
 
 func (d *deck) pop() int {
-	card := d.cards[d.start]
-	d.start++
+	card := d.cards[0]
+	d.cards = d.cards[1:]
 	return card
 }
 
 func (d *deck) push(card int) {
 	d.cards = append(d.cards, card)
-	d.end++
-}
-
-func (d *deck) size() int {
-	return d.end - d.start
 }
 
 func parseDecks(lines []string) ([]deck, error) {
@@ -48,8 +41,7 @@ func parseDecks(lines []string) ([]deck, error) {
 			if err != nil {
 				return nil, err
 			}
-			currentDeck.cards = append(currentDeck.cards, card)
-			currentDeck.end++
+			currentDeck.push(card)
 		}
 	}
 	decks = append(decks, currentDeck)
@@ -78,10 +70,10 @@ func playRound(decks []deck) int {
 func gameFinished(decks []deck) bool {
 	cardCount := 0
 	for _, d := range decks {
-		cardCount += d.size()
+		cardCount += len(d.cards)
 	}
 	for _, d := range decks {
-		if d.size() == cardCount {
+		if len(d.cards) == cardCount {
 			return true
 		}
 	}
@@ -90,8 +82,8 @@ func gameFinished(decks []deck) bool {
 
 func getDeckScore(d deck) int {
 	score := 0
-	for cardIndex := d.start; cardIndex < d.end; cardIndex++ {
-		score += (d.size() - cardIndex + d.start) * d.cards[cardIndex]
+	for cardIndex, card := range d.cards {
+		score += (len(d.cards) - cardIndex) * card
 	}
 	return score
 }
@@ -117,7 +109,7 @@ func playRecursiveRound(decks []deck) int {
 	for deckIndex := range decks {
 		card := decks[deckIndex].pop()
 		roundCards[deckIndex] = card
-		canRecurse = canRecurse && decks[deckIndex].size() >= card
+		canRecurse = canRecurse && len(decks[deckIndex].cards) >= card
 		if card > maxCard {
 			maxCard = card
 			maxCardDeckIndex = deckIndex
@@ -128,10 +120,10 @@ func playRecursiveRound(decks []deck) int {
 		deckCopies := make([]deck, len(decks))
 		for deckIndex, d := range decks {
 			cardCopies := make([]int, roundCards[deckIndex])
-			for cardIndex := d.start; cardIndex < d.start+roundCards[deckIndex]; cardIndex++ {
-				cardCopies[cardIndex-d.start] = d.cards[cardIndex]
+			for cardIndex := 0; cardIndex < roundCards[deckIndex]; cardIndex++ {
+				cardCopies[cardIndex] = d.cards[cardIndex]
 			}
-			deckCopies[deckIndex] = deck{playerID: d.playerID, cards: cardCopies, start: 0, end: len(cardCopies)}
+			deckCopies[deckIndex] = deck{playerID: d.playerID, cards: cardCopies}
 		}
 		winningDeckIndex = playRecursiveGame(deckCopies)
 	} else {
@@ -165,9 +157,9 @@ func playRecursiveGame(decks []deck) int {
 func getDeckConfigHash(decks []deck) string {
 	deckHashes := make([]string, 0, len(decks))
 	for _, d := range decks {
-		deckCardStrings := make([]string, d.size())
-		for cardIndex := d.start; cardIndex < d.end; cardIndex++ {
-			deckCardStrings[cardIndex-d.start] = fmt.Sprint(d.cards[cardIndex])
+		deckCardStrings := make([]string, len(d.cards))
+		for cardIndex, card := range d.cards {
+			deckCardStrings[cardIndex] = fmt.Sprint(card)
 		}
 		deckHashes = append(deckHashes, fmt.Sprintf("%d: %s", d.playerID, strings.Join(deckCardStrings, ",")))
 	}
