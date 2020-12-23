@@ -107,11 +107,9 @@ func insertRemainingCups(firstCup *listNode, cupMap map[int]*listNode, n int) {
 	currentCup.next = firstCup
 }
 
-func findTwoCupsAfterOneProduct(currentCup *listNode) uint64 {
-	for currentCup.value != 1 {
-		currentCup = currentCup.next
-	}
-	return uint64(currentCup.next.value) * uint64(currentCup.next.next.value)
+func findTwoCupsAfterOneProduct(cupMap map[int]*listNode) uint64 {
+	cupOne := cupMap[1]
+	return uint64(cupOne.next.value) * uint64(cupOne.next.next.value)
 }
 
 // GetFirstTwoCupsAfterTenMillionMoves parse input cups, pads them with numbers until 1 million, makes 10 million moves, and returns the product of the two cups after 1
@@ -124,5 +122,5 @@ func GetFirstTwoCupsAfterTenMillionMoves(input string) (uint64, error) {
 	for round := 0; round < 10000000; round++ {
 		currentCup = makeMove(currentCup, cupMap)
 	}
-	return findTwoCupsAfterOneProduct(currentCup), nil
+	return findTwoCupsAfterOneProduct(cupMap), nil
 }
