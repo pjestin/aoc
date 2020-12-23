@@ -105,3 +105,44 @@ func GetCupOrderAfterMoves(input string, moves int) (string, error) {
 	}
 	return getOrderAfterOne(currentCup, n), nil
 }
+
+func insertRemainingCups(firstCup *listNode, n int) {
+	maxValue := 0
+	currentCup := firstCup
+	for currentCup.value != firstCup.value {
+		if currentCup.value > maxValue {
+			maxValue = currentCup.value
+		}
+		currentCup = currentCup.next
+	}
+	for cup := maxValue + 1; cup <= n; cup++ {
+		nextCup := listNode{value: cup}
+		currentCup.next = &nextCup
+		currentCup = &nextCup
+	}
+	currentCup.next = firstCup
+}
+
+func findTwoCupsAfterOneProduct(currentCup *listNode) uint64 {
+	for currentCup.value != 1 {
+		currentCup = currentCup.next
+	}
+	return uint64(currentCup.next.value) * uint64(currentCup.next.next.value)
+}
+
+// GetFirstTwoCupsAfterTenMillionMoves parse input cups, pads them with numbers until 1 million, makes 10 million moves, and returns the product of the two cups after 1
+func GetFirstTwoCupsAfterTenMillionMoves(input string) (uint64, error) {
+	currentCup, _, err := parseCups(input)
+	if err != nil {
+		return 0, err
+	}
+	n := 1000000
+	insertRemainingCups(currentCup, n)
+	for round := 0; round < 10000000; round++ {
+		if round%100 == 0 {
+			fmt.Println("Move", round)
+		}
+		currentCup = makeMove(currentCup, n)
+	}
+	return findTwoCupsAfterOneProduct(currentCup), nil
+}

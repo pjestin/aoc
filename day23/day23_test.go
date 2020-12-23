@@ -17,3 +17,12 @@ func TestGetCupOrderAfterMoves(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, "52864379", res)
 }
+
+func TestGetFirstTwoCupsAfterTenMillionMoves(t *testing.T) {
+	res, err := GetFirstTwoCupsAfterTenMillionMoves("389125467")
+	require.Nil(t, err)
+	require.Equal(t, uint64(5432), res)
+	res, err = GetFirstTwoCupsAfterTenMillionMoves("389125467")
+	require.Nil(t, err)
+	require.Equal(t, uint64(5432), res)
+}
