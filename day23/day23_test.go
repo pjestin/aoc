@@ -15,5 +15,5 @@ func TestGetCupOrderAfterMoves(t *testing.T) {
 	require.Equal(t, "67384529", res)
 	res, err = GetCupOrderAfterMoves("318946572", 100)
 	require.Nil(t, err)
-	require.Equal(t, "36257", res) // 269715384 too high, 53842697 too high
+	require.Equal(t, "52864379", res)
 }

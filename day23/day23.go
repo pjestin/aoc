@@ -4,107 +4,104 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/pjestin/aoc2020/lib"
 )
 
-func parseCups(input string) ([]int, error) {
+type listNode struct {
+	value int
+	next  *listNode
+}
+
+// func displayCups(firstCup *listNode) string {
+// 	currentCup := firstCup
+// 	var cupValues []string
+// 	for currentCup != nil && currentCup.next != firstCup {
+// 		cupValues = append(cupValues, fmt.Sprint(currentCup.value))
+// 		currentCup = currentCup.next
+// 	}
+// 	if currentCup == nil {
+// 		cupValues = append(cupValues, "!")
+// 	} else {
+// 		cupValues = append(cupValues, fmt.Sprint(currentCup.value))
+// 	}
+// 	return strings.Join(cupValues, " ")
+// }
+
+func parseCups(input string) (*listNode, int, error) {
 	splitLine := strings.Split(input, "")
-	cups := make([]int, len(input))
-	for i, numberString := range splitLine {
+	listStart := listNode{}
+	currentCup := &listStart
+	for _, numberString := range splitLine {
 		cup, err := strconv.Atoi(numberString)
 		if err != nil {
-			return nil, err
+			return &listStart, 0, err
 		}
-		cups[i] = cup
+		nextCup := listNode{value: cup}
+		currentCup.next = &nextCup
+		currentCup = &nextCup
 	}
-	return cups, nil
+	currentCup.next = listStart.next
+	return listStart.next, len(input), nil
 }
 
 func mod(a int, b int) int {
 	return ((a % b) + b) % b
 }
 
-func chooseDestinationCupIndex(cups []int, currentCupIndex int) int {
-	destinationCupLabel := cups[currentCupIndex] - 1
-	for true {
-		// fmt.Println("Trying with", destinationCupLabel)
-		destinationCupIndex := 0
-		for i := 0; i < len(cups); i++ {
-			if cups[i] == destinationCupLabel {
-				destinationCupIndex = i
-				break
-			}
-		}
-		isValid := true
-		for i := 0; i < 3; i++ {
-			if destinationCupIndex == mod(currentCupIndex+i+1, len(cups)) {
-				isValid = false
-				break
-			}
-		}
-		if isValid {
-			return destinationCupIndex
-		}
-		destinationCupLabel = mod(destinationCupLabel-2, len(cups)) + 1
+func makeMove(currentCup *listNode, n int) *listNode {
+	// Get cups to move
+	cupsToMoveBegin := currentCup.next
+	cupsToMoveEnd := cupsToMoveBegin.next.next
+
+	// Detach from main list
+	currentCup.next = cupsToMoveEnd.next
+	afterCupsToMove := cupsToMoveEnd.next
+	cupsToMoveEnd.next = nil
+
+	// Find destination label
+	pickedCupLabels := []int{cupsToMoveBegin.value, cupsToMoveBegin.next.value, cupsToMoveEnd.value}
+	destinationCupLabel := mod(currentCup.value-2, n) + 1
+	for lib.ContainsInt(pickedCupLabels, destinationCupLabel) {
+		destinationCupLabel = mod(destinationCupLabel-2, n) + 1
 	}
-	return 0
+
+	// Find destination cup
+	destinationCup := afterCupsToMove
+	for destinationCup.value != destinationCupLabel {
+		destinationCup = destinationCup.next
+	}
+
+	// Insert cups to move
+	afterDestinationCup := destinationCup.next
+	destinationCup.next = cupsToMoveBegin
+	cupsToMoveEnd.next = afterDestinationCup
+
+	// Return next cup
+	return currentCup.next
 }
 
-func swapRanges(cups []int, start int, mid int, end int) {
-	n := len(cups)
-	displacement := mod(end-mid, n)
-	loopSize := mod(end-start, n)
-	swappedCups := make([]int, len(cups))
-	cupIndex := start
-	for i := 0; i < loopSize; i++ {
-		loopIndex := mod(cupIndex-start, n)
-		newLoopIndex := mod(loopIndex+displacement, loopSize)
-		newCupIndex := mod(newLoopIndex+start, n)
-		// fmt.Println("New index:", newCupIndex, "; old index:", cupIndex, "start:", start, "mid:", mid, "end:", end)
-		swappedCups[newCupIndex] = cups[cupIndex]
-		cupIndex = mod(cupIndex+1, n)
+func getOrderAfterOne(currentCup *listNode, n int) string {
+	for currentCup.value != 1 {
+		currentCup = currentCup.next
 	}
-	// fmt.Println("Swapped cups:", swappedCups)
-	cupIndex = start
-	for i := 0; i < loopSize; i++ {
-		cups[cupIndex] = swappedCups[cupIndex]
-		cupIndex = mod(cupIndex+1, n)
-	}
-}
-
-func makeMove(cups []int, currentCupIndex int) int {
-	destinationCupIndex := chooseDestinationCupIndex(cups, currentCupIndex)
-	// fmt.Println("Current cup index:", currentCupIndex, ";destination cup index:", destinationCupIndex)
-	start := mod(currentCupIndex+1, len(cups))
-	mid := mod(currentCupIndex+4, len(cups))
-	end := destinationCupIndex + 1
-	swapRanges(cups, start, mid, end)
-	return start
-}
-
-func getOrderAfterOne(cups []int) string {
-	n := len(cups)
-	cupIndex := 0
-	for cups[cupIndex] != 1 {
-		cupIndex++
-	}
-	stringNumbers := make([]string, len(cups))
+	currentCup = currentCup.next
+	stringNumbers := make([]string, n)
 	for i := 0; i < n-1; i++ {
-		stringNumbers[i] = fmt.Sprint(cups[mod(cupIndex+i+1, n)])
+		stringNumbers[i] = fmt.Sprint(currentCup.value)
+		currentCup = currentCup.next
 	}
 	return strings.Join(stringNumbers, "")
 }
 
 // GetCupOrderAfterMoves moves the cups a number of times and returns their final order
 func GetCupOrderAfterMoves(input string, moves int) (string, error) {
-	cups, err := parseCups(input)
+	currentCup, n, err := parseCups(input)
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("Cups:", cups)
-	currentCupIndex := 0
 	for round := 0; round < moves; round++ {
-		currentCupIndex = makeMove(cups, currentCupIndex)
-		fmt.Println("Cups:", cups)
+		currentCup = makeMove(currentCup, n)
 	}
-	return getOrderAfterOne(cups), nil
+	return getOrderAfterOne(currentCup, n), nil
 }
