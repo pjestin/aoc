@@ -13,9 +13,9 @@ type listNode struct {
 	next  *listNode
 }
 
-func parseCups(input string) (*listNode, map[int]*listNode, error) {
+func parseCups(input string) (*listNode, []*listNode, error) {
 	splitLine := strings.Split(input, "")
-	cupMap := make(map[int]*listNode)
+	cupMap := make([]*listNode, len(input))
 	listStart := listNode{}
 	currentCup := &listStart
 	for _, numberString := range splitLine {
@@ -24,7 +24,7 @@ func parseCups(input string) (*listNode, map[int]*listNode, error) {
 			return &listStart, cupMap, err
 		}
 		nextCup := listNode{value: cup}
-		cupMap[cup] = &nextCup
+		cupMap[cup-1] = &nextCup
 		currentCup.next = &nextCup
 		currentCup = &nextCup
 	}
@@ -36,7 +36,7 @@ func mod(a int, b int) int {
 	return ((a % b) + b) % b
 }
 
-func makeMove(currentCup *listNode, cupMap map[int]*listNode) *listNode {
+func makeMove(currentCup *listNode, cupMap []*listNode) *listNode {
 	n := len(cupMap)
 
 	// Get cups to move
@@ -55,7 +55,7 @@ func makeMove(currentCup *listNode, cupMap map[int]*listNode) *listNode {
 	}
 
 	// Find destination cup
-	destinationCup := cupMap[destinationCupLabel]
+	destinationCup := cupMap[destinationCupLabel-1]
 
 	// Insert cups to move
 	afterDestinationCup := destinationCup.next
@@ -66,9 +66,9 @@ func makeMove(currentCup *listNode, cupMap map[int]*listNode) *listNode {
 	return currentCup.next
 }
 
-func getOrderAfterOne(cupMap map[int]*listNode) string {
+func getOrderAfterOne(cupMap []*listNode) string {
 	n := len(cupMap)
-	currentCup := cupMap[1].next
+	currentCup := cupMap[0].next
 	stringNumbers := make([]string, n)
 	for i := 0; i < n-1; i++ {
 		stringNumbers[i] = fmt.Sprint(currentCup.value)
@@ -89,36 +89,40 @@ func GetCupOrderAfterMoves(input string, moves int) (string, error) {
 	return getOrderAfterOne(cupMap), nil
 }
 
-func insertRemainingCups(firstCup *listNode, cupMap map[int]*listNode, n int) {
+func insertRemainingCups(firstCup *listNode, n int) []*listNode {
 	maxValue := 0
 	currentCup := firstCup
+	cupMap := make([]*listNode, n)
 	for currentCup.next != firstCup {
 		if currentCup.value > maxValue {
 			maxValue = currentCup.value
 		}
+		cupMap[currentCup.value-1] = currentCup
 		currentCup = currentCup.next
 	}
+	cupMap[currentCup.value-1] = currentCup
 	for cup := maxValue + 1; cup <= n; cup++ {
 		nextCup := listNode{value: cup}
 		currentCup.next = &nextCup
 		currentCup = &nextCup
-		cupMap[cup] = currentCup
+		cupMap[cup-1] = currentCup
 	}
 	currentCup.next = firstCup
+	return cupMap
 }
 
-func findTwoCupsAfterOneProduct(cupMap map[int]*listNode) uint64 {
-	cupOne := cupMap[1]
+func findTwoCupsAfterOneProduct(cupMap []*listNode) uint64 {
+	cupOne := cupMap[0]
 	return uint64(cupOne.next.value) * uint64(cupOne.next.next.value)
 }
 
 // GetFirstTwoCupsAfterTenMillionMoves parse input cups, pads them with numbers until 1 million, makes 10 million moves, and returns the product of the two cups after 1
 func GetFirstTwoCupsAfterTenMillionMoves(input string) (uint64, error) {
-	currentCup, cupMap, err := parseCups(input)
+	currentCup, _, err := parseCups(input)
 	if err != nil {
 		return 0, err
 	}
-	insertRemainingCups(currentCup, cupMap, 1000000)
+	cupMap := insertRemainingCups(currentCup, 1000000)
 	for round := 0; round < 10000000; round++ {
 		currentCup = makeMove(currentCup, cupMap)
 	}
