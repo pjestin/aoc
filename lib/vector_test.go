@@ -20,3 +20,19 @@ func TestVectorManhattanDistance(t *testing.T) {
 	require.Equal(t, int64(5333), v1.ManhattanDistance())
 	require.Equal(t, int64(918), v2.ManhattanDistance())
 }
+
+func TestVectorFormat(t *testing.T) {
+	v := Vector{X: -866, Y: 52}
+	require.Equal(t, "-866;52", v.Format())
+}
+
+func TestParseVectorSuccess(t *testing.T) {
+	v, err := ParseVector("54;-909")
+	require.Nil(t, err)
+	require.Equal(t, Vector{X: 54, Y: -909}, v)
+}
+
+func TestParseVectorFailure(t *testing.T) {
+	_, err := ParseVector("54,-909")
+	require.NotNil(t, err)
+}
