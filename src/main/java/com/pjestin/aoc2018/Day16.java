@@ -9,12 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.pjestin.lib.Instruction;
+
 class Day16 {
-  private static class Instruction {
+  private static class RawInstruction {
     public int opcode;
     public int[] params;
 
-    public Instruction(int opcode, int[] params) {
+    public RawInstruction(int opcode, int[] params) {
       this.opcode = opcode;
       this.params = params;
     }
@@ -24,15 +26,17 @@ class Day16 {
     }
   }
 
-  private static final Set<String> OPCODES = new HashSet<>(Arrays.asList("addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir", "gtri", "gtrr", "eqir", "eqri", "eqrr"));
+  private static final Set<String> OPCODES = new HashSet<>(Arrays.asList("addr", "addi", "mulr", "muli", "banr", "bani",
+      "borr", "bori", "setr", "seti", "gtir", "gtri", "gtrr", "eqir", "eqri", "eqrr"));
 
   private static class Sample {
     public int[] registersBefore;
-    public Instruction instruction;
+    public RawInstruction instruction;
     public int[] registersAfter;
 
     public String toString() {
-      return String.format("%s\n%s\n%s\n", Arrays.toString(registersBefore), instruction, Arrays.toString(registersAfter));
+      return String.format("%s\n%s\n%s\n", Arrays.toString(registersBefore), instruction,
+          Arrays.toString(registersAfter));
     }
   }
 
@@ -42,32 +46,28 @@ class Day16 {
     for (String line : lines) {
       if (line.isBlank()) {
         if (currentSample.registersBefore == null && currentSample.registersAfter == null
-          && currentSample.instruction == null) {
+            && currentSample.instruction == null) {
           break;
         }
         samples.add(currentSample);
         currentSample = new Sample();
       } else if (line.startsWith("Before")) {
-        currentSample.registersBefore = Stream.of(line.split("[\\[\\]]")[1].split(", "))
-          .mapToInt(Integer::parseInt)
-          .toArray();
+        currentSample.registersBefore = Stream.of(line.split("[\\[\\]]")[1].split(", ")).mapToInt(Integer::parseInt)
+            .toArray();
       } else if (line.startsWith("After")) {
-        currentSample.registersAfter = Stream.of(line.split("[\\[\\]]")[1].split(", "))
-          .mapToInt(Integer::parseInt)
-          .toArray();
+        currentSample.registersAfter = Stream.of(line.split("[\\[\\]]")[1].split(", ")).mapToInt(Integer::parseInt)
+            .toArray();
       } else {
         String[] instruction = line.split(" ");
-        int[] params = Stream.of(Arrays.copyOfRange(instruction, 1, 4))
-          .mapToInt(Integer::parseInt)
-          .toArray();
-        currentSample.instruction = new Instruction(Integer.valueOf(instruction[0]), params);
+        int[] params = Stream.of(Arrays.copyOfRange(instruction, 1, 4)).mapToInt(Integer::parseInt).toArray();
+        currentSample.instruction = new RawInstruction(Integer.valueOf(instruction[0]), params);
       }
     }
     return samples;
   }
 
-  private static List<Instruction> parseInstructions(List<String> lines) {
-    List<Instruction> instructions = new ArrayList<>();
+  private static List<RawInstruction> parseInstructions(List<String> lines) {
+    List<RawInstruction> instructions = new ArrayList<>();
     boolean previousLineIsBlank = false;
     boolean foundTwoBlankLines = false;
     for (String line : lines) {
@@ -80,82 +80,22 @@ class Day16 {
         continue;
       } else {
         previousLineIsBlank = false;
-      } 
+      }
       if (foundTwoBlankLines) {
         String[] instruction = line.split(" ");
-        int[] params = Stream.of(Arrays.copyOfRange(instruction, 1, 4))
-          .mapToInt(Integer::parseInt)
-          .toArray();
-          instructions.add(new Instruction(Integer.valueOf(instruction[0]), params));
+        int[] params = Stream.of(Arrays.copyOfRange(instruction, 1, 4)).mapToInt(Integer::parseInt).toArray();
+        instructions.add(new RawInstruction(Integer.valueOf(instruction[0]), params));
       }
     }
     return instructions;
-  }
-
-  private static void runInstruction(Instruction instruction, int[] registers, String opcodeString) {
-    int a = instruction.params[0];
-    int b = instruction.params[1];
-    int aRegister = registers[a];
-    int bRegister = registers[b];
-    int value = -1;
-    switch (opcodeString) {
-      case "addr":
-        value = aRegister + bRegister;
-        break;
-      case "addi":
-        value = aRegister + b;
-        break;
-      case "mulr":
-        value = aRegister * bRegister;
-        break;
-      case "muli":
-        value = aRegister * b;
-        break;
-      case "banr":
-        value = aRegister & bRegister;
-        break;
-      case "bani":
-        value = aRegister & b;
-        break;
-      case "borr":
-        value = aRegister | bRegister;
-        break;
-      case "bori":
-        value = aRegister | b;
-        break;
-      case "setr":
-        value = aRegister;
-        break;
-      case "seti":
-        value = a;
-        break;
-      case "gtir":
-        value = (a > bRegister ? 1 : 0);
-        break;
-      case "gtri":
-        value = (aRegister > b ? 1 : 0);
-        break;
-      case "gtrr":
-        value = (aRegister > bRegister ? 1 : 0);
-        break;
-      case "eqir":
-        value = (a == bRegister ? 1 : 0);
-        break;
-      case "eqri":
-        value = (aRegister == b ? 1 : 0);
-        break;
-      case "eqrr":
-        value = (aRegister == bRegister ? 1 : 0);
-        break;
-    }
-    registers[instruction.params[2]] = value;
   }
 
   private static Set<String> getPossibleOpcodes(Sample sample) {
     Set<String> possibleOpcodes = new HashSet<>();
     for (String opcode : OPCODES) {
       int[] registers = sample.registersBefore.clone();
-      runInstruction(sample.instruction, registers, opcode);
+      Instruction instruction = new Instruction(opcode, sample.instruction.params);
+      instruction.run(registers);
       if (Arrays.equals(registers, sample.registersAfter)) {
         possibleOpcodes.add(opcode);
       }
@@ -200,14 +140,19 @@ class Day16 {
     return opcodeMap;
   }
 
+  private static Instruction convertInstruction(RawInstruction rawInstruction, Map<Integer, String> opcodeMap) {
+    String opcodeString = opcodeMap.get(rawInstruction.opcode);
+    return new Instruction(opcodeString, rawInstruction.params);
+  }
+
   public static int runInputProgram(List<String> lines) throws Exception {
     List<Sample> samples = parseSamples(lines);
-    List<Instruction> instructions = parseInstructions(lines);
+    List<RawInstruction> rawInstructions = parseInstructions(lines);
     Map<Integer, String> opcodeMap = buildOpcodeMap(samples);
     int[] registers = new int[4];
-    for (Instruction instruction : instructions) {
-      String opcodeString = opcodeMap.get(instruction.opcode);
-      runInstruction(instruction, registers, opcodeString);
+    for (RawInstruction rawInstruction : rawInstructions) {
+      Instruction instruction = convertInstruction(rawInstruction, opcodeMap);
+      instruction.run(registers);
     }
     return registers[0];
   }
