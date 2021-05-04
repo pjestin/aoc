@@ -1,15 +1,15 @@
 package com.pjestin.aoc2018;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Day18 {
   private static class NeighbourCount {
     public int wooded = 0;
     public int lumberyard = 0;
   }
-
-  private static final int NB_CYCLES = 10;
 
   private static List<List<Character>> parseGrid(List<String> lines) {
     List<List<Character>> grid = new ArrayList<>();
@@ -78,6 +78,16 @@ public class Day18 {
     return newGrid;
   }
 
+  private static String getGridString(List<List<Character>> grid) {
+    StringBuilder sb = new StringBuilder();
+    for (List<Character> row : grid) {
+      for (char c : row) {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
   private static int countAcres(List<List<Character>> grid, char charToCount) {
     int count = 0;
     for (List<Character> row : grid) {
@@ -90,10 +100,19 @@ public class Day18 {
     return count;
   }
 
-  public static int countWoodedAndLumberyardAcres(List<String> lines) {
+  public static int countWoodedAndLumberyardAcres(List<String> lines, int nbCycles) {
     List<List<Character>> grid = parseGrid(lines);
-    for (int i = 0; i < NB_CYCLES; ++i) {
+    Map<String, Integer> gridStrings = new HashMap<>();
+    int time = 0;
+    while (time < nbCycles) {
       grid = transform(grid);
+      String gridString = getGridString(grid);
+      if (gridStrings.containsKey(gridString)) {
+        int cycleLength = time - gridStrings.get(gridString);
+        time += ((nbCycles - time) / cycleLength) * cycleLength;
+      }
+      gridStrings.put(gridString, time);
+      ++time;
     }
     int nbWooded = countAcres(grid, '|');
     int nbLumberyard = countAcres(grid, '#');

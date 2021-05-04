@@ -20,8 +20,14 @@ public class Day18Test {
   }
 
   @Test
-  public void countWoodedAndLumberyardAcresTest() {
-    assertEquals(1147, Day18.countWoodedAndLumberyardAcres(inputTestLines));
-    assertEquals(539682, Day18.countWoodedAndLumberyardAcres(inputLines));
+  public void countWoodedAndLumberyardAcresPart1Test() {
+    assertEquals(1147, Day18.countWoodedAndLumberyardAcres(inputTestLines, 10));
+    assertEquals(539682, Day18.countWoodedAndLumberyardAcres(inputLines, 10));
+  }
+
+  @Test
+  public void countWoodedAndLumberyardAcresPart2Test() {
+    assertEquals(0, Day18.countWoodedAndLumberyardAcres(inputTestLines, 1000000000));
+    assertEquals(226450, Day18.countWoodedAndLumberyardAcres(inputLines, 1000000000));
   }
 }
