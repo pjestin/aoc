@@ -24,4 +24,10 @@ public class Day19Test {
     assertEquals(7, Day19.runInstructions(inputTestLines));
     assertEquals(1968, Day19.runInstructions(inputLines));
   }
+
+  @Test
+  public void findSumOfDivisorsTest() {
+    assertEquals(1968, Day19.findSumOfDivisors(978));
+    assertEquals(21211200, Day19.findSumOfDivisors(10551378));
+  }
 }
