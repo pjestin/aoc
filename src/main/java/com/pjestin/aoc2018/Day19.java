@@ -1,6 +1,5 @@
 package com.pjestin.aoc2018;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import static java.lang.Integer.parseInt;
@@ -13,17 +12,12 @@ public class Day19 {
   }
 
   private static List<Instruction> parseInstructions(List<String> lines) {
-    return lines.stream().map(line -> {
-      String[] splitLine = line.split(" ");
-      String opcode = splitLine[0];
-      int[] params = Arrays.stream(Arrays.copyOfRange(splitLine, 1, 4)).mapToInt(Integer::parseInt).toArray();
-      return new Instruction(opcode, params);
-    }).collect(Collectors.toList());
+    return lines.subList(1, lines.size()).stream().map(Instruction::parse).collect(Collectors.toList());
   }
 
   public static int runInstructions(List<String> lines) {
     int ipRegister = parseIPRegister(lines.get(0));
-    List<Instruction> instructions = parseInstructions(lines.subList(1, lines.size()));
+    List<Instruction> instructions = parseInstructions(lines);
     int[] registers = new int[6];
     while (registers[ipRegister] >= 0 && registers[ipRegister] < instructions.size()) {
       instructions.get(registers[ipRegister]).run(registers);

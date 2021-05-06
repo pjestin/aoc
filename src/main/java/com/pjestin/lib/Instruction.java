@@ -15,6 +15,13 @@ public class Instruction {
     return String.format("%s %s", this.opcode, Arrays.toString(this.params));
   }
 
+  public static Instruction parse(String line) {
+    String[] splitLine = line.split(" ");
+    String opcode = splitLine[0];
+    int[] params = Arrays.stream(Arrays.copyOfRange(splitLine, 1, 4)).mapToInt(Integer::parseInt).toArray();
+    return new Instruction(opcode, params);
+  }
+
   public void run(int[] registers) {
     int a = this.params[0];
     int b = this.params[1];

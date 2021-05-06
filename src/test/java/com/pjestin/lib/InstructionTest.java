@@ -13,6 +13,14 @@ public class InstructionTest {
   }
 
   @Test
+  public void parseTest() {
+    String line = "bani 1 16777215 1";
+    Instruction instruction = Instruction.parse(line);
+    assertEquals("bani", instruction.opcode);
+    assertArrayEquals(new int[] { 1, 16777215, 1 }, instruction.params);
+  }
+
+  @Test
   public void runSetiTest() {
     Instruction instruction = new Instruction("seti", new int[] { 1, 0, 2 });
     int[] registers = new int[] { 0, 0, 0, 0 };
