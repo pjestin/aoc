@@ -24,4 +24,9 @@ public class Day22Test {
     assertEquals(114, Day22.findRiskLevel(inputTestLines));
     assertEquals(5637, Day22.findRiskLevel(inputLines));
   }
+
+  @Test
+  public void findPathToTargetTest() {
+    assertEquals(45, Day22.findPathToTarget(inputTestLines));
+  }
 }
