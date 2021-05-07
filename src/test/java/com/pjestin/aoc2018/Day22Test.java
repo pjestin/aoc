@@ -28,5 +28,6 @@ public class Day22Test {
   @Test
   public void findPathToTargetTest() {
     assertEquals(45, Day22.findPathToTarget(inputTestLines));
+    assertEquals(969, Day22.findPathToTarget(inputLines));
   }
 }

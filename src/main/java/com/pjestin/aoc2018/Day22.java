@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 import com.pjestin.lib.Vector;
 
@@ -61,17 +62,11 @@ public class Day22 {
   public static int findRiskLevel(List<String> lines) {
     int depth = parseDepth(lines.get(0));
     Vector target = parseTarget(lines.get(1));
-    Map<Vector, Integer> typeMap = buildTypeMap(depth, target, target.x + 1, target.y + 1);
-    int riskLevel = 0;
-    for (int x = 0; x <= target.x; ++x) {
-      for (int y = 0; y <= target.y; ++y) {
-        riskLevel += typeMap.get(new Vector(x, y));
-      }
-    }
-    return riskLevel;
+    Map<Vector, Integer> typeMap = buildTypeMap(depth, target, target.x, target.y);
+    return typeMap.values().stream().reduce(0, Integer::sum);
   }
 
-  private static class QueueState {
+  private static class QueueState implements Comparable<QueueState> {
     Vector position;
     int time;
     int gear;
@@ -88,33 +83,35 @@ public class Day22 {
     public String toString() {
       return String.format("position=%s time=%d gear=%d", this.position, this.time, this.gear);
     }
+
+    @Override
+    public int compareTo(QueueState other) {
+      return Integer.compare(this.time, other.time);
+    }
   }
 
   private static String getStateHash(Vector position, int gear) {
     return String.format("%s;%d", position, gear);
   }
 
-  public static int findPathToTarget(List<String> lines) {
-    int depth = parseDepth(lines.get(0));
-    Vector target = parseTarget(lines.get(1));
-    int xMax = 7 * target.x;
-    int yMax = 7 * target.y;
-    Map<Vector, Integer> typeMap = buildTypeMap(depth, target, xMax, yMax);
-    LinkedList<QueueState> queue = new LinkedList<>();
+  private static int findShortestPath(Map<Vector, Integer> typeMap, Vector target, int xMax, int yMax) {
+    PriorityQueue<QueueState> queue = new PriorityQueue<>();
     queue.add(new QueueState(new Vector(0, 0), 0, 1));
     Map<String, Integer> timeMap = new HashMap<>();
     while (!queue.isEmpty()) {
-      QueueState state = queue.removeFirst();
+      QueueState state = queue.remove();
       String stateHash = getStateHash(state.position, state.gear);
       if (timeMap.containsKey(stateHash) && state.time >= timeMap.get(stateHash)) {
         continue;
       }
       timeMap.put(stateHash, state.time);
       if (target.equals(state.position)) {
-        if (state.gear != 1) {
-          queue.addLast(new QueueState(state.position, state.time + 7, 1));
+        if (state.gear == 1) {
+          return state.time;
+        } else {
+          queue.add(new QueueState(state.position, state.time + 7, 1));
+          continue;
         }
-        continue;
       }
       int type = typeMap.get(state.position);
       for (Vector neighbour : NEIGHBOUR_POSITIONS) {
@@ -125,13 +122,22 @@ public class Day22 {
         }
         int neighbourType = typeMap.get(neighbourPosition);
         if (neighbourType != state.gear) {
-          queue.addLast(new QueueState(neighbourPosition, state.time + 1, state.gear));
+          queue.add(new QueueState(neighbourPosition, state.time + 1, state.gear));
         } else {
           int newGear = 3 - (neighbourType + type);
-          queue.addLast(new QueueState(neighbourPosition, state.time + 8, newGear));
+          queue.add(new QueueState(neighbourPosition, state.time + 8, newGear));
         }
       }
     }
-    return timeMap.get(getStateHash(target, 1));
+    return -1;
+  }
+
+  public static int findPathToTarget(List<String> lines) {
+    int depth = parseDepth(lines.get(0));
+    Vector target = parseTarget(lines.get(1));
+    int xMax = 7 * target.x;
+    int yMax = 7 * target.y;
+    Map<Vector, Integer> typeMap = buildTypeMap(depth, target, xMax, yMax);
+    return findShortestPath(typeMap, target, xMax, yMax);
   }
 }
