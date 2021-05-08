@@ -163,6 +163,12 @@ public class Day24 {
       return this.immuneSystem.stream().map(group -> group.nbUnits).reduce(0, Integer::sum)
           + this.infection.stream().map(group -> group.nbUnits).reduce(0, Integer::sum);
     }
+
+    public void boostImmuneSystem(int boost) {
+      for (Group group : this.immuneSystem) {
+        group.attackDamage += boost;
+      }
+    }
   }
 
   private static Battle parseArmies(List<String> lines) {
@@ -216,6 +222,41 @@ public class Day24 {
     Battle battle = parseArmies(lines);
     while (battle.canFight()) {
       battle.fight();
+    }
+    return battle.outcome();
+  }
+
+  private static final int BOOST_INCREMENT_START = 1048576; // 2^20
+
+  public static int findSmallestBoostBattleOutcome(List<String> lines) {
+    int boostIncrement = BOOST_INCREMENT_START;
+    int boost = 0;
+    Battle battle = null;
+    while (boostIncrement > 0) {
+      battle = parseArmies(lines);
+      battle.boostImmuneSystem(boost);
+      int previousOutcome = battle.outcome();
+      while (battle.canFight()) {
+        battle.fight();
+        if (battle.outcome() == previousOutcome) {
+          break;
+        }
+        previousOutcome = battle.outcome();
+      }
+      if (battle.infection.isEmpty()) {
+        boost -= boostIncrement;
+      } else {
+        boost += boostIncrement;
+      }
+      boostIncrement /= 2;
+    }
+    if (battle.immuneSystem.isEmpty()) {
+      boost++;
+      battle = parseArmies(lines);
+      battle.boostImmuneSystem(boost);
+      while (battle.canFight()) {
+        battle.fight();
+      }
     }
     return battle.outcome();
   }

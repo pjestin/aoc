@@ -24,4 +24,10 @@ public class Day24Test {
     assertEquals(5216, Day24.findBattleOutcome(inputTestLines));
     assertEquals(21127, Day24.findBattleOutcome(inputLines));
   }
+
+  @Test
+  public void findSmallestBoostBattleOutcomeTest() {
+    assertEquals(51, Day24.findSmallestBoostBattleOutcome(inputTestLines));
+    assertEquals(2456, Day24.findSmallestBoostBattleOutcome(inputLines));
+  }
 }
