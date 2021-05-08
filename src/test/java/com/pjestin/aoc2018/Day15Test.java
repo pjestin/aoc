@@ -38,13 +38,6 @@ public class Day15Test {
     assertEquals(27755, Day15.getBattleOutcome(inputTest4Lines));
     assertEquals(28944, Day15.getBattleOutcome(inputTest5Lines));
     assertEquals(18740, Day15.getBattleOutcome(inputTest6Lines));
-    // assertEquals(1, Day15.getBattleOutcome(inputLines));
+    assertEquals(261855, Day15.getBattleOutcome(inputLines));
   }
 }
-
-// 259776 too low
-// 259875 too low
-// 262400 too high
-// 260073 incorrect
-// 260370 incorrect
-// 194950 incorrect
