@@ -40,4 +40,15 @@ public class Day15Test {
     assertEquals(18740, Day15.getBattleOutcome(inputTest6Lines));
     assertEquals(261855, Day15.getBattleOutcome(inputLines));
   }
+
+  @Test
+  public void getBattleOutcomeWithLowestBoostTest() {
+    assertEquals(4988, Day15.getBattleOutcomeWithLowestBoost(inputTestLines));
+    assertEquals(29064, Day15.getBattleOutcomeWithLowestBoost(inputTest2Lines));
+    assertEquals(31284, Day15.getBattleOutcomeWithLowestBoost(inputTest3Lines));
+    assertEquals(3478, Day15.getBattleOutcomeWithLowestBoost(inputTest4Lines));
+    assertEquals(6474, Day15.getBattleOutcomeWithLowestBoost(inputTest5Lines));
+    assertEquals(1140, Day15.getBattleOutcomeWithLowestBoost(inputTest6Lines));
+    assertEquals(59568, Day15.getBattleOutcomeWithLowestBoost(inputLines));
+  }
 }

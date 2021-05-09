@@ -12,17 +12,19 @@ import com.pjestin.lib.Vector;
 
 public class Day15 {
   private static class Unit {
+    private static final int BASE_ATTACK_POINTS = 3;
+
     public Vector position;
     public int hp = 200;
     public boolean isElf;
-
-    public static final int ATTACK_POINTS = 3;
+    public int attackPoints;
 
     public static final Vector[] RANGE = { new Vector(0, -1), new Vector(-1, 0), new Vector(1, 0), new Vector(0, 1) };
 
-    public Unit(Vector position, boolean isElf) {
+    public Unit(Vector position, boolean isElf, int elfBoost) {
       this.position = position;
       this.isElf = isElf;
+      this.attackPoints = isElf ? BASE_ATTACK_POINTS + elfBoost : BASE_ATTACK_POINTS;
     }
   }
 
@@ -39,14 +41,15 @@ public class Day15 {
     return walls;
   }
 
-  private static TreeMap<Vector, Unit> parseUnits(List<String> lines) {
+  private static TreeMap<Vector, Unit> parseUnits(List<String> lines, int elfBoost) {
     TreeMap<Vector, Unit> units = new TreeMap<>();
     for (int y = 0; y < lines.size(); y++) {
       String line = lines.get(y);
       for (int x = 0; x < line.length(); x++) {
-        if (line.charAt(x) == 'E' || line.charAt(x) == 'G') {
+        char character = line.charAt(x);
+        if (character == 'E' || character == 'G') {
           Vector position = new Vector(x, y);
-          units.put(position, new Unit(position, line.charAt(x) == 'E'));
+          units.put(position, new Unit(position, character == 'E', elfBoost));
         }
       }
     }
@@ -145,7 +148,7 @@ public class Day15 {
   private static void attack(Unit unit, TreeMap<Vector, Unit> units) {
     Unit unitInRange = getUnitInRange(unit, units);
     if (unitInRange != null) {
-      unitInRange.hp -= Unit.ATTACK_POINTS;
+      unitInRange.hp -= unit.attackPoints;
       if (unitInRange.hp <= 0) {
         units.remove(unitInRange.position);
       }
@@ -168,9 +171,7 @@ public class Day15 {
     }
   }
 
-  public static int getBattleOutcome(List<String> lines) {
-    Set<Vector> walls = parseWalls(lines);
-    TreeMap<Vector, Unit> units = parseUnits(lines);
+  private static int playBattle(Set<Vector> walls, TreeMap<Vector, Unit> units) {
     int roundIndex = 0;
     while (true) {
       for (Unit unit : units.values().stream().collect(Collectors.toList())) {
@@ -186,5 +187,50 @@ public class Day15 {
       }
       roundIndex++;
     }
+  }
+
+  public static int getBattleOutcome(List<String> lines) {
+    Set<Vector> walls = parseWalls(lines);
+    TreeMap<Vector, Unit> units = parseUnits(lines, 0);
+    return playBattle(walls, units);
+  }
+
+  public static int getBattleOutcomeWithLowestBoost(List<String> lines) {
+    Set<Vector> walls = parseWalls(lines);
+    int boost = 1;
+    int lastOutcome = 0;
+    while (true) {
+      TreeMap<Vector, Unit> units = parseUnits(lines, boost);
+      int nbElvesInitial = (int) units.values().stream().filter(unit -> unit.isElf).count();
+      lastOutcome = playBattle(walls, units);
+      int nbElvesAfterBattle = (int) units.values().stream().filter(unit -> unit.isElf).count();
+      if (nbElvesAfterBattle == nbElvesInitial) {
+        break;
+      }
+      boost *= 2;
+    }
+    boost /= 2;
+    int boostIncrement = boost;
+    boolean lastResult = false;
+    while (boostIncrement > 0) {
+      boostIncrement /= 2;
+      TreeMap<Vector, Unit> units = parseUnits(lines, boost);
+      int nbElvesInitial = (int) units.values().stream().filter(unit -> unit.isElf).count();
+      lastOutcome = playBattle(walls, units);
+      int nbElvesAfterBattle = (int) units.values().stream().filter(unit -> unit.isElf).count();
+      if (nbElvesAfterBattle == nbElvesInitial) {
+        boost -= boostIncrement;
+        lastResult = true;
+      } else {
+        boost += boostIncrement;
+        lastResult = false;
+      }
+    }
+    if (!lastResult) {
+      boost++;
+      TreeMap<Vector, Unit> units = parseUnits(lines, boost);
+      lastOutcome = playBattle(walls, units);
+    }
+    return lastOutcome;
   }
 }
