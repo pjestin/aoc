@@ -15,4 +15,4 @@ class Day07Test(TestCase):
 
     def test_find_correct_weight(self) -> None:
         self.assertEqual(60, find_correct_weight(self.inputTestFile))
-        self.assertEqual("gmcrj", find_correct_weight(self.inputFile))  # 65877
+        self.assertEqual(391, find_correct_weight(self.inputFile))

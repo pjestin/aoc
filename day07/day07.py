@@ -51,36 +51,32 @@ def __assign_stack_weight(nodes: dict[str, Node], root: Node) -> None:
 
 
 def __find_balance(nodes: dict[str, Node], root: Node) -> int:
-    weight_counts: dict[int, tuple[int, str]] = {}
-    for child in root.children:
-        child_node = nodes[child]
-        if child_node.stack_weight not in weight_counts:
-            weight_counts[child_node.stack_weight] = (0, child)
-        count, child = weight_counts[child_node.stack_weight]
-        weight_counts[child_node.stack_weight] = (count + 1, child)
-
-    if len(weight_counts) <= 1:
-        for child in root.children:
-            balance = __find_balance(nodes, nodes[child])
-            if balance:
-                return balance
+    assert len(root.children) != 1
+    if not root.children or len(root.children) == 2:
         return None
 
-    assert len(weight_counts) == 2
+    counts = {}
+    for child in root.children:
+        child_node = nodes[child]
+        if child_node.stack_weight not in counts:
+            counts[child_node.stack_weight] = (0, None)
+        counts[child_node.stack_weight] = (counts[child_node.stack_weight][0] + 1, child_node)
+    
+    if len(counts) == 1:
+        return None
 
-    lone_weight_child = None
-    lone_count_weight = 0
-    max_count_weight = 0
-    for child_weight, count_and_child in weight_counts.items():
-        count, child = count_and_child
-        if count == 1:
-            lone_weight_child = child
-            lone_count_weight = child_weight
+    assert len(counts) == 2
+
+    for stack_weight, count_pair in counts.items():
+        if count_pair[0] == 1:
+            lone_child_node = count_pair[1]
         else:
-            max_count_weight = child_weight
-
-    correction = max_count_weight - lone_count_weight
-    return nodes[lone_weight_child].weight + correction
+            balance_stack_weight = stack_weight
+    child_balance = __find_balance(nodes, lone_child_node)
+    if child_balance:
+        return child_balance
+    else:
+        return lone_child_node.weight + balance_stack_weight - lone_child_node.stack_weight
 
 
 def find_correct_weight(lines: list[str]) -> int:
