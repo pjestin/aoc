@@ -14,11 +14,12 @@ class CircularList:
             for value_index, index in enumerate(indices):
                 self.lst[index % self.size] = value[value_index]
         elif isinstance(key, int):
-            self.lst[key % self.size] = value
+            if isinstance(value, int):
+                self.lst[key % self.size] = value
         else:
             raise TypeError("Argument {} is not of type int or slice".format(key))
 
-    def __getitem__(self, key: Union[int, slice]) -> Union[int, list[int]]:
+    def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, slice):
             indices: list[int] = list(range(key.start, key.stop, key.step or 1))
             return [self.lst[index % self.size] for index in indices]
@@ -31,8 +32,8 @@ class CircularList:
         if isinstance(key, slice):
             indices: list[int] = list(range(key.start, key.stop, key.step or 1))
             for index in indices:
-                self.lst[index % self.size] = None
-            self.lst = list(filter(lambda number: number != None, self.lst))
+                self.lst[index % self.size] = -1
+            self.lst = list(filter(lambda number: number != -1, self.lst))
         elif isinstance(key, int):
             del self.lst[key % self.size]
         else:
@@ -48,7 +49,7 @@ class CircularList:
         return str(self.lst)
 
     def __eq__(self, o: object) -> bool:
-        return self.lst == o.lst
+        return isinstance(o, CircularList) and self.lst == o.lst
 
     def reverse_sublist(self, key: slice) -> None:
         indices: list[int] = list(range(key.start, key.stop, key.step or 1))

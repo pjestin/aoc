@@ -19,7 +19,7 @@ def process_list(line: str, list_size: int = DEFAULT_LIST_SIZE) -> int:
     return numbers[0] * numbers[1]
 
 
-def __dense_hash_list(numbers: list[int]) -> list[int]:
+def __dense_hash_list(numbers: CircularList) -> list[int]:
     hash_list: list[int] = []
     for block_index in range(DEFAULT_LIST_SIZE // BLOCK_SIZE):
         current = 0
