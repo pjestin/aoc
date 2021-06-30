@@ -19,6 +19,14 @@ class VectorTest(TestCase):
         vector += Vector(5, -2)
         self.assertEqual(Vector(11, -10), vector)
 
+    def test_sub(self):
+        self.assertEqual(Vector(-5, -24), Vector(-2, -7) - Vector(3, 17))
+
+    def test_isub(self):
+        vector = Vector(6, -8)
+        vector -= Vector(5, -2)
+        self.assertEqual(Vector(1, -6), vector)
+
     def test_abs(self):
         self.assertEqual(6, abs(Vector(2, -4)))
 

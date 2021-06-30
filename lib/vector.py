@@ -15,6 +15,9 @@ class Vector:
     def __add__(self, o: Vector):
         return Vector(self.x + o.x, self.y + o.y)
 
+    def __sub__(self, o: Vector):
+        return Vector(self.x - o.x, self.y - o.y)
+
     def __abs__(self) -> int:
         return self.distance(Vector(0, 0))
 
