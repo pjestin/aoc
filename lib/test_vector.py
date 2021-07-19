@@ -27,6 +27,10 @@ class VectorTest(TestCase):
         vector -= Vector(5, -2)
         self.assertEqual(Vector(1, -6), vector)
 
+    def test_neg(self):
+        vector = Vector(6, -8)
+        self.assertEqual(Vector(-6, 8), -vector)
+
     def test_abs(self):
         self.assertEqual(6, abs(Vector(2, -4)))
 

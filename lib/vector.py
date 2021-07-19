@@ -13,11 +13,14 @@ class Vector:
     def __repr__(self) -> str:
         return str(self)
 
-    def __add__(self, o: Vector):
+    def __add__(self, o: Vector) -> Vector:
         return Vector(self.x + o.x, self.y + o.y, self.z + o.z)
 
-    def __sub__(self, o: Vector):
+    def __sub__(self, o: Vector) -> Vector:
         return Vector(self.x - o.x, self.y - o.y, self.z - o.z)
+
+    def __neg__(self) -> Vector:
+        return Vector(-self.x, -self.y, -self.z)
 
     def __abs__(self) -> int:
         return self.distance(Vector(0, 0, 0))
