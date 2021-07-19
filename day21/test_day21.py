@@ -12,3 +12,6 @@ class Day21Test(TestCase):
     def test_count_pixels_after_transformations(self) -> None:
         self.assertEqual(12, count_pixels_after_transformations(self.inputTestFile, 2))
         self.assertEqual(117, count_pixels_after_transformations(self.inputFile, 5))
+        self.assertEqual(
+            2026963, count_pixels_after_transformations(self.inputFile, 18)
+        )

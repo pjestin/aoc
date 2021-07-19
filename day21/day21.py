@@ -6,6 +6,8 @@ STARTING_SQUARE_PATTERN = ".#./..#/###"
 
 
 class Square:
+    rule_cache: dict[str, str] = {}
+
     def __init__(self, pixels: list[list[bool]]) -> None:
         self.pixels = pixels
         self.size = len(pixels)
@@ -60,19 +62,19 @@ class Square:
                 self.pixels[self.size - 1 - row][column] = tmp
 
     def is_equivalent(self, o: Square) -> bool:
-        other = o.copy()
-        if other == self:
+        self_copy = self.copy()
+        if self_copy == o:
             return True
         for _ in range(3):
-            other.rotate()
-            if other == self:
+            self_copy.rotate()
+            if self_copy == o:
                 return True
-        other.flip()
-        if other == self:
+        self_copy.flip()
+        if self_copy == o:
             return True
         for _ in range(3):
-            other.rotate()
-            if other == self:
+            self_copy.rotate()
+            if self_copy == o:
                 return True
         return False
 
@@ -95,11 +97,15 @@ class Square:
             return self.__split_by_step(2)
         elif self.size % 3 == 0:
             return self.__split_by_step(3)
-        return []
+        raise RuntimeError("Impossible to split square")
 
     def __transform(self, rules: list[Rule]) -> Square:
+        pattern = str(self)
+        if pattern in self.rule_cache:
+            return self.from_pattern(self.rule_cache[pattern])
         for rule in rules:
             if self.is_equivalent(rule.start):
+                self.rule_cache[pattern] = str(rule.end)
                 return rule.end
         raise RuntimeError("No rule applies to {}".format(self))
 
@@ -123,8 +129,6 @@ class Square:
 
     def enhance(self, rules: list[Rule]) -> None:
         sub_squares: list[Square] = self.__split()
-        if len(sub_squares) == 0:
-            raise RuntimeError("Impossible to split square")
         transformed_sub_squares: list[Square] = list(
             map(lambda s: s.__transform(rules), sub_squares)
         )
@@ -150,6 +154,7 @@ class Rule:
 
 
 def count_pixels_after_transformations(lines: list[str], nb_iterations: int) -> int:
+    Square.rule_cache = {}
     rules: list[Rule] = list(map(Rule.parse, lines))
     square = Square.from_pattern(STARTING_SQUARE_PATTERN)
     for _ in range(nb_iterations):
