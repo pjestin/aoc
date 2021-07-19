@@ -4,8 +4,8 @@ Implementation of some questions from the [Advent of Code 2017 event](https://ad
 
 ## How to run
 
-To run all tests:
+To run all tests (Python 3.9):
+
 ```
-pipenv install
-pipenv run python -m discover
+python -m unittest
 ```
