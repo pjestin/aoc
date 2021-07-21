@@ -1,3 +1,4 @@
+import math
 from lib.instruction import Instruction
 
 
@@ -58,3 +59,18 @@ def count_mul_in_program(lines: list[str]) -> int:
     computer = Computer()
     computer.run(instructions)
     return computer.mul_instructions_count
+
+
+def __is_prime(a: int) -> bool:
+    for d in range(2, math.isqrt(a) + 1):
+        if a % d == 0:
+            return False
+    return True
+
+
+def count_non_primes_in_range(r: range) -> int:
+    non_prime_count = 0
+    for a in r:
+        if not __is_prime(a):
+            non_prime_count += 1
+    return non_prime_count
