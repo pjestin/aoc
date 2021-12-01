@@ -10,8 +10,10 @@ function TestDay01:setUp()
 end
 
 function TestDay01:test_count_depth_increases()
-    lu.assertEquals(Day01:count_depth_increases(self.input_test), 7)
-    lu.assertEquals(Day01:count_depth_increases(self.input), 1583)
+    lu.assertEquals(Day01:count_depth_increases(self.input_test, 1), 7)
+    lu.assertEquals(Day01:count_depth_increases(self.input, 1), 1583)
+    lu.assertEquals(Day01:count_depth_increases(self.input_test, 3), 5)
+    lu.assertEquals(Day01:count_depth_increases(self.input, 3), 1627)
 end
 
-os.exit( lu.LuaUnit.new():runSuite() )
+os.exit(lu.LuaUnit.new():runSuite())
