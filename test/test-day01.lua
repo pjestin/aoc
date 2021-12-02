@@ -16,4 +16,4 @@ function TestDay01:test_count_depth_increases()
     lu.assertEquals(Day01:count_depth_increases(self.input, 3), 1627)
 end
 
-os.exit(lu.LuaUnit.new():runSuite())
+return TestDay01

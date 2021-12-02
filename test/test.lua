@@ -1,5 +1,8 @@
-local lu = require('luaunit')
+local lu = require("luaunit")
 
-require('test.test_day01')
+require("test.test-string-utils")
+require("test.test-vector")
+require("test.test-day01")
+require("test.test-day02")
 
-os.exit( lu.LuaUnit.new():runSuite() )
+os.exit(lu.LuaUnit.new():runSuite())
