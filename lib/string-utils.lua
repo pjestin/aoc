@@ -1,6 +1,6 @@
 local StringUtils = {}
 
-function StringUtils:split(s, sep)
+function StringUtils.split(s, sep)
     sep = sep or " "
     if string.len(sep) ~= 1 then
         error("Separator should be of length 1")

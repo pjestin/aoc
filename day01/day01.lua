@@ -1,6 +1,6 @@
 local Day01 = {}
 
-function Day01:count_depth_increases(lines, window_size)
+function Day01.count_depth_increases(lines, window_size)
     depth_increases = 0
     for i, depth_string in ipairs(lines) do
         local depth = tonumber(depth_string)

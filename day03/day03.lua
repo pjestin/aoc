@@ -1,6 +1,6 @@
 local Day03 = {}
 
-function Day03:get_most_common(binaries, index)
+function Day03.get_most_common(binaries, index)
     local sum = 0
     local size = 0
     for _, binary in pairs(binaries) do
@@ -16,11 +16,11 @@ function Day03:get_most_common(binaries, index)
     end
 end
 
-function Day03:power_consumption(lines)
+function Day03.power_consumption(lines)
     local most_common = {}
     local least_common = {}
     for i = 1, string.len(lines[1]) do
-        local current_most_common = self:get_most_common(lines, i)
+        local current_most_common = Day03.get_most_common(lines, i)
         most_common[i] = current_most_common
         least_common[i] = 1 - current_most_common
     end
@@ -29,7 +29,7 @@ function Day03:power_consumption(lines)
     return gamma_rate * epsilon_rate
 end
 
-function Day03:life_support_rating(lines)
+function Day03.life_support_rating(lines)
     local oxygen_generator = {}
     local co2_scrubber = {}
     for i, line in pairs(lines) do
@@ -41,28 +41,24 @@ function Day03:life_support_rating(lines)
     local co2_scrubber_rating = nil
 
     for i = 1, string.len(lines[1]) do
-        local most_common = self:get_most_common(oxygen_generator, i)
-        local least_common = 1 - self:get_most_common(co2_scrubber, i)
+        local most_common = Day03.get_most_common(oxygen_generator, i)
+        local least_common = 1 - Day03.get_most_common(co2_scrubber, i)
         local oxygen_generator_size = 0
         local co2_scrubber_size = 0
 
         for j, binary in pairs(oxygen_generator) do
-            if binary then
-                if not oxygen_generator_rating and tonumber(binary:sub(i, i)) ~= most_common then
-                    oxygen_generator[j] = nil
-                else
-                    oxygen_generator_size = oxygen_generator_size + 1
-                end
+            if not oxygen_generator_rating and tonumber(binary:sub(i, i)) ~= most_common then
+                oxygen_generator[j] = nil
+            else
+                oxygen_generator_size = oxygen_generator_size + 1
             end
         end
 
         for j, binary in pairs(co2_scrubber) do
-            if binary then
-                if not co2_scrubber_rating and tonumber(binary:sub(i, i)) ~= least_common then
-                    co2_scrubber[j] = nil
-                else
-                    co2_scrubber_size = co2_scrubber_size + 1
-                end
+            if not co2_scrubber_rating and tonumber(binary:sub(i, i)) ~= least_common then
+                co2_scrubber[j] = nil
+            else
+                co2_scrubber_size = co2_scrubber_size + 1
             end
         end
 
