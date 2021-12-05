@@ -10,8 +10,13 @@ function TestDay05:setUp()
 end
 
 function TestDay05:test_count_overlaps()
-    lu.assertEquals(Day05.count_overlaps(self.input_test), 5)
-    lu.assertEquals(Day05.count_overlaps(self.input), 4421)
+    lu.assertEquals(Day05.count_overlaps(self.input_test, false), 5)
+    lu.assertEquals(Day05.count_overlaps(self.input, false), 4421)
+end
+
+function TestDay05:test_count_overlaps_diagonal()
+    lu.assertEquals(Day05.count_overlaps(self.input_test, true), 12)
+    lu.assertEquals(Day05.count_overlaps(self.input, true), 18674)
 end
 
 return TestDay05

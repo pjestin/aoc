@@ -24,55 +24,21 @@ function Day05.parse_line(line)
     }
 end
 
-function Day05.count_overlaps(lines)
+function Day05.count_overlaps(lines, with_diagonal)
     local points = {}
     local nb_overlap = 0
 
     for _, line in ipairs(lines) do
         local origin, termination = Day05.parse_line(line)
-        local line_points = {}
+        if with_diagonal or (origin.x == termination.x or origin.y == termination.y) then
+            local line_points = origin:line_points(termination)
 
-        if origin.x == termination.x then
-            if origin.y < termination.y then
-                for y = origin.y, termination.y do
-                    line_points[#line_points + 1] = Vector:new{
-                        x = origin.x,
-                        y = y
-                    }
+            for _, line_point in ipairs(line_points) do
+                local line_point_string = line_point:to_string()
+                points[line_point_string] = (points[line_point_string] or 0) + 1
+                if points[line_point_string] == 2 then
+                    nb_overlap = nb_overlap + 1
                 end
-            else
-                for y = termination.y, origin.y do
-                    line_points[#line_points + 1] = Vector:new{
-                        x = origin.x,
-                        y = y
-                    }
-                end
-            end
-        end
-
-        if origin.y == termination.y then
-            if origin.x < termination.x then
-                for x = origin.x, termination.x do
-                    line_points[#line_points + 1] = Vector:new{
-                        x = x,
-                        y = origin.y
-                    }
-                end
-            else
-                for x = termination.x, origin.x do
-                    line_points[#line_points + 1] = Vector:new{
-                        x = x,
-                        y = origin.y
-                    }
-                end
-            end
-        end
-
-        for _, line_point in ipairs(line_points) do
-            local line_point_string = line_point:to_string()
-            points[line_point_string] = (points[line_point_string] or 0) + 1
-            if points[line_point_string] == 2 then
-                nb_overlap = nb_overlap + 1
             end
         end
     end
