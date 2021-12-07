@@ -9,9 +9,9 @@ function TestDay07:setUp()
     self.input = File:lines_from('day07/input.txt')[1]
 end
 
-function TestDay07:test_find_minimum_fuel_median()
-    lu.assertEquals(Day07.find_minimum_fuel_median(self.input_test), 37)
-    lu.assertEquals(Day07.find_minimum_fuel_median(self.input), 343468)
+function TestDay07:test_find_minimum_fuel_simple()
+    lu.assertEquals(Day07.find_minimum_fuel_simple(self.input_test), 37)
+    lu.assertEquals(Day07.find_minimum_fuel_simple(self.input), 343468)
 end
 
 function TestDay07:test_find_minimum_fuel_quadratic()

@@ -11,35 +11,41 @@ function Day07.parse_crab_positions(line)
     return crab_positions
 end
 
-function Day07.find_minimum_fuel_median(line)
+function Day07.find_minimum_fuel(crab_positions, initial_target, fuel_function)
+    local target = initial_target
+    while true do
+        local current_fuel = fuel_function(crab_positions, target)
+        local previous_fuel = fuel_function(crab_positions, target - 1)
+        local next_fuel = fuel_function(crab_positions, target + 1)
+        if current_fuel <= previous_fuel and current_fuel <= next_fuel then
+            return current_fuel
+        elseif current_fuel > previous_fuel then
+            target = target - 1
+        else
+            target = target + 1
+        end
+    end
+end
+
+function Day07.calculate_fuel_simple(crab_positions, target)
+    local fuel = 0
+    for _, crab_position in ipairs(crab_positions) do
+        local delta = math.abs(crab_position - target)
+        fuel = fuel + delta
+    end
+    return fuel
+end
+
+function Day07.find_minimum_fuel_simple(line)
     local crab_positions = Day07.parse_crab_positions(line)
 
     table.sort(crab_positions)
     local median_position = crab_positions[#crab_positions / 2]
 
-    local minimum_fuel = 0
-    for _, crab_position in ipairs(crab_positions) do
-        minimum_fuel = minimum_fuel + math.abs(median_position - crab_position)
-    end
-
-    return minimum_fuel
+    return Day07.find_minimum_fuel(crab_positions, median_position, Day07.calculate_fuel_simple)
 end
 
-function Day07.find_min_max_positions(crab_positions)
-    local min_position = nil
-    local max_position = nil
-    for _, crab_position in ipairs(crab_positions) do
-        if not min_position or crab_position < min_position then
-            min_position = crab_position
-        end
-        if not max_position or crab_position > max_position then
-            max_position = crab_position
-        end
-    end
-    return min_position, max_position
-end
-
-function Day07.calculate_fuel(crab_positions, target)
+function Day07.calculate_fuel_quadratic(crab_positions, target)
     local fuel = 0
     for _, crab_position in ipairs(crab_positions) do
         local delta = math.abs(crab_position - target)
@@ -50,18 +56,14 @@ end
 
 function Day07.find_minimum_fuel_quadratic(line)
     local crab_positions = Day07.parse_crab_positions(line)
-    local min_position, max_position = Day07.find_min_max_positions(crab_positions)
 
-    local previous_fuel = nil
-    for target = min_position, max_position do
-        local fuel = Day07.calculate_fuel(crab_positions, target)
-        if previous_fuel and fuel > previous_fuel then
-            return previous_fuel
-        end
-        previous_fuel = fuel
+    local sum = 0
+    for _, crab_position in ipairs(crab_positions) do
+        sum = sum + crab_position
     end
+    local mean = sum / #crab_positions
 
-    error("Minimum fuel not found")
+    return Day07.find_minimum_fuel(crab_positions, math.floor(mean), Day07.calculate_fuel_quadratic)
 end
 
 return Day07
