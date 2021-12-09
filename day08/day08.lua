@@ -33,7 +33,7 @@ function Day08.parse_digit_sets(lines)
             digit_index = digit_index + 1
         end
 
-        digit_sets[i] = digit_set
+        table.insert(digit_sets, digit_set)
     end
     return digit_sets
 end
@@ -140,7 +140,7 @@ function Day08.decode_with_mapping(output_digits, mapping)
         for i = 1, #digit do
             local segment = digit:sub(i, i)
             local decoded_segment = mapping[segment]
-            decoded_digit[i] = decoded_segment
+            table.insert(decoded_digit, decoded_segment)
         end
         table.sort(decoded_digit)
         local decoded_digit_string = table.concat(decoded_digit)

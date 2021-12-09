@@ -19,10 +19,10 @@ end
 function Day03.power_consumption(lines)
     local most_common = {}
     local least_common = {}
-    for i = 1, string.len(lines[1]) do
+    for i = 1, #lines[1] do
         local current_most_common = Day03.get_most_common(lines, i)
-        most_common[i] = current_most_common
-        least_common[i] = 1 - current_most_common
+        table.insert(most_common, current_most_common)
+        table.insert(least_common, 1 - current_most_common)
     end
     local gamma_rate = tonumber(table.concat(most_common), 2)
     local epsilon_rate = tonumber(table.concat(least_common), 2)
@@ -32,9 +32,9 @@ end
 function Day03.life_support_rating(lines)
     local oxygen_generator = {}
     local co2_scrubber = {}
-    for i, line in pairs(lines) do
-        oxygen_generator[i] = line
-        co2_scrubber[i] = line
+    for _, line in pairs(lines) do
+        table.insert(oxygen_generator, line)
+        table.insert(co2_scrubber, line)
     end
 
     local oxygen_generator_rating = nil

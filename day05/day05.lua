@@ -6,7 +6,7 @@ local Day05 = {}
 function Day05.parse_line(line)
     local split_line = {}
     for group in line:gmatch("%d+") do
-        split_line[#split_line + 1] = group
+        table.insert(split_line, group)
     end
 
     local origin_x = tonumber(split_line[1])

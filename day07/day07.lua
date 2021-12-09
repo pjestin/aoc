@@ -5,8 +5,8 @@ local Day07 = {}
 function Day07.parse_crab_positions(line)
     local split_line = StringUtils.split(line, ",")
     local crab_positions = {}
-    for i, position_string in ipairs(split_line) do
-        crab_positions[i] = tonumber(position_string)
+    for _, position_string in ipairs(split_line) do
+        table.insert(crab_positions, tonumber(position_string))
     end
     return crab_positions
 end

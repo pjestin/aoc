@@ -14,20 +14,20 @@ end
 function Board:to_string()
     local result = {}
     for _, row in ipairs(self.rows) do
-        result[#result + 1] = table.concat(row, " ")
+        table.insert(result, table.concat(row, " "))
     end
     return table.concat(result, "\n")
 end
 
 function Board:add_row(row)
     local transformed_row = {}
-    for i, number in ipairs(row) do
-        transformed_row[i] = {
+    for _, number in ipairs(row) do
+        table.insert(transformed_row, {
             number = number,
             marked = false
-        }
+        })
     end
-    self.rows[#self.rows + 1] = transformed_row
+    table.insert(self.rows, transformed_row)
 end
 
 function Board:mark(number)
@@ -87,8 +87,8 @@ local Day04 = {}
 function Day04.parse_boards(lines)
     local numbers_string = StringUtils.split(lines[1], ",")
     local numbers = {}
-    for i, number_string in ipairs(numbers_string) do
-        numbers[i] = tonumber(number_string)
+    for _, number_string in ipairs(numbers_string) do
+        table.insert(numbers, tonumber(number_string))
     end
 
     local boards = {}
@@ -96,7 +96,7 @@ function Day04.parse_boards(lines)
     for i = 3, #lines do
         local line = lines[i]
         if string.len(line) == 0 then
-            boards[#boards + 1] = current_board
+            table.insert(boards, current_board)
             current_board = Board:new()
         else
             local board_numbers_string = StringUtils.split(line)
@@ -104,13 +104,13 @@ function Day04.parse_boards(lines)
             for _, board_number_string in ipairs(board_numbers_string) do
                 local board_number = tonumber(board_number_string)
                 if board_number then
-                    row[#row + 1] = board_number
+                    table.insert(row, board_number)
                 end
             end
             current_board:add_row(row)
         end
     end
-    boards[#boards + 1] = current_board
+    table.insert(boards, current_board)
 
     return numbers, boards
 end
