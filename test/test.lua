@@ -1,5 +1,6 @@
 local lu = require("luaunit")
 
+require("test.test-stack")
 require("test.test-string-utils")
 require("test.test-vector")
 require("test.test-day01")

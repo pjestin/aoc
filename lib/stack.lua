@@ -9,6 +9,10 @@ function Stack:new(o)
     return o
 end
 
+function Stack:to_string()
+    return table.concat(self.data, ", ")
+end
+
 function Stack:push(o)
     table.insert(self.data, o)
 end
