@@ -11,5 +11,5 @@ Install these packages with `luarocks`:
 Run all tests:
 
 ```
-lua test/test.lua
+lua test.lua
 ```

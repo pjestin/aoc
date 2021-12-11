@@ -1,0 +1,18 @@
+local lu = require("luaunit")
+
+require("lib.test-stack")
+require("lib.test-string-utils")
+require("lib.test-vector")
+require("day01.test-day01")
+require("day02.test-day02")
+require("day03.test-day03")
+require("day04.test-day04")
+require("day05.test-day05")
+require("day06.test-day06")
+require("day07.test-day07")
+require("day08.test-day08")
+require("day09.test-day09")
+require("day10.test-day10")
+require("day11.test-day11")
+
+os.exit(lu.LuaUnit.new():runSuite())
