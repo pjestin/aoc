@@ -1,0 +1,27 @@
+local lu = require("luaunit")
+local TableUtils = require("lib.table-utils")
+
+TestTableUtils = {}
+
+function TestTableUtils:test_copy(t)
+    local a = {
+        "abc",
+        ert = 2,
+        true
+    }
+    local b = TableUtils.copy(a)
+    lu.assertEquals(b[1], "abc")
+    lu.assertEquals(b.ert, 2)
+    lu.assertEquals(b[2], true)
+end
+
+function TestTableUtils:test_copy_modify(t)
+    local a = {
+        "abc",
+        ert = 2,
+        true
+    }
+    local b = TableUtils.copy(a)
+    a[1] = "efg"
+    lu.assertEquals(b[1], "abc")
+end

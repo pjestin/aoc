@@ -18,5 +18,3 @@ function TestDay11:test_find_simultaneous_flash_step()
     lu.assertEquals(Day11.find_simultaneous_flash_step(self.input_test), 195)
     lu.assertEquals(Day11.find_simultaneous_flash_step(self.input), 517)
 end
-
-return TestDay11

@@ -18,5 +18,3 @@ function TestDay10:test_find_completing_characters_score()
     lu.assertEquals(Day10.find_completing_characters_score(self.input_test), 288957)
     lu.assertEquals(Day10.find_completing_characters_score(self.input), 4245130838)
 end
-
-return TestDay10

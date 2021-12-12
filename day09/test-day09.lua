@@ -18,5 +18,3 @@ function TestDay09:test_find_largest_basins()
     lu.assertEquals(Day09.find_largest_basins(self.input_test), 1134)
     lu.assertEquals(Day09.find_largest_basins(self.input), 959136)
 end
-
-return TestDay09

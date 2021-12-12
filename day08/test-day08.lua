@@ -18,5 +18,3 @@ function TestDay08:test_decode_digits()
     lu.assertEquals(Day08.decode_digits(self.input_test), 61229)
     lu.assertEquals(Day08.decode_digits(self.input), 1007675)
 end
-
-return TestDay08

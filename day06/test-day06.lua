@@ -15,5 +15,3 @@ function TestDay06:test_count_lanternfish()
     lu.assertEquals(Day06.count_lanternfish(self.input_test, 256), 26984457539)
     lu.assertEquals(Day06.count_lanternfish(self.input, 256), 1653250886439)
 end
-
-return TestDay06

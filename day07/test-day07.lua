@@ -18,5 +18,3 @@ function TestDay07:test_find_minimum_fuel_quadratic()
     lu.assertEquals(Day07.find_minimum_fuel_quadratic(self.input_test), 168)
     lu.assertEquals(Day07.find_minimum_fuel_quadratic(self.input), 96086265)
 end
-
-return TestDay07

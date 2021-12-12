@@ -18,5 +18,3 @@ function TestDay04:test_last_board_score()
     lu.assertEquals(Day04.last_board_score(self.input_test), 1924)
     lu.assertEquals(Day04.last_board_score(self.input), 2730)
 end
-
-return TestDay04

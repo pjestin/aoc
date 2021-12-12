@@ -18,5 +18,3 @@ function TestDay03:test_life_support_rating()
     lu.assertEquals(Day03.life_support_rating(self.input_test), 230)
     lu.assertEquals(Day03.life_support_rating(self.input), 2817661)
 end
-
-return TestDay03

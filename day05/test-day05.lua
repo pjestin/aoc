@@ -18,5 +18,3 @@ function TestDay05:test_count_overlaps_diagonal()
     lu.assertEquals(Day05.count_overlaps(self.input_test, true), 12)
     lu.assertEquals(Day05.count_overlaps(self.input, true), 18674)
 end
-
-return TestDay05
