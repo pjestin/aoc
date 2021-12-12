@@ -29,51 +29,47 @@ end
 function Day12.count_paths(lines)
     local graph = Day12.parse_graph(lines)
 
-    local paths = {}
+    local nb_paths = 0
     local queue = Queue:new()
     queue:push({"start", {"start"}, {}})
 
     while not queue:is_empty() do
         local state = queue:pop()
         local cave = state[1]
-        local path = state[2]
-        local visited = state[3]
+        local visited = state[2]
 
         if cave == "end" then
-            table.insert(paths, path)
+            nb_paths = nb_paths + 1
         elseif not visited[cave] then
             if string.match(cave, "%l") then
                 visited[cave] = true
             end
 
             for _, neigbour in ipairs(graph[cave]) do
-                local path_copy = TableUtils.copy(path)
                 local visited_copy = TableUtils.copy(visited)
-                table.insert(path_copy, neigbour)
-                queue:push({neigbour, path_copy, visited_copy})
+                queue:push({neigbour, visited_copy})
             end
         end
     end
 
-    return #paths
+    return nb_paths
 end
 
 function Day12.count_paths_two_visits(lines)
     local graph = Day12.parse_graph(lines)
 
-    local paths = {}
+    local nb_paths = 0
     local queue = Queue:new()
-    queue:push({"start", {"start"}, {}, false})
+    queue:push({"start", {}, false})
 
     while not queue:is_empty() do
         local state = queue:pop()
         local cave = state[1]
-        local path = state[2]
-        local visited = state[3]
-        local visited_twice = state[4]
+        local visited = state[2]
+        local visited_twice = state[3]
 
         if cave == "end" then
-            table.insert(paths, path)
+            nb_paths = nb_paths + 1
         elseif not visited[cave] or (cave ~= "start" and visited[cave] == 1 and not visited_twice) then
             if string.match(cave, "%l") then
                 if visited[cave] == 1 then
@@ -85,15 +81,13 @@ function Day12.count_paths_two_visits(lines)
             end
 
             for _, neigbour in ipairs(graph[cave]) do
-                local path_copy = TableUtils.copy(path)
                 local visited_copy = TableUtils.copy(visited)
-                table.insert(path_copy, neigbour)
-                queue:push({neigbour, path_copy, visited_copy, visited_twice})
+                queue:push({neigbour, visited_copy, visited_twice})
             end
         end
     end
 
-    return #paths
+    return nb_paths
 end
 
 return Day12
