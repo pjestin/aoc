@@ -12,4 +12,14 @@ function StringUtils.split(s, sep)
     return words
 end
 
+function StringUtils.to_table(s)
+    local t = {}
+
+    for i = 1, #s do
+        t[i] = s:sub(i, i)
+    end
+
+    return t
+end
+
 return StringUtils
