@@ -25,3 +25,11 @@ function TestTableUtils:test_copy_modify(t)
     a[1] = "efg"
     lu.assertEquals(b[1], "abc")
 end
+
+function TestTableUtils:test_to_string(t)
+    local a = {
+        "abc",
+        ert = 2
+    }
+    lu.assertEquals(TableUtils.to_string(a), "{1 = abc, ert = 2, }")
+end
