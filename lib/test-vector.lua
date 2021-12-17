@@ -67,3 +67,19 @@ function TestVector:test_line_points_diagonal()
         y = -1
     })
 end
+
+function TestVector:test_add()
+    local a = Vector:new{
+        x = 5,
+        y = -8
+    }
+    local b = Vector:new{
+        x = -15,
+        y = 20
+    }
+    a:add(b)
+    lu.assertEquals(a.x, -10)
+    lu.assertEquals(a.y, 12)
+    lu.assertEquals(b.x, -15)
+    lu.assertEquals(b.y, 20)
+end

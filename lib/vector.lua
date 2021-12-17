@@ -37,4 +37,9 @@ function Vector:line_points(o)
     return points
 end
 
+function Vector:add(o)
+    self.x = self.x + o.x
+    self.y = self.y + o.y
+end
+
 return Vector
