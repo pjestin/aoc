@@ -17,9 +17,9 @@ end
 
 function Vector:to_string()
     if self.z then
-        return "{x = " .. self.x .. ", y = " .. self.y .. ", z = " .. self.z .. "}"
+        return string.format("{x = %d, y = %d, z = %d}", self.x, self.y, self.z)
     else
-        return "{x = " .. self.x .. ", y = " .. self.y .. "}"
+        return string.format("{x = %d, y = %d}", self.x, self.y)
     end
 end
 
@@ -54,6 +54,15 @@ function Vector:add(o)
     self.y = self.y + o.y
     if self.z and o.z then
         self.z = self.z + o.z
+    end
+    return self
+end
+
+function Vector:subtract(o)
+    self.x = self.x - o.x
+    self.y = self.y - o.y
+    if self.z and o.z then
+        self.z = self.z - o.z
     end
     return self
 end

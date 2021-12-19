@@ -56,12 +56,11 @@ function Day19.check_overlap(beacons, previous_beacons)
             end
 
             if count_matching_beacons >= 12 then
-                return beacons, shift
+                return shift
             end
 
-            local reverse_shift = shift:copy():reverse()
             for _, beacon in ipairs(beacons) do
-                beacon:add(reverse_shift)
+                beacon:subtract(shift)
             end
         end
     end
@@ -76,7 +75,7 @@ function Day19.arrange_beacons(scanner, previous_scanner)
             for k = 1, 2 do
                 for l = 1, 2 do
                     for m = 1, 2 do
-                        local arranged_beacons, shift = Day19.check_overlap(beacons, previous_scanner.beacons)
+                        local shift = Day19.check_overlap(beacons, previous_scanner.beacons)
                         if shift then
                             return shift
                         end
