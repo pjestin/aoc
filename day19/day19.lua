@@ -32,45 +32,40 @@ function Day19.parse_scanners(lines)
 end
 
 function Day19.check_overlap(beacons, previous_beacons)
+    local previous_beacon_set = {}
     for _, previous_beacon in ipairs(previous_beacons) do
-        for _, ref_beacon in ipairs(beacons) do
+        previous_beacon_set[previous_beacon:to_string()] = true
+    end
+
+    for i = 1, #previous_beacons - 12 do
+        local previous_beacon = previous_beacons[i]
+        for j = 1, #beacons - 12 do
+            local ref_beacon = beacons[j]
             local shift = Vector:new{
                 x = previous_beacon.x - ref_beacon.x,
                 y = previous_beacon.y - ref_beacon.y,
                 z = previous_beacon.z - ref_beacon.z
             }
-            -- print("first_beacon:", first_beacon:to_string())
-            -- print("previous_beacon:", previous_beacon:to_string())
-            -- print("shift:", shift:to_string())
-            -- error("haha")
-            local beacons_from_both = {}
-            for _, previous_beacon in ipairs(previous_beacons) do
-                beacons_from_both[previous_beacon:to_string()] = true
-            end
+
+            local count_matching_beacons = 0
             for _, beacon in ipairs(beacons) do
                 beacon:add(shift)
-                -- print("shifted_beacon:", shifted_beacon:to_string())
-                beacons_from_both[beacon:to_string()] = true
+                if previous_beacon_set[beacon:to_string()] then
+                    count_matching_beacons = count_matching_beacons + 1
+                end
             end
 
-            local count_from_both = 0
-            for _, _ in pairs(beacons_from_both) do
-                count_from_both = count_from_both + 1
+            if count_matching_beacons >= 12 then
+                return beacons, shift
             end
 
-            -- print(count_from_both, #beacons, count_previous_beacons)
-            if count_from_both <= #beacons + #previous_beacons - 12 then
-                return beacons, true
-            end
-
-            shift:reverse()
+            local reverse_shift = shift:copy():reverse()
             for _, beacon in ipairs(beacons) do
-                beacon:add(shift)
+                beacon:add(reverse_shift)
             end
-            -- error("haha")
         end
     end
-    return nil, false
+    return nil, nil
 end
 
 function Day19.arrange_beacons(scanner, previous_scanner)
@@ -81,11 +76,9 @@ function Day19.arrange_beacons(scanner, previous_scanner)
             for k = 1, 2 do
                 for l = 1, 2 do
                     for m = 1, 2 do
-                        local arranged_beacons, is_overlap = Day19.check_overlap(beacons, previous_scanner.beacons)
-                        if is_overlap then
-                            print("Overlap found")
-                            scanner.beacons = arranged_beacons
-                            return true
+                        local arranged_beacons, shift = Day19.check_overlap(beacons, previous_scanner.beacons)
+                        if shift then
+                            return shift
                         end
 
                         for _, beacon in ipairs(beacons) do
@@ -113,8 +106,7 @@ function Day19.arrange_beacons(scanner, previous_scanner)
         end
     end
 
-    print("No overlap found!")
-    return false
+    return nil
 end
 
 function Day19.count_beacons(lines)
@@ -126,13 +118,10 @@ function Day19.count_beacons(lines)
     }
 
     while count_overlapping_scanner < #scanners do
-        print("count_overlapping_scanner:", count_overlapping_scanner)
         for scanner_index = 2, #scanners do
             if not overlapping_scanners[scanner_index] then
-                print("scanner:", scanner_index)
                 for previous_scanner_index = 1, #scanners do
                     if scanner_index ~= previous_scanner_index and overlapping_scanners[previous_scanner_index] then
-                        print("previous scanner:", previous_scanner_index)
                         if Day19.arrange_beacons(scanners[scanner_index], scanners[previous_scanner_index]) then
                             overlapping_scanners[scanner_index] = true
                             count_overlapping_scanner = count_overlapping_scanner + 1
@@ -157,6 +146,53 @@ function Day19.count_beacons(lines)
     end
 
     return count_beacons
+end
+
+function Day19.find_greatest_distance(lines)
+    local scanners = Day19.parse_scanners(lines)
+
+    local count_overlapping_scanner = 1
+    local overlapping_scanners = {
+        [1] = true
+    }
+
+    local shifts = {Vector:new{
+        x = 0,
+        y = 0,
+        z = 0
+    }}
+
+    while count_overlapping_scanner < #scanners do
+        for scanner_index = 2, #scanners do
+            if not overlapping_scanners[scanner_index] then
+                for previous_scanner_index = 1, #scanners do
+                    if scanner_index ~= previous_scanner_index and overlapping_scanners[previous_scanner_index] then
+                        local shift = Day19.arrange_beacons(scanners[scanner_index], scanners[previous_scanner_index])
+                        if shift then
+                            overlapping_scanners[scanner_index] = true
+                            count_overlapping_scanner = count_overlapping_scanner + 1
+                            shifts[scanner_index] = shift
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local max_distance = 0
+    for i = 1, #scanners do
+        for j = 1, #scanners do
+            if i ~= j then
+                local distance = shifts[i]:distance(shifts[j])
+                if distance > max_distance then
+                    max_distance = distance
+                end
+            end
+        end
+    end
+
+    return max_distance
 end
 
 return Day19

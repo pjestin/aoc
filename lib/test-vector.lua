@@ -83,3 +83,37 @@ function TestVector:test_add()
     lu.assertEquals(b.x, -15)
     lu.assertEquals(b.y, 20)
 end
+
+function TestVector:test_add3d()
+    local a = Vector:new{
+        x = 5,
+        y = -8,
+        z = 10
+    }
+    local b = Vector:new{
+        x = -15,
+        y = 20,
+        z = -19
+    }
+    a:add(b)
+    lu.assertEquals(a.x, -10)
+    lu.assertEquals(a.y, 12)
+    lu.assertEquals(a.z, -9)
+    lu.assertEquals(b.x, -15)
+    lu.assertEquals(b.y, 20)
+    lu.assertEquals(b.z, -19)
+end
+
+function TestVector:test_distance()
+    local a = Vector:new{
+        x = 5,
+        y = -8,
+        z = 35
+    }
+    local b = Vector:new{
+        x = -15,
+        y = 20,
+        z = 105
+    }
+    lu.assertEquals(a:distance(b), 118)
+end

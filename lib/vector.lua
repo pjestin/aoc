@@ -87,6 +87,15 @@ function Vector:reverse()
     self.x = -self.x
     self.y = -self.y
     self.z = -self.z
+    return self
+end
+
+function Vector:distance(o)
+    if self.z and o.z then
+        return math.abs(self.x - o.x) + math.abs(self.y - o.y) + math.abs(self.z - o.z)
+    else
+        return math.abs(self.x - o.x) + math.abs(self.y - o.y)
+    end
 end
 
 return Vector
