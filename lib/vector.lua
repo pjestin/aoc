@@ -7,8 +7,20 @@ function Vector:new(o)
     return o
 end
 
+function Vector:copy()
+    return self:new{
+        x = self.x,
+        y = self.y,
+        z = self.z
+    }
+end
+
 function Vector:to_string()
-    return "{x = " .. self.x .. ", y = " .. self.y .. "}"
+    if self.z then
+        return "{x = " .. self.x .. ", y = " .. self.y .. ", z = " .. self.z .. "}"
+    else
+        return "{x = " .. self.x .. ", y = " .. self.y .. "}"
+    end
 end
 
 function Vector:line_points(o)
@@ -40,6 +52,41 @@ end
 function Vector:add(o)
     self.x = self.x + o.x
     self.y = self.y + o.y
+    if self.z and o.z then
+        self.z = self.z + o.z
+    end
+    return self
+end
+
+function Vector:flip_x()
+    self.x = -self.x
+end
+
+function Vector:flip_y()
+    self.y = -self.y
+end
+
+function Vector:flip_z()
+    self.z = -self.z
+end
+
+function Vector:rotate_coordinates()
+    local temp = self.x
+    self.x = self.y
+    self.y = self.z
+    self.z = temp
+end
+
+function Vector:exchange_y_z()
+    local temp = self.y
+    self.y = self.z
+    self.z = temp
+end
+
+function Vector:reverse()
+    self.x = -self.x
+    self.y = -self.y
+    self.z = -self.z
 end
 
 return Vector
