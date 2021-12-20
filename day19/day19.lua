@@ -34,7 +34,7 @@ end
 function Day19.check_overlap(beacons, previous_beacons)
     local previous_beacon_set = {}
     for _, previous_beacon in ipairs(previous_beacons) do
-        previous_beacon_set[previous_beacon:to_string()] = true
+        previous_beacon_set[previous_beacon:hash()] = true
     end
 
     for i = 1, #previous_beacons - 12 do
@@ -50,7 +50,7 @@ function Day19.check_overlap(beacons, previous_beacons)
             local count_matching_beacons = 0
             for _, beacon in ipairs(beacons) do
                 beacon:add(shift)
-                if previous_beacon_set[beacon:to_string()] then
+                if previous_beacon_set[beacon:hash()] then
                     count_matching_beacons = count_matching_beacons + 1
                 end
             end
@@ -135,7 +135,7 @@ function Day19.count_beacons(lines)
     local beacons = {}
     for _, scanner in ipairs(scanners) do
         for _, beacon in ipairs(scanner.beacons) do
-            beacons[beacon:to_string()] = true
+            beacons[beacon:hash()] = true
         end
     end
 

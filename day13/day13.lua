@@ -19,7 +19,7 @@ function Day13.parse_dots(lines)
                 x = x,
                 y = y
             }
-            dots[vector:to_string()] = vector
+            dots[vector:hash()] = vector
         else
             for direction, coordinate in line:gmatch("fold along (%w)=(%d+)") do
                 table.insert(fold_instructions, {
@@ -45,9 +45,9 @@ function Day13.fold(dots, instruction)
         }
         if (instruction.direction == "x" and new_dot.x < instruction.coordinate) or
             (instruction.direction == "y" and new_dot.y < instruction.coordinate) then
-            new_dots[new_dot:to_string()] = new_dot
+            new_dots[new_dot:hash()] = new_dot
         else
-            new_dots[dot:to_string()] = dot
+            new_dots[dot:hash()] = dot
         end
     end
     return new_dots
@@ -80,7 +80,7 @@ function Day13.dots_to_string(dots)
             if dots[Vector:new{
                 x = x,
                 y = y
-            }:to_string()] then
+            }:hash()] then
                 table.insert(dot_row, "#")
             else
                 table.insert(dot_row, ".")

@@ -95,13 +95,13 @@ function Day09.find_basin(position, basin_by_position, height_map)
     end
 
     if min_neighbour == nil then
-        basin_by_position[position:to_string()] = position
+        basin_by_position[position:hash()] = position
     else
-        local min_neighbour_position_string = min_neighbour.position:to_string()
+        local min_neighbour_position_string = min_neighbour.position:hash()
         if basin_by_position[min_neighbour_position_string] == nil then
             Day09.find_basin(min_neighbour.position, basin_by_position, height_map)
         end
-        basin_by_position[position:to_string()] = basin_by_position[min_neighbour_position_string]
+        basin_by_position[position:hash()] = basin_by_position[min_neighbour_position_string]
     end
 end
 
@@ -123,7 +123,7 @@ function Day09.find_largest_basins(lines)
 
     local basin_sizes = {}
     for position_string, basin_position in pairs(basins_by_position) do
-        local basin_position_string = basin_position:to_string()
+        local basin_position_string = basin_position:hash()
         basin_sizes[basin_position_string] = (basin_sizes[basin_position_string] or 0) + 1
     end
 

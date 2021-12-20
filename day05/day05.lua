@@ -34,7 +34,7 @@ function Day05.count_overlaps(lines, with_diagonal)
             local line_points = origin:line_points(termination)
 
             for _, line_point in ipairs(line_points) do
-                local line_point_string = line_point:to_string()
+                local line_point_string = line_point:hash()
                 points[line_point_string] = (points[line_point_string] or 0) + 1
                 if points[line_point_string] == 2 then
                     nb_overlap = nb_overlap + 1

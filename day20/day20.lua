@@ -17,7 +17,7 @@ function Day20.parse_pixels(lines)
                     x = x,
                     y = i - 2
                 }
-                pixels[position:to_string()] = position
+                pixels[position:hash()] = position
             end
         end
     end
@@ -80,7 +80,7 @@ function Day20.enhance(algorithm, pixels, should_invert, input_inverted)
                 x = x + 1,
                 y = y + 1
             }}) do
-                local pixel_lit = input_inverted ~= (pixels[neighbour:to_string()] ~= nil)
+                local pixel_lit = input_inverted ~= (pixels[neighbour:hash()] ~= nil)
                 table.insert(neighbour_binary_table, pixel_lit and 1 or 0)
             end
             local area_value = tonumber(table.concat(neighbour_binary_table), 2)
@@ -90,7 +90,7 @@ function Day20.enhance(algorithm, pixels, should_invert, input_inverted)
                     x = x,
                     y = y
                 }
-                new_pixels[position:to_string()] = position
+                new_pixels[position:hash()] = position
             end
         end
     end

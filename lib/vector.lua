@@ -15,6 +15,10 @@ function Vector:copy()
     }
 end
 
+function Vector:hash()
+    return self.x + self.y * 20879 + (self.z or 0) * 96477593
+end
+
 function Vector:to_string()
     if self.z then
         return string.format("{x = %d, y = %d, z = %d}", self.x, self.y, self.z)
