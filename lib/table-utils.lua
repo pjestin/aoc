@@ -20,4 +20,16 @@ function TableUtils.to_string(t)
     return result .. "}"
 end
 
+function TableUtils.max(t)
+    local max = nil
+
+    for _, v in pairs(t) do
+        if not max or v > max then
+            max = v
+        end
+    end
+
+    return max
+end
+
 return TableUtils

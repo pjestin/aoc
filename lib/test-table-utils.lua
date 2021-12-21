@@ -33,3 +33,12 @@ function TestTableUtils:test_to_string(t)
     }
     lu.assertEquals(TableUtils.to_string(a), "{1 = abc, ert = 2, }")
 end
+
+function TestTableUtils:test_max(t)
+    local a = {
+        abc = 56,
+        [1] = -87,
+        [76] = 654
+    }
+    lu.assertEquals(TableUtils.max(a), 654)
+end
