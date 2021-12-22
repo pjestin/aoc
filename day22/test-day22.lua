@@ -12,13 +12,13 @@ function TestDay22:setUp()
 end
 
 function TestDay22:test_count_initialization_region_cubes()
-    lu.assertEquals(Day22.count_initialization_region_cubes(self.input_test), 39)
-    lu.assertEquals(Day22.count_initialization_region_cubes(self.input_test_2), 590784)
-    lu.assertEquals(Day22.count_initialization_region_cubes(self.input), 610196)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input_test, true), 39)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input_test_2, true), 590784)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input, true), 610196)
 end
 
 function TestDay22:test_count_reboot_cubes()
-    lu.assertEquals(Day22.count_reboot_cubes(self.input_test), 39)
-    -- lu.assertEquals(Day22.count_reboot_cubes(self.input_test_3), 2758514936282235)
-    -- lu.assertEquals(Day22.count_reboot_cubes(self.input), 1282401587270826)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input_test, false), 39)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input_test_3, false), 2758514936282235)
+    lu.assertEquals(Day22.count_reboot_cubes(self.input, false), 1282401587270826)
 end

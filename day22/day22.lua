@@ -11,10 +11,6 @@ function Region:new(o)
     return o
 end
 
-function Region:contains(cube)
-    return cube.x >= self.min.x and cube.x < self.max.x and cube.y >= self.min.y and cube.y < self.max.y and cube.z >= self.min.z and cube.z < self.max.z
-end
-
 function Region:includes(o)
     return self.min.x <= o.min.x and self.max.x >= o.max.x and self.min.y <= o.min.y and self.max.y >= o.max.y and self.min.z <= o.min.z and self.max.z >= o.max.z
 end
@@ -76,41 +72,6 @@ function Day22.parse_reboot_steps(lines)
     return reboot_steps
 end
 
-function Day22.count_initialization_region_cubes(lines)
-    local reboot_steps = Day22.parse_reboot_steps(lines)
-    local initialization_region = Region:new{
-        min = Vector:new{x = -50, y = -50, z = -50},
-        max = Vector:new{x = 51, y = 51, z = 51}
-    }
-
-    local initialization_steps = {}
-    for _, reboot_step in ipairs(reboot_steps) do
-        if initialization_region:includes(reboot_step) then
-            table.insert(initialization_steps, reboot_step)
-        end
-    end
-
-    local count_cubes_on = 0
-    for x = initialization_region.min.x, initialization_region.max.x - 1 do
-        for y = initialization_region.min.y, initialization_region.max.y - 1 do
-            for z = initialization_region.min.z, initialization_region.max.z - 1 do
-                local cube = Vector:new{x = x, y = y, z = z}
-                local state = false
-                for _, initialization_step in ipairs(initialization_steps) do
-                    if initialization_step:contains(cube) then
-                        state = initialization_step.state
-                    end
-                end
-                if state then
-                    count_cubes_on = count_cubes_on + 1
-                end
-            end
-        end
-    end
-
-    return count_cubes_on
-end
-
 function Day22.split_region_with_intersection(region, intersection)
     local split_regions = {}
     local x_ranges = {{region.min.x, intersection.min.x}, {intersection.min.x, intersection.max.x}, { intersection.max.x, region.max.x}}
@@ -148,59 +109,58 @@ end
 
 function Day22.split_regions(existing, new)
     if not existing:overlaps(new) then
-        return nil, nil
+        return nil
     end
     local existing_split_regions = {}
-    local new_split_regions = {}
     local intersection = existing:intersect(new)
-    local split_regions_new = Day22.split_region_with_intersection(new, intersection)
-    for _, split_region_new in ipairs(split_regions_new) do
-        table.insert(new_split_regions, Region:new{min = split_region_new.min, max = split_region_new.max, state = new.state})
-    end
-    if new.state then
-        table.insert(existing_split_regions, intersection)
-    end
     local split_regions_existing = Day22.split_region_with_intersection(existing, intersection)
     for _, split_region_existing in ipairs(split_regions_existing) do
         table.insert(existing_split_regions, split_region_existing)
     end
-    return existing_split_regions, new_split_regions
+    return existing_split_regions
 end
 
-function Day22.count_reboot_cubes(lines)
+function Day22.restrict_reboot_steps(reboot_steps)
+    local initialization_region = Region:new{
+        min = Vector:new{x = -50, y = -50, z = -50},
+        max = Vector:new{x = 51, y = 51, z = 51}
+    }
+
+    local initialization_steps = {}
+    for _, reboot_step in ipairs(reboot_steps) do
+        if initialization_region:includes(reboot_step) then
+            table.insert(initialization_steps, reboot_step)
+        end
+    end
+
+    return initialization_steps
+end
+
+function Day22.count_reboot_cubes(lines, restrict_to_initialization_region)
     local reboot_steps = Day22.parse_reboot_steps(lines)
+
+    if restrict_to_initialization_region then
+        reboot_steps = Day22.restrict_reboot_steps(reboot_steps)
+    end
 
     local split_regions = {}
 
-    for i, reboot_step in ipairs(reboot_steps) do
-        if #split_regions == 0 and reboot_step.state then
-            table.insert(split_regions, reboot_step)
-        else
-            local next_existing_split_regions = {}
-            local new_split_regions = {}
-            for j, split_region in ipairs(split_regions) do
-                local this_existing_split_regions, this_new_split_regions = Day22.split_regions(split_region, reboot_step)
-                if this_existing_split_regions then
-                    for _, existing_split_region in ipairs(this_existing_split_regions) do
-                        table.insert(next_existing_split_regions, existing_split_region)
-                    end
-                    for _, new_split_region in ipairs(this_new_split_regions) do
-                        table.insert(new_split_regions, new_split_region)
-                    end
-                else
-                    table.insert(next_existing_split_regions, split_region)
+    for _, reboot_step in ipairs(reboot_steps) do
+        local next_existing_split_regions = {}
+        for j, split_region in ipairs(split_regions) do
+            local this_existing_split_regions = Day22.split_regions(split_region, reboot_step)
+            if this_existing_split_regions then
+                for _, existing_split_region in ipairs(this_existing_split_regions) do
+                    table.insert(next_existing_split_regions, existing_split_region)
                 end
+            else
+                table.insert(next_existing_split_regions, split_region)
             end
-            if reboot_step.state then
-                if #new_split_regions == 0 then
-                    table.insert(next_existing_split_regions, reboot_step)
-                end
-                for _, new_split_region in ipairs(new_split_regions) do
-                    table.insert(next_existing_split_regions, new_split_region)
-                end
-            end
-            split_regions = next_existing_split_regions
         end
+        if reboot_step.state then
+            table.insert(next_existing_split_regions, reboot_step)
+        end
+        split_regions = next_existing_split_regions
     end
 
     local count_cubes_on = 0
