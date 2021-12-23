@@ -1,10 +1,14 @@
 local TableUtils = {}
 
 function TableUtils.copy(t)
+    if type(t) ~= "table" then
+        return t
+    end
+
     local result = {}
 
     for k, v in pairs(t) do
-        result[k] = v
+        result[k] = TableUtils.copy(v)
     end
 
     return result

@@ -26,6 +26,19 @@ function TestTableUtils:test_copy_modify(t)
     lu.assertEquals(b[1], "abc")
 end
 
+function TestTableUtils:test_deep_copy_modify(t)
+    local a = {
+        "abc",
+        ert = 2,
+        true,
+        b = {1, 2, 3}
+    }
+    local b = TableUtils.copy(a)
+    lu.assertEquals(b.b, {1, 2, 3})
+    a.b[1] = 4
+    lu.assertEquals(b.b, {1, 2, 3})
+end
+
 function TestTableUtils:test_to_string(t)
     local a = {
         "abc",
