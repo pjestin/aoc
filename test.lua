@@ -29,5 +29,6 @@ require("day20.test-day20")
 require("day21.test-day21")
 require("day22.test-day22")
 require("day23.test-day23")
+require("day25.test-day25")
 
 os.exit(lu.LuaUnit.new():runSuite())
