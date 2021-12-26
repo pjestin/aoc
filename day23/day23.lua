@@ -65,7 +65,6 @@ function Day23.move_amphipod_to_hallway(rooms, room_index, coordinate_in_room, h
     new_hallway[stop_place] = amphipod_type
     new_rooms[room_index][coordinate_in_room] = nil
     local room_coordinate = Day23.hallway_coordinate(room_index)
-    -- print(amphipod_type, room_coordinate, stop_place, coordinate_in_room)
     local energy_surplus = Day23.ENERGY_MAP[amphipod_type] * (math.abs(room_coordinate - stop_place) + coordinate_in_room)
     return new_rooms, new_hallway, energy_surplus
 end
