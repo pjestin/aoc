@@ -25,12 +25,12 @@ function Day15.find_risk(graph)
         risk = 0
     }, 0)
     local visited = {}
+    local risks = {
+        [0] = 0
+    }
 
     while not q:empty() do
         local state = q:pop()
-        if state.position.x == #graph[1] and state.position.y == #graph then
-            return state.risk
-        end
         if visited[state.position:to_string()] == nil then
             visited[state.position:to_string()] = true
             local neighbours = {Vector:new{
@@ -49,16 +49,23 @@ function Day15.find_risk(graph)
             for _, neighbour in ipairs(neighbours) do
                 if neighbour.x >= 1 and neighbour.x <= #graph[1] and neighbour.y >= 1 and neighbour.y <= #graph then
                     local risk = state.risk + graph[neighbour.y][neighbour.x]
-                    q:put({
-                        position = neighbour,
-                        risk = risk
-                    }, risk)
+                    local neighbour_hash = neighbour:hash()
+                    if not risks[neighbour_hash] or risk < risks[neighbour_hash] then
+                        risks[neighbour_hash] = risk
+                        q:put({
+                            position = neighbour,
+                            risk = risk
+                        }, risk)
+                    end
                 end
             end
         end
     end
 
-    error("Minimum risk path not found")
+    return risks[Vector:new{
+        x = #graph[1],
+        y = #graph
+    }:hash()]
 end
 
 function Day15.find_least_risk_path(lines)

@@ -23,7 +23,7 @@ function Day23.parse_initial_state(lines)
     local rooms = {{}, {}, {}, {}}
     for i = 3, 4 do
         local room_number = 1
-        for amphipod in lines[i]:gmatch("%w")do
+        for amphipod in lines[i]:gmatch("%w") do
             rooms[room_number][i - 2] = amphipod
             room_number = room_number + 1
         end
@@ -65,7 +65,8 @@ function Day23.move_amphipod_to_hallway(rooms, room_index, coordinate_in_room, h
     new_hallway[stop_place] = amphipod_type
     new_rooms[room_index][coordinate_in_room] = nil
     local room_coordinate = Day23.hallway_coordinate(room_index)
-    local energy_surplus = Day23.ENERGY_MAP[amphipod_type] * (math.abs(room_coordinate - stop_place) + coordinate_in_room)
+    local energy_surplus = Day23.ENERGY_MAP[amphipod_type] *
+                               (math.abs(room_coordinate - stop_place) + coordinate_in_room)
     return new_rooms, new_hallway, energy_surplus
 end
 
@@ -95,35 +96,27 @@ function Day23.move_amphipod_to_room(hallway, hallway_coordinate, rooms, destina
     new_hallway[hallway_coordinate] = nil
     new_rooms[destination][coordinate_in_room] = amphipod_type
     local room_coordinate = Day23.hallway_coordinate(destination)
-    local energy_surplus = Day23.ENERGY_MAP[amphipod_type] * (math.abs(room_coordinate - hallway_coordinate) + coordinate_in_room)
+    local energy_surplus = Day23.ENERGY_MAP[amphipod_type] *
+                               (math.abs(room_coordinate - hallway_coordinate) + coordinate_in_room)
     return new_rooms, new_hallway, energy_surplus
 end
 
 function Day23.state_to_string(state, room_size)
-    local result = room_size == 2 and {
-        "#############",
-        "#...........#",
-        "###.#.#.#.###",
-        "  #.#.#.#.#  ",
-        "  #########  "
-    } or {
-        "#############",
-        "#...........#",
-        "###.#.#.#.###",
-        "  #.#.#.#.#  ",
-        "  #.#.#.#.#  ",
-        "  #.#.#.#.#  ",
-        "  #########  "
-    }
+    local result = room_size == 2 and
+                       {"#############", "#...........#", "###.#.#.#.###", "  #.#.#.#.#  ", "  #########  "} or
+                       {"#############", "#...........#", "###.#.#.#.###", "  #.#.#.#.#  ", "  #.#.#.#.#  ",
+                        "  #.#.#.#.#  ", "  #########  "}
     for hallway_index = 1, 11 do
         if state.hallway[hallway_index] then
-            result[2] = result[2]:sub(1, hallway_index) .. state.hallway[hallway_index] .. result[2]:sub(hallway_index + 2, #result[2])
+            result[2] = result[2]:sub(1, hallway_index) .. state.hallway[hallway_index] ..
+                            result[2]:sub(hallway_index + 2, #result[2])
         end
     end
     for room_index, room in ipairs(state.rooms) do
         for i = 1, room_size do
             if room[i] then
-                result[i + 2] = result[i + 2]:sub(1, 2 * room_index + 1) .. room[i] .. result[i + 2]:sub(2 * room_index + 3, #result[i + 2])
+                result[i + 2] = result[i + 2]:sub(1, 2 * room_index + 1) .. room[i] ..
+                                    result[i + 2]:sub(2 * room_index + 3, #result[i + 2])
             end
         end
     end
@@ -200,49 +193,54 @@ function Day23.find_organised_state(initial_state, room_size)
         end
 
         local state_hash = Day23.state_hash(state, room_size)
-        if visited[state_hash] then
-            goto continue
-        end
-        visited[state_hash] = true
+        if not visited[state_hash] then
+            visited[state_hash] = true
 
-        for hallway_coordinate = 1, 11 do
-            if state.hallway[hallway_coordinate] then
-                local amphipod = state.hallway[hallway_coordinate]
-                local destination = Day23.DESTINATION_MAP[amphipod]
-                local destination_hallway_coordinate = Day23.hallway_coordinate(destination)
-                if not Day23.obstacle(state.hallway, hallway_coordinate, destination_hallway_coordinate) then
-                    local coordinate_in_room = Day23.find_deepest_coordinate_in_room(state.rooms[destination], room_size, destination)
-                    if coordinate_in_room ~= nil then
-                        local new_rooms, new_hallway, energy_surplus = Day23.move_amphipod_to_room(state.hallway, hallway_coordinate, state.rooms, destination, coordinate_in_room)
-                        local new_energy = state.energy + energy_surplus
-                        q:put({
-                            rooms = new_rooms,
-                            hallway = new_hallway,
-                            energy = new_energy
-                        }, new_energy)
+            for hallway_coordinate = 1, 11 do
+                if state.hallway[hallway_coordinate] then
+                    local amphipod = state.hallway[hallway_coordinate]
+                    local destination = Day23.DESTINATION_MAP[amphipod]
+                    local destination_hallway_coordinate = Day23.hallway_coordinate(destination)
+                    if not Day23.obstacle(state.hallway, hallway_coordinate, destination_hallway_coordinate) then
+                        local coordinate_in_room = Day23.find_deepest_coordinate_in_room(state.rooms[destination],
+                            room_size, destination)
+                        if coordinate_in_room ~= nil then
+                            local new_rooms, new_hallway, energy_surplus =
+                                Day23.move_amphipod_to_room(state.hallway, hallway_coordinate, state.rooms, destination,
+                                    coordinate_in_room)
+                            local new_energy = state.energy + energy_surplus
+                            q:put({
+                                rooms = new_rooms,
+                                hallway = new_hallway,
+                                energy = new_energy
+                            }, new_energy)
+                        end
+                    end
+                end
+            end
+
+            for room_index, room in ipairs(state.rooms) do
+                local hallway_coordinate = Day23.hallway_coordinate(room_index)
+                for _, stop_place in ipairs(Day23.HALLWAY_STOP_PLACES) do
+                    for coordinate_in_room = 1, room_size do
+                        if room[coordinate_in_room] and
+                            Day23.can_move_out_of_room(room, coordinate_in_room, room_size, room_index) and
+                            not Day23.obstacle(state.hallway, hallway_coordinate, stop_place) and
+                            not state.hallway[hallway_coordinate] then
+                            local new_rooms, new_hallway, energy_surplus =
+                                Day23.move_amphipod_to_hallway(state.rooms, room_index, coordinate_in_room,
+                                    state.hallway, stop_place)
+                            local new_energy = state.energy + energy_surplus
+                            q:put({
+                                rooms = new_rooms,
+                                hallway = new_hallway,
+                                energy = new_energy
+                            }, new_energy)
+                        end
                     end
                 end
             end
         end
-
-        for room_index, room in ipairs(state.rooms) do
-            local hallway_coordinate = Day23.hallway_coordinate(room_index)
-            for _, stop_place in ipairs(Day23.HALLWAY_STOP_PLACES) do
-                for coordinate_in_room = 1, room_size do
-                    if room[coordinate_in_room] and Day23.can_move_out_of_room(room, coordinate_in_room, room_size, room_index) and not Day23.obstacle(state.hallway, hallway_coordinate, stop_place) and not state.hallway[hallway_coordinate] then
-                        local new_rooms, new_hallway, energy_surplus = Day23.move_amphipod_to_hallway(state.rooms, room_index, coordinate_in_room, state.hallway, stop_place)
-                        local new_energy = state.energy + energy_surplus
-                        q:put({
-                            rooms = new_rooms,
-                            hallway = new_hallway,
-                            energy = new_energy
-                        }, new_energy)
-                    end
-                end
-            end
-        end
-
-        ::continue::
     end
 
     error("Organised state not found")
@@ -253,7 +251,7 @@ function Day23.find_least_energy_organisation(lines)
     local initial_state = {
         rooms = initial_rooms,
         hallway = {},
-        energy = 0,
+        energy = 0
     }
 
     return Day23.find_organised_state(initial_state, #initial_state.rooms[1])
@@ -264,7 +262,7 @@ function Day23.find_least_energy_organisation_with_extra_lines(lines, extra_line
     local initial_state = {
         rooms = initial_rooms,
         hallway = {},
-        energy = 0,
+        energy = 0
     }
 
     return Day23.find_organised_state(initial_state, #initial_state.rooms[1])
