@@ -27,8 +27,7 @@ pub fn first_basement_character(line: &str) -> i32 {
 
 #[cfg(test)]
 mod tests {
-  use crate::day01::count_floors;
-  use crate::day01::first_basement_character;
+  use crate::day01::{count_floors, first_basement_character};
   use crate::file_utils::read_first_line;
 
   #[test]

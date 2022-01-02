@@ -49,8 +49,7 @@ pub fn find_ribbon_length(lines: Lines<BufReader<File>>) -> i32 {
 
 #[cfg(test)]
 mod tests {
-  use crate::day02::find_ribbon_length;
-  use crate::day02::find_wrapping_paper_surface;
+  use crate::day02::{find_ribbon_length, find_wrapping_paper_surface};
   use crate::file_utils::read_lines;
 
   #[test]
