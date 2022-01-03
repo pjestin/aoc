@@ -1,13 +1,5 @@
 pub fn count_floors(line: &str) -> i32 {
-  let mut floor: i32 = 0;
-  for c in line.chars() {
-    if c == '(' {
-      floor += 1;
-    } else if c == ')' {
-      floor -= 1;
-    }
-  }
-  return floor;
+  line.chars().map(|c| if c == '(' { 1 } else { -1 }).sum()
 }
 
 pub fn first_basement_character(line: &str) -> i32 {

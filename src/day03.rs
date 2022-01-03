@@ -3,33 +3,25 @@ use std::collections::HashSet;
 use std::panic;
 
 fn update_position(position: &mut Vector, c: char) {
-  match c {
-    '>' => {
-      position.add(&Vector { x: 1, y: 0 });
-    }
-    '^' => {
-      position.add(&Vector { x: 0, y: 1 });
-    }
-    '<' => {
-      position.add(&Vector { x: -1, y: 0 });
-    }
-    'v' => {
-      position.add(&Vector { x: 0, y: -1 });
-    }
+  position.add(match c {
+    '>' => &Vector { x: 1, y: 0 },
+    '^' => &Vector { x: 0, y: 1 },
+    '<' => &Vector { x: -1, y: 0 },
+    'v' => &Vector { x: 0, y: -1 },
     _ => {
       panic!("Unknown character: {}", c);
     }
-  }
+  });
 }
 
 pub fn count_present_houses(line: &str) -> i32 {
   let mut position = Vector { x: 0, y: 0 };
   let mut presents = HashSet::new();
   presents.insert(position);
-  for c in line.chars() {
+  line.chars().for_each(|c| {
     update_position(&mut position, c);
     presents.insert(position);
-  }
+  });
   return presents.len() as i32;
 }
 
@@ -38,7 +30,7 @@ pub fn count_present_houses_with_robo(line: &str) -> i32 {
   let mut robo_santa_position = Vector { x: 0, y: 0 };
   let mut presents = HashSet::new();
   presents.insert(santa_position);
-  for (i, c) in line.chars().enumerate() {
+  line.chars().enumerate().for_each(|(i, c)| {
     let position = if i % 2 == 0 {
       &mut santa_position
     } else {
@@ -46,7 +38,7 @@ pub fn count_present_houses_with_robo(line: &str) -> i32 {
     };
     update_position(position, c);
     presents.insert(*position);
-  }
+  });
   return presents.len() as i32;
 }
 

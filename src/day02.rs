@@ -3,17 +3,15 @@ use std::fs::File;
 use std::io::{BufReader, Lines};
 
 fn parse_presents(lines: Lines<BufReader<File>>) -> Vec<Vec<i32>> {
-  let mut presents = Vec::new();
-  for line in lines {
-    presents.push(
+  lines
+    .map(|line| {
       line
         .unwrap()
         .split("x")
         .map(|s| s.parse::<i32>().unwrap())
-        .collect(),
-    );
-  }
-  return presents;
+        .collect()
+    })
+    .collect()
 }
 
 pub fn find_wrapping_paper_surface(lines: Lines<BufReader<File>>) -> i32 {
