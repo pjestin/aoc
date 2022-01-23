@@ -1,6 +1,6 @@
 use md5;
 
-fn has_leading_zeros(hash: String, nb_leading_zeros: usize) -> bool {
+fn has_leading_zeros(hash: &String, nb_leading_zeros: usize) -> bool {
   for (i, c) in hash.chars().enumerate() {
     if i >= nb_leading_zeros {
       return true;
@@ -15,10 +15,8 @@ fn has_leading_zeros(hash: String, nb_leading_zeros: usize) -> bool {
 pub fn mine_advent_coin(key: &str, nb_leading_zeros: usize) -> i32 {
   let mut decimal = 1;
   loop {
-    let md5_input = format!("{}{}", key, decimal);
-    let md5 = md5::compute(md5_input);
-    let md5_string = format!("{:x}", md5);
-    if has_leading_zeros(md5_string, nb_leading_zeros) {
+    let md5 = md5::compute(format!("{}{}", key, decimal));
+    if has_leading_zeros(&format!("{:x}", md5), nb_leading_zeros) {
       return decimal;
     }
     decimal += 1;
