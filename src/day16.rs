@@ -56,16 +56,56 @@ pub fn find_correct_sue(
     .0
 }
 
+fn match_real_sue(sue: &HashMap<String, i32>, wrapping: &HashMap<String, i32>) -> bool {
+  wrapping
+    .iter()
+    .find(|&(wrapping_detection, &quantity)| {
+      if sue.contains_key(wrapping_detection) {
+        let wrapping_detection_str: &str = wrapping_detection.as_str();
+        if ["cats", "trees"].contains(&wrapping_detection_str) {
+          return sue[wrapping_detection] <= quantity;
+        } else if ["pomeranians", "goldfish"].contains(&wrapping_detection_str) {
+          return sue[wrapping_detection] >= quantity;
+        } else {
+          return sue[wrapping_detection] != quantity;
+        }
+      }
+      false
+    })
+    .is_none()
+}
+
+pub fn find_real_sue(lines: Lines<BufReader<File>>, input_wrapping: Lines<BufReader<File>>) -> i32 {
+  let sues: HashMap<i32, HashMap<String, i32>> = parse_sues(lines);
+  let wrapping: HashMap<String, i32> = parse_wrapping(input_wrapping);
+  *sues
+    .iter()
+    .find(|(_, sue)| match_real_sue(&sue, &wrapping))
+    .unwrap()
+    .0
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::day16::find_correct_sue;
+  use crate::day16::{find_correct_sue, find_real_sue};
   use crate::file_utils::read_lines;
 
   #[test]
-  fn test_find_best_cookie() {
+  fn test_find_correct_sue() {
     assert_eq!(
       373,
       find_correct_sue(
+        read_lines("./res/day16/input.txt").unwrap(),
+        read_lines("./res/day16/input-wrapping.txt").unwrap()
+      )
+    );
+  }
+
+  #[test]
+  fn test_find_real_sue() {
+    assert_eq!(
+      260,
+      find_real_sue(
         read_lines("./res/day16/input.txt").unwrap(),
         read_lines("./res/day16/input-wrapping.txt").unwrap()
       )
