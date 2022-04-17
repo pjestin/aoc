@@ -47,9 +47,9 @@ fn get_quantum_entanglement(group: &HashSet<usize>) -> Option<usize> {
   Some(quantum_entanglement)
 }
 
-pub fn find_best_quantum_entanglement(lines: Lines<BufReader<File>>) -> usize {
+pub fn find_best_quantum_entanglement(lines: Lines<BufReader<File>>, group_count: usize) -> usize {
   let weights = parse_weights(lines);
-  let group_weight: usize = weights.iter().sum::<usize>() / 3;
+  let group_weight: usize = weights.iter().sum::<usize>() / group_count;
   let current_weights = vec![];
 
   let groups: Vec<HashSet<usize>> =
@@ -83,11 +83,19 @@ mod tests {
   fn test_find_best_quantum_entanglement() {
     assert_eq!(
       99,
-      find_best_quantum_entanglement(read_lines("./res/day24/input-test.txt").unwrap())
+      find_best_quantum_entanglement(read_lines("./res/day24/input-test.txt").unwrap(), 3)
     );
     assert_eq!(
       10439961859,
-      find_best_quantum_entanglement(read_lines("./res/day24/input.txt").unwrap())
+      find_best_quantum_entanglement(read_lines("./res/day24/input.txt").unwrap(), 3)
+    );
+    assert_eq!(
+      44,
+      find_best_quantum_entanglement(read_lines("./res/day24/input-test.txt").unwrap(), 4)
+    );
+    assert_eq!(
+      72050269,
+      find_best_quantum_entanglement(read_lines("./res/day24/input.txt").unwrap(), 4)
     );
   }
 }
