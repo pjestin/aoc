@@ -1,0 +1,29 @@
+{
+  "name": "aoc2019",
+  "version": "1.0.0",
+  "description": "Advent of Code 2019 solutions",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pjestin/aoc2019.git"
+  },
+  "author": "pjestin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pjestin/aoc2019/issues"
+  },
+  "homepage": "https://github.com/pjestin/aoc2019#readme",
+  "dependencies": {
+    "biginteger": "^1.0.3",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "test": "^0.6.0"
+  }
+}
