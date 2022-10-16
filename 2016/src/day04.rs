@@ -95,7 +95,7 @@ mod tests {
   fn test_sum_real_room_sector_id() {
     assert_eq!(
       1514,
-      sum_real_room_sector_id(read_lines("./res/day04/input-text.txt").unwrap())
+      sum_real_room_sector_id(read_lines("./res/day04/input-test.txt").unwrap())
     );
     assert_eq!(
       361724,
