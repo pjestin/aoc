@@ -20,24 +20,11 @@ struct State {
 impl Hash for State {
   fn hash<H: Hasher>(&self, state: &mut H) {
     self.elevator.hash(state);
-    let microchip_string: String = self
-      .microchips
-      .iter()
-      .map(|(microchip_element, microchip_floor)| {
-        format!("{}:{};", microchip_element, microchip_floor)
-      })
-      .collect();
-    let generator_string: String = self
-      .generators
-      .iter()
-      .map(|(generator_element, generator_floor)| {
-        format!("{}:{};", generator_element, generator_floor)
-      })
-      .collect();
-    "microchips".hash(state);
-    microchip_string.hash(state);
-    "generators".hash(state);
-    generator_string.hash(state);
+    for element in self.microchips.keys() {
+      let element_string: String =
+        format!("{}:{};", self.microchips[element], self.generators[element]);
+      element_string.hash(state);
+    }
   }
 }
 
@@ -77,6 +64,21 @@ impl State {
   pub fn is_final(&self) -> bool {
     self.away_score() == 0
   }
+
+  pub fn minimum_floor(&self) -> usize {
+    let mut min: usize = FINAL_FLOOR_NUMBER;
+    for &floor_number in self.microchips.values() {
+      if floor_number < min {
+        min = floor_number;
+      }
+    }
+    for &floor_number in self.generators.values() {
+      if floor_number < min {
+        min = floor_number;
+      }
+    }
+    min
+  }
 }
 
 fn parse_state(lines: Lines<BufReader<File>>) -> State {
@@ -108,6 +110,46 @@ fn parse_state(lines: Lines<BufReader<File>>) -> State {
   state
 }
 
+fn pick_objects_to_move_set(
+  moveable_microchips: &Vec<String>,
+  moveable_generators: &Vec<String>,
+) -> Vec<(Vec<String>, Vec<String>)> {
+  let mut objects_to_move_set: Vec<(Vec<String>, Vec<String>)> = Vec::new();
+
+  for microchip_index in 0..moveable_microchips.len() {
+    let moveable_microchip = moveable_microchips[microchip_index].clone();
+    objects_to_move_set.push((vec![moveable_microchip.clone()], vec![]));
+
+    for second_microchip_index in (microchip_index + 1)..moveable_microchips.len() {
+      let second_moveable_microchip = moveable_microchips[second_microchip_index].clone();
+      objects_to_move_set.push((
+        vec![moveable_microchip.clone(), second_moveable_microchip],
+        vec![],
+      ));
+    }
+
+    for generator_index in 0..moveable_generators.len() {
+      let moveable_generator = moveable_generators[generator_index].clone();
+      objects_to_move_set.push((vec![moveable_microchip.clone()], vec![moveable_generator]));
+    }
+  }
+
+  for generator_index in 0..moveable_generators.len() {
+    let moveable_generator = moveable_generators[generator_index].clone();
+    objects_to_move_set.push((vec![], vec![moveable_generator.clone()]));
+
+    for second_generator_index in (generator_index + 1)..moveable_generators.len() {
+      let second_moveable_generator = moveable_generators[second_generator_index].clone();
+      objects_to_move_set.push((
+        vec![],
+        vec![moveable_generator.clone(), second_moveable_generator],
+      ));
+    }
+  }
+
+  objects_to_move_set
+}
+
 fn move_floor(state: &State, target_floor: usize) -> Vec<State> {
   let mut moved_states: Vec<State> = Vec::new();
 
@@ -124,67 +166,25 @@ fn move_floor(state: &State, target_floor: usize) -> Vec<State> {
     }
   }
 
-  for microchip_index in 0..moveable_microchips.len() {
-    let moveable_microchip = moveable_microchips[microchip_index].clone();
-    let mut moved_microchip_state = State {
+  let objects_to_move_set = pick_objects_to_move_set(&moveable_microchips, &moveable_generators);
+
+  for object_to_move in objects_to_move_set {
+    let mut moved_microchips = state.microchips.clone();
+    let mut moved_generators = state.generators.clone();
+    for microchip in object_to_move.0 {
+      moved_microchips.insert(microchip, target_floor);
+    }
+    for generator in object_to_move.1 {
+      moved_generators.insert(generator, target_floor);
+    }
+    let moved_state = State {
       elevator: target_floor,
-      microchips: state.microchips.clone(),
-      generators: state.generators.clone(),
+      microchips: moved_microchips,
+      generators: moved_generators,
       steps: state.steps + 1,
     };
-    moved_microchip_state
-      .microchips
-      .insert(moveable_microchip.clone(), target_floor);
-    if moved_microchip_state.is_valid() {
-      moved_states.push(moved_microchip_state.clone());
-    }
-
-    for second_microchip_index in (microchip_index + 1)..moveable_microchips.len() {
-      let second_moveable_microchip = moveable_microchips[second_microchip_index].clone();
-      let mut second_moved_microchip_state = moved_microchip_state.clone();
-      second_moved_microchip_state
-        .microchips
-        .insert(second_moveable_microchip.clone(), target_floor);
-      if second_moved_microchip_state.is_valid() {
-        moved_states.push(second_moved_microchip_state);
-      }
-    }
-
-    for moveable_generator in moveable_generators.iter() {
-      let mut moved_generator_state = moved_microchip_state.clone();
-      moved_generator_state
-        .generators
-        .insert(moveable_generator.clone(), target_floor);
-      if moved_generator_state.is_valid() {
-        moved_states.push(moved_generator_state);
-      }
-    }
-  }
-
-  for generator_index in 0..moveable_generators.len() {
-    let moveable_generator = moveable_generators[generator_index].clone();
-    let mut moved_generator_state = State {
-      elevator: target_floor,
-      microchips: state.microchips.clone(),
-      generators: state.generators.clone(),
-      steps: state.steps + 1,
-    };
-    moved_generator_state
-      .generators
-      .insert(moveable_generator, target_floor);
-    if moved_generator_state.is_valid() {
-      moved_states.push(moved_generator_state.clone());
-    }
-
-    for second_generator_index in (generator_index + 1)..moveable_generators.len() {
-      let second_moveable_generator = moveable_generators[second_generator_index].clone();
-      let mut second_moved_generator_state = moved_generator_state.clone();
-      second_moved_generator_state
-        .generators
-        .insert(second_moveable_generator.clone(), target_floor);
-      if second_moved_generator_state.is_valid() {
-        moved_states.push(second_moved_generator_state);
-      }
+    if moved_state.is_valid() {
+      moved_states.push(moved_state);
     }
   }
 
@@ -210,7 +210,7 @@ fn arrange(start_state: &State) -> usize {
     }
     visited_states.insert(h);
 
-    if state.elevator > 1 {
+    if state.elevator > 1 && state.elevator > state.minimum_floor() {
       for moved_state in move_floor(&state, state.elevator - 1) {
         queue.push_back(moved_state);
       }
@@ -230,18 +230,18 @@ pub fn arrange_microchips_and_generators(lines: Lines<BufReader<File>>) -> usize
   arrange(&start_state)
 }
 
-// pub fn arrange_with_additional_objects(lines: Lines<BufReader<File>>) -> usize {
-//   let mut start_state: State = parse_state(lines);
-//   start_state.microchips.insert("elerium".to_owned(), 1);
-//   start_state.microchips.insert("dilithium".to_owned(), 1);
-//   start_state.generators.insert("elerium".to_owned(), 1);
-//   start_state.generators.insert("dilithium".to_owned(), 1);
-//   arrange(&start_state)
-// }
+pub fn arrange_with_additional_objects(lines: Lines<BufReader<File>>) -> usize {
+  let mut start_state: State = parse_state(lines);
+  start_state.microchips.insert("elerium".to_owned(), 1);
+  start_state.microchips.insert("dilithium".to_owned(), 1);
+  start_state.generators.insert("elerium".to_owned(), 1);
+  start_state.generators.insert("dilithium".to_owned(), 1);
+  arrange(&start_state)
+}
 
 #[cfg(test)]
 mod tests {
-  use crate::day11::arrange_microchips_and_generators;
+  use crate::day11::{arrange_microchips_and_generators, arrange_with_additional_objects};
   use crate::file_utils::read_lines;
 
   #[test]
@@ -256,11 +256,11 @@ mod tests {
     );
   }
 
-  // #[test]
-  // fn test_arrange_with_additional_objects() {
-  //   assert_eq!(
-  //     57,
-  //     arrange_with_additional_objects(read_lines("./res/day11/input.txt").unwrap())
-  //   );
-  // }
+  #[test]
+  fn test_arrange_with_additional_objects() {
+    assert_eq!(
+      57,
+      arrange_with_additional_objects(read_lines("./res/day11/input.txt").unwrap())
+    );
+  }
 }
