@@ -2,7 +2,7 @@ function parseElves(input: string[]): number[] {
   let elves: number[] = [0];
   let elfIndex: number = 0;
 
-  for (let line of input) {
+  for (const line of input) {
     if (line === '') {
       elfIndex++;
       elves.push(0);
@@ -17,12 +17,12 @@ function parseElves(input: string[]): number[] {
 }
 
 export function findMaxCalories(input: string[]): number {
-  let elves: number[] = parseElves(input);
+  const elves: number[] = parseElves(input);
   return Math.max(...elves);
 }
 
 export function findTotalTop3Calories(input: string[]): number {
-  let elves: number[] = parseElves(input);
-  let sorted_elves: number[] = elves.sort((a: number, b: number) => b - a);
+  const elves: number[] = parseElves(input);
+  const sorted_elves: number[] = elves.sort((a: number, b: number) => b - a);
   return sorted_elves[0] + sorted_elves[1] + sorted_elves[2];
 }

@@ -37,15 +37,15 @@ class Round {
   }
 
   getCorrectShapeScore(): number {
-    let opponentShapeIdentifier: number = this.getShapeIndentifier(this.opponent);
-    let winIndicator: number = this.getShapeIndentifier(this.player);
+    const opponentShapeIdentifier: number = this.getShapeIndentifier(this.opponent);
+    const winIndicator: number = this.getShapeIndentifier(this.player);
     return mod(opponentShapeIdentifier + winIndicator - 1, 3) + 1;
   }
 
   getRoundScore(): number {
-    let playerShape: number = this.getShapeIndentifier(this.player);
-    let opponentShape: number = this.getShapeIndentifier(this.opponent);
-    let difference: number = mod(playerShape - opponentShape, 3);
+    const playerShape: number = this.getShapeIndentifier(this.player);
+    const opponentShape: number = this.getShapeIndentifier(this.opponent);
+    const difference: number = mod(playerShape - opponentShape, 3);
     return mod(difference + 1, 3) * 3;
   }
 
@@ -56,13 +56,13 @@ class Round {
 
 function parseRounds(input: string[]): Round[] {
   return input.map(line => {
-    let strategy: string[] = line.split(' ');
+    const strategy: string[] = line.split(' ');
     return new Round(strategy[1], strategy[0]);
   });
 }
 
 export function findScore(input: string[]): number {
-  let rounds: Round[] = parseRounds(input);
+  const rounds: Round[] = parseRounds(input);
   let score: number = 0;
   for (let round of rounds) {
     score += round.getShapeScore() + round.getRoundScore();
@@ -71,9 +71,9 @@ export function findScore(input: string[]): number {
 }
 
 export function findCorrectScore(input: string[]): number {
-  let rounds: Round[] = parseRounds(input);
+  const rounds: Round[] = parseRounds(input);
   let score: number = 0;
-  for (let round of rounds) {
+  for (const round of rounds) {
     score += round.getCorrectShapeScore() + round.getCorrectRoundScore();
   }
   return score;
