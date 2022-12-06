@@ -1,5 +1,5 @@
-export class Stack {
-  data: string[];
+export class Stack<T> {
+  data: T[];
   size: number;
 
   constructor() {
@@ -7,12 +7,12 @@ export class Stack {
     this.size = 0;
   }
 
-  push(e: string) {
+  push(e: T) {
     this.data[this.size] = e;
     this.size += 1;
   }
 
-  pop(): string {
+  pop(): T {
     if (this.size === 0) {
       throw new Error('stack is empty');
     }
@@ -20,7 +20,7 @@ export class Stack {
     return this.data[this.size];
   }
 
-  peek(): string {
+  peek(): T {
     if (this.size === 0) {
       throw new Error('stack is empty');
     }

@@ -2,14 +2,14 @@ import { Stack } from './stack';
 
 describe('Stack', () => {
   test('push', () => {
-    let stack = new Stack();
+    let stack: Stack<string> = new Stack();
     stack.push('a');
     stack.push('b');
     stack.push('c');
   });
 
   test('pop', () => {
-    let stack = new Stack();
+    let stack: Stack<string> = new Stack();
     stack.push('a');
     stack.push('b');
     stack.push('c');
@@ -20,11 +20,17 @@ describe('Stack', () => {
   });
 
   test('peek', () => {
-    let stack = new Stack();
+    let stack: Stack<string> = new Stack();
     expect(() => stack.peek()).toThrowError('stack is empty');
     stack.push('a');
     stack.push('b');
     stack.push('c');
     expect(stack.peek()).toBe('c');
+  });
+
+  test('with numbers', () => {
+    let stack: Stack<number> = new Stack();
+    stack.push(556);
+    expect(stack.pop()).toBe(556);
   });
 });

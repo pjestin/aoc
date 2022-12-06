@@ -26,7 +26,7 @@ function splitInput(input: string[]): [string[], string[]] {
   throw new Error('Unable to split input');
 }
 
-function parseStacks(inputPart1: string[]): Stack[] {
+function parseStacks(inputPart1: string[]): Stack<string>[] {
   const maxLineLength: number = Math.max(...inputPart1.map(line => line.length));
   const nStacks: number = Math.floor(maxLineLength / 4) + 1;
   let protoStacks: string[][] = [...Array(nStacks).keys()].map(_ => []);
@@ -40,7 +40,7 @@ function parseStacks(inputPart1: string[]): Stack[] {
   }
 
   return protoStacks.map(protoStack => {
-    let stack = new Stack();
+    let stack: Stack<string> = new Stack();
     for (const e of protoStack.reverse()) {
       stack.push(e);
     }
@@ -63,14 +63,14 @@ function parseInstructions(inputPart2: string[]): Instruction[] {
   });
 }
 
-function parseInput(input: string[]): [Stack[], Instruction[]] {
+function parseInput(input: string[]): [Stack<string>[], Instruction[]] {
   const [inputPart1, inputPart2] = splitInput(input);
 
   return [parseStacks(inputPart1), parseInstructions(inputPart2)];
 }
 
 export function arrangeCrates(input: string[]): string {
-  let [stacks, instructions]: [Stack[], Instruction[]] = parseInput(input);
+  let [stacks, instructions]: [Stack<string>[], Instruction[]] = parseInput(input);
 
   for (const instruction of instructions) {
     for (let i = 0; i < instruction.nCrates; i++) {
@@ -83,7 +83,7 @@ export function arrangeCrates(input: string[]): string {
 }
 
 export function arrangeCratesByBatch(input: string[]): string {
-  let [stacks, instructions]: [Stack[], Instruction[]] = parseInput(input);
+  let [stacks, instructions]: [Stack<string>[], Instruction[]] = parseInput(input);
 
   for (const instruction of instructions) {
     const crates: string[] = [...Array(instruction.nCrates).keys()].map(_ => stacks[instruction.origin - 1].pop()).reverse();
