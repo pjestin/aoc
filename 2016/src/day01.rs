@@ -5,7 +5,7 @@ fn parse_instructions(line: &str) -> Vec<&str> {
   line.split(", ").collect::<Vec<&str>>()
 }
 
-pub fn get_distance(line: &str) -> i32 {
+pub fn get_distance(line: &str) -> i64 {
   let instructions: Vec<&str> = parse_instructions(line);
   let mut position = Vector { x: 0, y: 0 };
   let mut direction = Vector { x: 0, y: 1 };
@@ -23,7 +23,7 @@ pub fn get_distance(line: &str) -> i32 {
       };
     }
 
-    let distance: i32 = instruction[1..].parse::<i32>().unwrap();
+    let distance: i64 = instruction[1..].parse::<i64>().unwrap();
     position.x += distance * direction.x;
     position.y += distance * direction.y;
   }
@@ -31,7 +31,7 @@ pub fn get_distance(line: &str) -> i32 {
   position.x.abs() + position.y.abs()
 }
 
-pub fn get_distance_to_visited(line: &str) -> i32 {
+pub fn get_distance_to_visited(line: &str) -> i64 {
   let instructions: Vec<&str> = parse_instructions(line);
   let mut position = Vector { x: 0, y: 0 };
   let mut direction = Vector { x: 0, y: 1 };
@@ -51,7 +51,7 @@ pub fn get_distance_to_visited(line: &str) -> i32 {
       };
     }
 
-    let distance: i32 = instruction[1..].parse::<i32>().unwrap();
+    let distance: i64 = instruction[1..].parse::<i64>().unwrap();
     for _ in 0..distance {
       position.add(&direction);
       if visited.contains(&position) {

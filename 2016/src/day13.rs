@@ -16,12 +16,12 @@ struct State {
   steps: usize,
 }
 
-fn is_open(position: &Vector, favorite: i32) -> bool {
+fn is_open(position: &Vector, favorite: i64) -> bool {
   if position.x < 0 || position.y < 0 {
     return false;
   }
 
-  let mut sum: i32 = position.x * position.x
+  let mut sum: i64 = position.x * position.x
     + 3 * position.x
     + 2 * position.x * position.y
     + position.y
@@ -36,7 +36,7 @@ fn is_open(position: &Vector, favorite: i32) -> bool {
   n_bits & 1 == 0
 }
 
-fn visit_neighbors(queue: &mut VecDeque<State>, state: &State, favorite: i32) {
+fn visit_neighbors(queue: &mut VecDeque<State>, state: &State, favorite: i64) {
   for relative_neighbor in RELATIVE_NEIGHBORS {
     let new_position = Vector {
       x: state.position.x + relative_neighbor.x,
@@ -51,7 +51,7 @@ fn visit_neighbors(queue: &mut VecDeque<State>, state: &State, favorite: i32) {
   }
 }
 
-pub fn find_shortest_path(target_position: Vector, favorite: i32) -> usize {
+pub fn find_shortest_path(target_position: Vector, favorite: i64) -> usize {
   let mut queue: VecDeque<State> = VecDeque::new();
   queue.push_back(State {
     position: Vector { x: 1, y: 1 },
@@ -77,7 +77,7 @@ pub fn find_shortest_path(target_position: Vector, favorite: i32) -> usize {
   panic!("Target position not found");
 }
 
-pub fn count_close_locations(favorite: i32) -> usize {
+pub fn count_close_locations(favorite: i64) -> usize {
   let mut queue: VecDeque<State> = VecDeque::new();
   queue.push_back(State {
     position: Vector { x: 1, y: 1 },

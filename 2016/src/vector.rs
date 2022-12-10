@@ -4,8 +4,8 @@ use std::marker::Copy;
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
 pub struct Vector {
-  pub x: i32,
-  pub y: i32,
+  pub x: i64,
+  pub y: i64,
 }
 
 impl fmt::Display for Vector {
