@@ -1,5 +1,28 @@
+import { Vector } from '../lib/vector';
+
 function parseTreeHeights(input: string[]): number[][] {
   return input.map(line => line.split('').map(height => parseInt(height)));
+}
+
+function getVisibleTreesInDirection(treeHeights: number[][], start: Vector, direction: Vector): Set<string> {
+  let trees: Set<string> = new Set;
+  let position: Vector = Object.create(start);
+  trees.add(position.toString());
+
+  let maxTree: number = 0;
+  while (position.x >= 0
+    && position.x < treeHeights[0].length
+    && position.y >= 0
+    && position.y < treeHeights.length
+  ) {
+    if (position.equals(start) || treeHeights[position.y][position.x] > maxTree) {
+      trees.add(position.toString());
+      maxTree = treeHeights[position.y][position.x];
+    }
+    position.add(direction);
+  }
+
+  return trees;
 }
 
 export function countVisibleTrees(input: string[]): number {
@@ -7,96 +30,46 @@ export function countVisibleTrees(input: string[]): number {
   let visibleTrees: Set<string> = new Set;
 
   for (let row = 0; row < treeHeights.length; row++) {
-    let rowMaxTree: number = 0;
-    for (let col = 0; col < treeHeights[0].length; col++) {
-      if (col === 0 || treeHeights[row][col] > rowMaxTree) {
-        visibleTrees.add(row + ';' + col);
-        rowMaxTree = treeHeights[row][col];
-      }
-    }
-
-    rowMaxTree = 0;
-    for (let col = treeHeights[0].length - 1; col >= 0; col--) {
-      if (col === treeHeights[0].length - 1 || treeHeights[row][col] > rowMaxTree) {
-        visibleTrees.add(row + ';' + col);
-        rowMaxTree = treeHeights[row][col];
-      }
-    }
+    visibleTrees = new Set([
+      ...visibleTrees,
+      ...getVisibleTreesInDirection(treeHeights, new Vector(0, row), new Vector(1, 0)),
+      ...getVisibleTreesInDirection(treeHeights, new Vector(treeHeights[0].length - 1, row), new Vector(-1, 0)),
+    ]);
   }
 
   for (let col = 0; col < treeHeights[0].length; col++) {
-    let colMaxTree: number = 0;
-    for (let row = 0; row < treeHeights.length; row++) {
-      if (row === 0 || treeHeights[row][col] > colMaxTree) {
-        visibleTrees.add(row + ';' + col);
-        colMaxTree = treeHeights[row][col];
-      }
-    }
-
-    colMaxTree = 0;
-    for (let row = treeHeights.length - 1; row >= 0; row--) {
-      if (row === treeHeights.length - 1 || treeHeights[row][col] > colMaxTree) {
-        visibleTrees.add(row + ';' + col);
-        colMaxTree = treeHeights[row][col];
-      }
-    }
+    visibleTrees = new Set([
+      ...visibleTrees,
+      ...getVisibleTreesInDirection(treeHeights, new Vector(col, 0), new Vector(0, 1)),
+      ...getVisibleTreesInDirection(treeHeights, new Vector(col, treeHeights.length - 1), new Vector(0, -1)),
+    ]);
   }
 
   return visibleTrees.size;
 }
 
-function getScenicScore(treeHeights: number[][], thisRow: number, thisCol: number): number {
-  let scenicScore: number = 1;
-
-  let foundBlock: boolean = false;
-  for (let row = thisRow + 1; row < treeHeights.length; row++) {
-    if (treeHeights[row][thisCol] >= treeHeights[thisRow][thisCol]) {
-      scenicScore *= row - thisRow;
-      foundBlock = true;
-      break;
+function countTreesInDirection(treeHeights: number[][], start: Vector, direction: Vector): number {
+  let position: Vector = Object.create(start);
+  position.add(direction);
+  while (position.x >= 0
+    && position.x < treeHeights[0].length
+    && position.y >= 0
+    && position.y < treeHeights.length
+  ) {
+    if (treeHeights[position.y][position.x] >= treeHeights[start.y][start.x]
+    ) {
+      return position.distance(start);
     }
+    position.add(direction);
   }
-  if (!foundBlock) {
-    scenicScore *= treeHeights.length - 1 - thisRow;
-  }
+  return position.distance(start) - 1;
+}
 
-  foundBlock = false;
-  for (let row = thisRow - 1; row >= 0; row--) {
-    if (treeHeights[row][thisCol] >= treeHeights[thisRow][thisCol]) {
-      scenicScore *= thisRow - row;
-      foundBlock = true;
-      break;
-    }
-  }
-  if (!foundBlock) {
-    scenicScore *= thisRow;
-  }
-
-  foundBlock = false;
-  for (let col = thisCol + 1; col < treeHeights[0].length; col++) {
-    if (treeHeights[thisRow][col] >= treeHeights[thisRow][thisCol]) {
-      scenicScore *= col - thisCol;
-      foundBlock = true;
-      break;
-    }
-  }
-  if (!foundBlock) {
-    scenicScore *= treeHeights[0].length - 1 - thisCol;
-  }
-
-  foundBlock = false;
-  for (let col = thisCol - 1; col >= 0; col--) {
-    if (treeHeights[thisRow][col] >= treeHeights[thisRow][thisCol]) {
-      scenicScore *= thisCol - col;
-      foundBlock = true;
-      break;
-    }
-  }
-  if (!foundBlock) {
-    scenicScore *= thisCol;
-  }
-
-  return scenicScore;
+function getScenicScore(treeHeights: number[][], position: Vector): number {
+  return countTreesInDirection(treeHeights, position, new Vector(0, 1))
+    * countTreesInDirection(treeHeights, position, new Vector(0, -1))
+    * countTreesInDirection(treeHeights, position, new Vector(1, 0))
+    * countTreesInDirection(treeHeights, position, new Vector(-1, 0));
 }
 
 export function getBestScenicScore(input: string[]): number {
@@ -105,7 +78,7 @@ export function getBestScenicScore(input: string[]): number {
 
   for (let row = 0; row < treeHeights.length; row++) {
     for (let col = 0; col < treeHeights[0].length; col++) {
-      const scenicScore: number = getScenicScore(treeHeights, row, col);
+      const scenicScore: number = getScenicScore(treeHeights, new Vector(col, row));
       maxScenicScore = Math.max(maxScenicScore, scenicScore);
     }
   }
