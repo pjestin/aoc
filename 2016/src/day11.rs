@@ -20,11 +20,13 @@ struct State {
 impl Hash for State {
   fn hash<H: Hasher>(&self, state: &mut H) {
     self.elevator.hash(state);
-    for element in self.microchips.keys() {
-      let element_string: String =
-        format!("{}:{};", self.microchips[element], self.generators[element]);
-      element_string.hash(state);
-    }
+    let mut elements: Vec<String> = self
+      .microchips
+      .iter()
+      .map(|(element, microchip)| format!("{},{}", microchip, self.generators[element]))
+      .collect::<Vec<String>>();
+    elements.sort();
+    elements.join(";").hash(state);
   }
 }
 
@@ -177,12 +179,14 @@ fn move_floor(state: &State, target_floor: usize) -> Vec<State> {
     for generator in object_to_move.1 {
       moved_generators.insert(generator, target_floor);
     }
+
     let moved_state = State {
       elevator: target_floor,
       microchips: moved_microchips,
       generators: moved_generators,
       steps: state.steps + 1,
     };
+
     if moved_state.is_valid() {
       moved_states.push(moved_state);
     }
