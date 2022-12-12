@@ -16,7 +16,7 @@ impl fmt::Display for Vector {
 
 impl fmt::Debug for Vector {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("Point")
+    f.debug_struct("Vector")
       .field("x", &self.x)
       .field("y", &self.y)
       .finish()
