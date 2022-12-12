@@ -5,10 +5,10 @@ use std::io::{BufReader, Lines};
 
 struct Node {
   position: Vector,
-  // size: i64,
+  size: i64,
   used: i64,
   avail: i64,
-  // used_pct: i64,
+  used_pct: i64,
 }
 
 const DISK_USAGE_PATTERN: &str =
@@ -27,10 +27,10 @@ fn parse_nodes(lines: Lines<BufReader<File>>) -> Vec<Node> {
           x: captures[1].parse::<i64>().unwrap(),
           y: captures[2].parse::<i64>().unwrap(),
         },
-        // size: captures[3].parse::<i64>().unwrap(),
+        size: captures[3].parse::<i64>().unwrap(),
         used: captures[4].parse::<i64>().unwrap(),
         avail: captures[5].parse::<i64>().unwrap(),
-        // used_pct: captures[6].parse::<i64>().unwrap(),
+        used_pct: captures[6].parse::<i64>().unwrap(),
       });
     }
   }
@@ -76,7 +76,6 @@ fn display_nodes(nodes: &Vec<Node>) -> String {
     .unwrap();
 
   let mut node_strings: Vec<Vec<String>> = vec![vec![String::new(); max_x + 1]; max_y + 1];
-  // println!("node_strings: {:?}", node_strings);
 
   for node in nodes {
     let row: usize = node.position.y as usize;
@@ -88,7 +87,7 @@ fn display_nodes(nodes: &Vec<Node>) -> String {
       node_strings[row][col] = " G ".to_owned();
     } else if node.used == 0 {
       node_strings[row][col] = " _ ".to_owned();
-    } else if node.used > 100 {
+    } else if node.used_pct > 85 && node.size > 30 {
       node_strings[row][col] = " # ".to_owned();
     } else {
       node_strings[row][col] = " . ".to_owned();
@@ -102,15 +101,14 @@ fn display_nodes(nodes: &Vec<Node>) -> String {
     .join("\n")
 }
 
-pub fn count_steps_to_goal_data(lines: Lines<BufReader<File>>) -> usize {
+pub fn get_node_map(lines: Lines<BufReader<File>>) -> String {
   let nodes: Vec<Node> = parse_nodes(lines);
-  println!("{}", display_nodes(&nodes));
-  0
+  display_nodes(&nodes)
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::day22::{count_steps_to_goal_data, count_viable_pairs};
+  use crate::day22::{count_viable_pairs, get_node_map};
   use crate::file_utils::read_lines;
 
   #[test]
@@ -124,12 +122,44 @@ mod tests {
   #[test]
   fn test_count_steps_to_goal_data() {
     assert_eq!(
-      7,
-      count_steps_to_goal_data(read_lines("./res/day22/input-test.txt").unwrap())
+      "(.) .  G \n \
+        .  _  . \n \
+        #  .  . ",
+      get_node_map(read_lines("./res/day22/input-test.txt").unwrap())
     );
     assert_eq!(
-      207,
-      count_steps_to_goal_data(read_lines("./res/day22/input.txt").unwrap())
+      "(.) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  G \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  # \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  _  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n \
+        .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . ",
+        get_node_map(read_lines("./res/day22/input.txt").unwrap())
     );
   }
 }
