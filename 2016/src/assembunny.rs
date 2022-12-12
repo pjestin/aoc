@@ -9,6 +9,7 @@ pub enum Instruction {
   Dec(String),
   Jnz { check: String, offset: String },
   Tgl(String),
+  Out(String),
 }
 
 impl Instruction {
@@ -26,6 +27,7 @@ impl Instruction {
         offset: split_string[2].to_owned(),
       },
       "tgl" => Instruction::Tgl(split_string[1].to_owned()),
+      "out" => Instruction::Out(split_string[1].to_owned()),
       _ => panic!("Unrecognized op"),
     }
   }
@@ -58,7 +60,7 @@ impl Assembunny {
     }
   }
 
-  pub fn run(&mut self) {
+  pub fn run(&mut self) -> Option<i64> {
     while self.index < self.instructions.len() {
       self.index += 1;
       match &self.instructions[self.index - 1] {
@@ -143,9 +145,36 @@ impl Assembunny {
               target: offset.clone(),
             },
             Instruction::Tgl(target) => Instruction::Inc(target.clone()),
+            Instruction::Out(output) => Instruction::Inc(output.clone()),
           };
+        }
+        Instruction::Out(output) => {
+          let parsed_output = output.parse::<i64>();
+          let output_value = match parsed_output {
+            Ok(v) => v,
+            Err(_) => {
+              if self.registers.contains_key(output) {
+                self.registers[output]
+              } else {
+                continue;
+              }
+            }
+          };
+          return Some(output_value);
         }
       };
     }
+
+    None
+  }
+
+  pub fn reset(&mut self) {
+    self.registers = HashMap::from([
+      ("a".to_owned(), 0),
+      ("b".to_owned(), 0),
+      ("c".to_owned(), 0),
+      ("d".to_owned(), 0),
+    ]);
+    self.index = 0;
   }
 }
