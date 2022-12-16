@@ -1,16 +1,26 @@
+import { mod } from "./mod";
+
+const MAX_QUEUE_SIZE: number = 10000000;
+
 export class Queue<T> {
   data: T[];
   head: number;
   size: number;
+  capacity: number;
 
-  constructor() {
+  constructor(capacity: number = MAX_QUEUE_SIZE) {
     this.data = [];
-    this.head = -1;
+    this.head = 0;
     this.size = 0;
+    this.capacity = capacity;
   }
 
   push(e: T) {
-    this.data[this.head + this.size] = e;
+    if (this.size === this.capacity) {
+      throw new Error('Queue is full');
+    }
+
+    this.data[mod(this.head + this.size, this.capacity)] = e;
     this.size++;
   }
 
@@ -19,9 +29,10 @@ export class Queue<T> {
       throw new Error('Queue is empty');
     }
 
-    this.head++;
+    const res: T = this.data[this.head];
+    this.head = mod(this.head + 1, this.capacity);
     this.size--;
-    return this.data[this.head - 1];
+    return res;
   }
 
   peek(): T {

@@ -8,6 +8,12 @@ describe('Queue', () => {
     expect(queue.size).toBe(2);
   });
 
+  test('push - full', () => {
+    let queue: Queue<string> = new Queue(1);
+    queue.push('ab');
+    expect(() => queue.push('cd')).toThrowError('Queue is full');
+  });
+
   test('pop', () => {
     let queue: Queue<string> = new Queue;
     expect(() => queue.pop()).toThrowError('Queue is empty');
