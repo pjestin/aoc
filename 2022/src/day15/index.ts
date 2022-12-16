@@ -43,3 +43,31 @@ export function countNonBeaconPositions(input: string[], row: number): number {
 
   return nonPositions.size;
 }
+
+function advanceColumn(x: number, y: number, sensors: Sensor[]): [boolean, number] {
+  for (const sensor of sensors) {
+    const distance: number = sensor.position.distance(sensor.closestBeacon);
+    if (Math.abs(x - sensor.position.x) <= distance - Math.abs(y - sensor.position.y)) {
+      return [true, sensor.position.x + distance - Math.abs(y - sensor.position.y) + 1];
+    }
+  }
+  return [false, x];
+}
+
+export function findTuningFrequency(input: string[], bound: number): number {
+  const sensors: Sensor[] = parseSensors(input);
+
+  for (let y = 0; y <= bound; y++) {
+    let x: number = 0;
+    let shouldAdvance: boolean = true;
+    while (shouldAdvance) {
+      [shouldAdvance, x] = advanceColumn(x, y, sensors);
+    }
+
+    if (x <= bound) {
+      return x * TUNING_FREQUENCY_FACTOR + y;
+    }
+  }
+
+  throw new Error('Unable to find beacon position');
+}

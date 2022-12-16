@@ -1,4 +1,4 @@
-import { countNonBeaconPositions } from '.';
+import { countNonBeaconPositions, findTuningFrequency } from '.';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -9,5 +9,10 @@ describe('day15', () => {
   test('countNonBeaconPositions', () => {
     expect(countNonBeaconPositions(inputTest, 10)).toBe(26);
     expect(countNonBeaconPositions(input, 2000000)).toBe(4919281);
+  });
+
+  test('findTuningFrequency', () => {
+    expect(findTuningFrequency(inputTest, 20)).toBe(56000011);
+    // expect(findTuningFrequency(input, 4000000)).toBe(12630143363767);
   });
 });
