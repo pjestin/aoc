@@ -24,4 +24,9 @@ export class Vector {
   toString(): string {
     return this.x + ';' + this.y;
   }
+
+  static fromString(s: string): Vector {
+    const [x, y]: number[] = s.split(';').map(i => parseInt(i));
+    return new Vector(x, y);
+  }
 }

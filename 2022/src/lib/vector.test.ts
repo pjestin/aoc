@@ -27,4 +27,10 @@ describe('Vector', () => {
     const v: Vector = new Vector(12, -3);
     expect(v.toString()).toBe('12;-3');
   });
+
+  test('fromString', () => {
+    const v: Vector = new Vector(12, -3);
+    const s: string = v.toString();
+    expect(Vector.fromString(s)).toEqual(v);
+  });
 });
