@@ -1,6 +1,6 @@
 import { mod } from "./mod";
 
-const MAX_QUEUE_SIZE: number = 10000000;
+const MAX_QUEUE_SIZE: number = 1000000;
 
 export class Queue<T> {
   data: T[];
