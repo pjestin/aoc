@@ -13,6 +13,6 @@ describe('day17', () => {
 
   test('findTowerHeight - confidence', () => {
     expect(findTowerHeight(inputTest, 1000000000000n)).toBe(1514285714288n);
-    expect(findTowerHeight(input, 1000000000000n)).toBe(3186); // 1564431486885 too low, 1564431486930
+    expect(findTowerHeight(input, 1000000000000n)).toBe(1566376811584n);
   });
 });
