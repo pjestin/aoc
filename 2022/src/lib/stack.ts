@@ -30,4 +30,8 @@ export class Stack<T> {
   toString(): string {
     return '(' + this.data.slice(0, this.size).join(', ') + ')';
   }
+
+  isEmpty(): boolean {
+    return this.size === 0;
+  }
 }

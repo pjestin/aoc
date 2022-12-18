@@ -33,4 +33,13 @@ describe('Stack', () => {
     stack.push(556);
     expect(stack.pop()).toBe(556);
   });
+
+  test('isEmpty', () => {
+    let stack: Stack<string> = new Stack();
+    expect(stack.isEmpty()).toBe(true);
+    stack.push('a');
+    expect(stack.isEmpty()).toBe(false);
+    stack.pop();
+    expect(stack.isEmpty()).toBe(true);
+  });
 });
