@@ -13,6 +13,6 @@ describe('day16', () => {
 
   test('findMostPressureWithElephant', () => {
     expect(findMostPressureWithElephant(inputTest)).toBe(1707);
-    expect(findMostPressureWithElephant(input)).toBe(1933); // 1554 too low, 1634
+    expect(findMostPressureWithElephant(input)).toBe(1933);
   });
 });

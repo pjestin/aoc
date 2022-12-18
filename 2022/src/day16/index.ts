@@ -58,20 +58,77 @@ function parseGraph(input: string[]): { [name: string]: Valve } {
   return graph;
 }
 
-function findMostPressurePerCombination(graph: { [name: string]: Valve }, maxTime: number): { [combination: string]: number } {
+function notEnoughPressure(graph: { [name: string]: Valve }, state: State, maxPressure: number): boolean {
+  const closedValves: string[] = Object.keys(graph).filter(valve => !state.openValves.includes(valve));
+  const remainingRate: number = closedValves.map(valve => graph[valve].rate).reduce((acc, rate) => acc + rate, 0);
+  const optimisticPressure: number = state.pressure + (state.rate + remainingRate) * (MAX_TIME - state.time);
+  return optimisticPressure <= maxPressure;
+}
+
+export function findMostPressure(input: string[]): number {
+  const graph: { [name: string]: Valve } = parseGraph(input);
   const nOpenableValves: number = Object.values(graph).filter(valve => valve.rate > 0).length;
-  let combinations: { [combination: string]: number } = {};
+  let maxPressure: number = 0;
 
   let visited: Set<string> = new Set;
-  let queue: Queue<State> = new Queue(100000000);
+  let queue: Queue<State> = new Queue;
   queue.push(new State(0, FIRST_VALVE, 0, 0, [], ''));
 
   while (!queue.isEmpty()) {
     const state: State = queue.pop();
 
-    combinations[state.combination] = Math.max(combinations[state.combination] || 0, state.pressure + (maxTime - state.time) * state.rate);
+    maxPressure = Math.max(maxPressure || 0, state.pressure + (MAX_TIME - state.time) * state.rate);
 
-    if (state.time === maxTime
+    if (state.time === MAX_TIME
+      || state.openValves.length >= nOpenableValves
+      || visited.has(state.toString())
+      || notEnoughPressure(graph, state, maxPressure)
+    ) {
+      continue;
+    }
+
+    visited.add(state.toString());
+
+    if (!state.openValves.includes(state.valve) && graph[state.valve].rate > 0) {
+      queue.push(new State(
+        state.time + 1,
+        state.valve,
+        state.rate + graph[state.valve].rate,
+        state.pressure + state.rate,
+        [...state.openValves, state.valve],
+        [...state.openValves, state.valve].sort().join(';'),
+      ));
+    }
+
+    for (const destination of graph[state.valve].destinations) {
+      queue.push(new State(
+        state.time + 1,
+        destination,
+        state.rate,
+        state.pressure + state.rate,
+        state.openValves,
+        state.combination,
+      ));
+    }
+  }
+
+  return maxPressure;
+}
+
+function findMostPressurePerCombination(graph: { [name: string]: Valve }): { [combination: string]: number } {
+  const nOpenableValves: number = Object.values(graph).filter(valve => valve.rate > 0).length;
+  let combinations: { [combination: string]: number } = {};
+
+  let visited: Set<string> = new Set;
+  let queue: Queue<State> = new Queue;
+  queue.push(new State(0, FIRST_VALVE, 0, 0, [], ''));
+
+  while (!queue.isEmpty()) {
+    const state: State = queue.pop();
+
+    combinations[state.combination] = Math.max(combinations[state.combination] || 0, state.pressure + (MAX_TIME_WITH_ELEPHANT - state.time) * state.rate);
+
+    if (state.time === MAX_TIME_WITH_ELEPHANT
       || state.openValves.length >= nOpenableValves
       || visited.has(state.toString())
     ) {
@@ -106,14 +163,6 @@ function findMostPressurePerCombination(graph: { [name: string]: Valve }, maxTim
   return combinations;
 }
 
-export function findMostPressure(input: string[]): number {
-  const graph: { [name: string]: Valve } = parseGraph(input);
-
-  const combinations: { [combination: string]: number } = findMostPressurePerCombination(graph, MAX_TIME);
-
-  return Math.max(...Object.values(combinations));
-}
-
 function areCombinationsCompatible(combination1: string, combination2: string): boolean {
   for (const valve of combination1.split(';')) {
     if (combination2.includes(valve)) {
@@ -125,7 +174,7 @@ function areCombinationsCompatible(combination1: string, combination2: string): 
 
 export function findMostPressureWithElephant(input: string[]): number {
   const graph: { [name: string]: Valve } = parseGraph(input);
-  const combinations: { [combination: string]: number } = findMostPressurePerCombination(graph, MAX_TIME_WITH_ELEPHANT);
+  const combinations: { [combination: string]: number } = findMostPressurePerCombination(graph);
   const combinationKeys: string[] = Object.keys(combinations);
   let maxPressure: number = 0;
 
