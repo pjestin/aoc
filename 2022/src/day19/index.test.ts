@@ -1,4 +1,4 @@
-import { sumQualityLevels } from '.';
+import { sumQualityLevels, multiplyTopGeodes } from '.';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,6 +8,11 @@ describe('day19', () => {
 
   test('sumQualityLevels', () => {
     expect(sumQualityLevels(inputTest)).toBe(33);
-    expect(sumQualityLevels(input)).toBe(3466);
+    expect(sumQualityLevels(input)).toBe(1147);
   });
+
+  // test('multiplyTopGeodes', () => {
+  //   expect(multiplyTopGeodes(inputTest)).toBe(456);
+  //   expect(multiplyTopGeodes(input)).toBe(44);
+  // });
 });
