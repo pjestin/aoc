@@ -28,12 +28,12 @@ class Blueprint {
 }
 
 class State {
-  time: number;
+  remainingTime: number;
   minerals: { ore: number, clay: number, obsidian: number, geode: number };
   robots: { ore: number, clay: number, obsidian: number, geode: number };
 
-  constructor(time: number, minerals: { ore: number, clay: number, obsidian: number, geode: number }, robots: { ore: number, clay: number, obsidian: number, geode: number }) {
-    this.time = time;
+  constructor(remainingTime: number, minerals: { ore: number, clay: number, obsidian: number, geode: number }, robots: { ore: number, clay: number, obsidian: number, geode: number }) {
+    this.remainingTime = remainingTime;
     this.minerals = minerals;
     this.robots = robots;
   }
@@ -65,20 +65,15 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
   let maxGeode: number = 0;
   let visited: Set<string> = new Set;
   let queue: Queue<State> = new Queue(100000000);
-  queue.push(new State(0, { ore: 0, clay: 0, obsidian: 0, geode: 0 }, { ore: 1, clay: 0, obsidian: 0, geode: 0 }));
+  queue.push(new State(maxTime, { ore: 0, clay: 0, obsidian: 0, geode: 0 }, { ore: 1, clay: 0, obsidian: 0, geode: 0 }));
 
   while (!queue.isEmpty()) {
     const state: State = queue.pop();
     const stateHash: string = state.hash();
-    // console.log(stateHash)
 
-    // maxGeode = Math.max(maxGeode, state.minerals.geode + state.robots.geode * (maxTime - state.time));
-    if (state.minerals.geode + state.robots.geode * (maxTime - state.time) > maxGeode) {
-      maxGeode = state.minerals.geode + state.robots.geode * (maxTime - state.time);
-      console.log('New max:', maxGeode, '; state:', state);
-    }
+    maxGeode = Math.max(maxGeode, state.minerals.geode + state.robots.geode * state.remainingTime);
 
-    if (state.time >= maxTime - 1 || visited.has(stateHash)) {
+    if (state.remainingTime <= 1 || visited.has(stateHash)) {
       continue;
     }
 
@@ -87,10 +82,10 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
     let atLeastOneRobotTooExpensive: boolean = false;
     let robotContructionCount: number = 0;
     for (const mineral of MINERALS) {
-      if ((mineral === 'ore' && state.time > maxTime / 2)
-        || (mineral === 'geode' && state.time < maxTime / 2)
-        || (mineral === 'clay' && state.time > 3 * maxTime / 4)
-        || (mineral === 'obsidian' && state.time < maxTime / 4)
+      if ((mineral === 'ore' && state.remainingTime < maxTime / 2)
+        || (mineral === 'geode' && state.remainingTime > maxTime / 2)
+        || (mineral === 'clay' && state.remainingTime < maxTime / 4)
+        || (mineral === 'obsidian' && state.remainingTime > 3 * maxTime / 4)
       ) {
         continue;
       }
@@ -102,7 +97,7 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
       }
 
       queue.push(new State(
-        state.time + 1,
+        state.remainingTime - 1,
         {
           ore: state.minerals.ore - cost.ore + state.robots.ore,
           clay: state.minerals.clay - cost.clay + state.robots.clay,
@@ -119,12 +114,11 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
       if (robotContructionCount >= 2) {
         break;
       }
-      // console.log('New state:', queue.peek())
     }
 
-    if (atLeastOneRobotTooExpensive) {
+    if (atLeastOneRobotTooExpensive && robotContructionCount < 2) {
       queue.push(new State(
-        state.time + 1,
+        state.remainingTime - 1,
         {
           ore: state.minerals.ore + state.robots.ore,
           clay: state.minerals.clay + state.robots.clay,
@@ -136,7 +130,6 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
     }
   }
 
-  console.log('Blueprint ID:', blueprint.id, '; max geodes:', maxGeode);
   return maxGeode;
 }
 
@@ -151,8 +144,7 @@ export function sumQualityLevels(input: string[]): number {
   return qualityLevelSum;
 }
 
-export function multiplyTopGeodes(input: string[]): number {
+export function multiplyFirstGeodes(input: string[]): number {
   const blueprints: Blueprint[] = parseBlueprints(input).slice(0, 3);
-
   return blueprints.map(blueprint => findMaxGeodes(blueprint, MAX_TIME_HUNGRY)).reduce((acc, geodes) => acc * geodes, 1);
 }
