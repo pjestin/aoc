@@ -1,89 +1,36 @@
-class ListNode {
-  value: number;
-  previous: ListNode;
-  next: ListNode;
+import { mod } from "../lib/mod";
 
-  constructor(value: number, previous: ListNode | null = null, next: ListNode | null = null) {
-    this.value = value;
-    this.previous = previous || this;
-    this.next = next || this;
-  }
+const RESULT_INDICES: number[] = [1000, 2000, 3000];
 
-  size(): number {
-    let currentNode: ListNode = this.next;
-    let i: number = 0;
-    while (currentNode !== this) {
-      currentNode = currentNode.next;
-      i++;
-    }
-    return i + 1;
-  }
-}
-
-function fromFile(file: number[]): ListNode {
-  let tail: ListNode = new ListNode(-1);
-  for (const n of file) {
-    const newNode: ListNode = new ListNode(n, tail.previous, tail);
-    tail.previous.next = newNode;
-    tail.previous = newNode;
-  }
-  tail.next.previous = tail.previous;
-  tail.previous.next = tail.next;
-
-  let res: ListNode = tail.next;
-  while (res.value !== 0) {
-    res = res.next;
-  }
-  return res;
-}
-
-function parseEncryptedFile(input: string[]): number[] {
-  return input.map(line => parseInt(line));
-}
-
-function move(n: number, currentNode: ListNode, nodeToMove: ListNode): void {
-  while (n !== 0) {
-    if (n > 0) {
-      currentNode = currentNode.next;
-      n--;
+function mix(file: number[], indices: number[]): void {
+  for (let i = 0; i < file.length; i++) {
+    const n: number = file[i];
+    const index: number = indices.indexOf(i);
+    const newIndex: number = mod(index + n - 1, file.length - 1) + 1;
+    if (newIndex > index) {
+      for (let j = index; j < newIndex; j++) {
+        indices[j] = indices[j + 1];
+      }
     } else {
-      currentNode = currentNode.previous;
-      n++;
+      for (let j = index; j > newIndex; j--) {
+        indices[j] = indices[j - 1];
+      }
     }
+    indices[newIndex] = i;
   }
-
-  nodeToMove.next = currentNode.next;
-  nodeToMove.previous = currentNode;
-  currentNode.next.previous = nodeToMove;
-  currentNode.next = nodeToMove;
 }
 
-function mix(n: number, currentNode: ListNode): void {
-  let nodeToMove: ListNode = currentNode;
-  while (nodeToMove.value !== n) {
-    nodeToMove = nodeToMove.next;
+export function findGroveCoordinates(input: string[], mixTimes: number, decryptionKey: number): number {
+  const file: number[] = input.map(x => decryptionKey * parseInt(x));
+  let indices: number[] = [...Array(file.length).keys()];
+
+  for (let k = 0; k < mixTimes; k++) {
+    mix(file, indices);
   }
 
-  nodeToMove.previous.next = nodeToMove.next;
-  nodeToMove.next.previous = nodeToMove.previous;
-  move(n, nodeToMove.previous, nodeToMove);
-}
-
-function nth(index: number, index0Node: ListNode): number {
-  let currentNode: ListNode = index0Node;
-  for (let x = 0; x < index; x++) {
-    currentNode = currentNode.next;
-  }
-  return currentNode.value;
-}
-
-export function findGroveCoordinates(input: string[]): number {
-  const file: number[] = parseEncryptedFile(input);
-  let list: ListNode = fromFile(file);
-
-  for (const n of file) {
-    mix(n, list);
-  }
-
-  return nth(1000, list) + nth(2000, list) + nth(3000, list);
+  const mixedFile = indices.map(index => file[index]);
+  const index0: number = mixedFile.indexOf(0);
+  return RESULT_INDICES
+    .map(index => mixedFile[mod(index0 + index, file.length)])
+    .reduce((acc, x) => acc + x, 0);
 }
