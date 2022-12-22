@@ -7,7 +7,11 @@ describe('day22', () => {
   let input: string[] = fs.readFileSync(path.resolve('src/day22/input.txt'), 'utf8').split('\n').slice(0, -1);
 
   test('findFinalPassword', () => {
-    expect(findFinalPassword(inputTest)).toBe(6032);
-    expect(findFinalPassword(input)).toBe(20494);
+    expect(findFinalPassword(inputTest, false)).toBe(6032);
+    expect(findFinalPassword(input, false)).toBe(20494);
+  });
+
+  test('findFinalPassword - cube wrap', () => {
+    expect(findFinalPassword(input, true)).toBe(55343);
   });
 });
