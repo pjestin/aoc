@@ -1,4 +1,5 @@
 import { mod } from "../lib/mod";
+import { lcm } from "../lib/gcd";
 import { Queue } from "../lib/queue";
 import { Vector } from "../lib/vector";
 
@@ -28,8 +29,8 @@ class State {
     this.time = time;
   }
 
-  hash(sizeX: number, sizeY: number): string {
-    return `${this.position.toString()};${mod(this.time, sizeX * sizeY)}`;
+  hash(size: number): string {
+    return `${this.position.toString()};${mod(this.time, size)}`;
   }
 }
 
@@ -74,9 +75,7 @@ function checkForBlizzards(position: Vector, blizzards: { [s: string]: Blizzard 
       mod(position.y - blizzardDirection.y * time - 1, sizeY) + 1,
     );
 
-    // if (blizzards[blizzardPosition.toString()]?.direction.equals(blizzardDirection)) {
-    if (blizzards[blizzardPosition.toString()] && blizzards[blizzardPosition.toString()].direction.equals(blizzardDirection)) {
-      // console.log('Found blizzard from position', position, ';time:', time, ':', blizzards[blizzardPosition.toString()])
+    if (blizzards[blizzardPosition.toString()]?.direction.equals(blizzardDirection)) {
       return true;
     }
   }
@@ -84,20 +83,16 @@ function checkForBlizzards(position: Vector, blizzards: { [s: string]: Blizzard 
   return false;
 }
 
-export function findShortestPath(input: string[]): number {
-  const [blizzards, start, end, sizeX, sizeY]: [{ [s: string]: Blizzard }, Vector, Vector, number, number] = parseBlizzards(input);
-  console.log(blizzards, start, end, sizeX, sizeY)
-
+function findShortestPath(blizzards: { [s: string]: Blizzard }, start: Vector, end: Vector, sizeX: number, sizeY: number, startTime: number): number {
+  const size: number = lcm(sizeX, sizeY);
   let visited: Set<string> = new Set;
   let queue: Queue<State> = new Queue;
-  queue.push(new State(start, 0));
+  queue.push(new State(start, startTime));
 
   while (!queue.isEmpty()) {
     const state: State = queue.pop();
-    const stateHash: string = state.hash(sizeX, sizeY);
+    const stateHash: string = state.hash(size);
 
-    // if (state.position.equals(end)) {
-    //   return state.time;
     if (!state.position.equals(start) && (
       state.position.x < 1 || state.position.x > sizeX || state.position.y < 1 || state.position.y > sizeY
     )) {
@@ -107,7 +102,6 @@ export function findShortestPath(input: string[]): number {
     }
 
     visited.add(stateHash);
-    console.log('State:', state)
     
     for (const neighbor of DIRECTIONS) {
       const neighborPosition: Vector = new Vector(state.position.x + neighbor.x, state.position.y + neighbor.y);
@@ -121,10 +115,24 @@ export function findShortestPath(input: string[]): number {
       }
     }
 
-    if (!checkForBlizzards(state.position, blizzards, state.time + 1, sizeX, sizeY)) {
+    if (state.position.equals(start) || !checkForBlizzards(state.position, blizzards, state.time + 1, sizeX, sizeY)) {
       queue.push(new State(state.position, state.time + 1));
     }
   }
 
   throw new Error('no path found');
+}
+
+export function findShortestPathStartToEnd(input: string[]): number {
+  const [blizzards, start, end, sizeX, sizeY]: [{ [s: string]: Blizzard }, Vector, Vector, number, number] = parseBlizzards(input);
+
+  return findShortestPath(blizzards, start, end, sizeX, sizeY, 0);
+}
+
+export function findShortestTriplePath(input: string[]): number {
+  const [blizzards, start, end, sizeX, sizeY]: [{ [s: string]: Blizzard }, Vector, Vector, number, number] = parseBlizzards(input);
+
+  const trip1: number = findShortestPath(blizzards, start, end, sizeX, sizeY, 0);
+  const trip2: number = findShortestPath(blizzards, end, start, sizeX, sizeY, trip1);
+  return findShortestPath(blizzards, start, end, sizeX, sizeY, trip2);
 }
