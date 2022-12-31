@@ -2,6 +2,7 @@ import { Vector } from "../lib/vector";
 
 const SENSOR_PATTERN: RegExp = /Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)/;
 const TUNING_FREQUENCY_FACTOR: number = 4000000;
+const DIRECTIONS: Vector[] = [new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1), new Vector(-1, -1)];
 
 class Sensor {
   position: Vector;
@@ -11,16 +12,22 @@ class Sensor {
     this.position = position;
     this.closestBeacon = closestBeacon;
   }
+
+  distanceToBeacon(): number {
+    return this.position.distance(this.closestBeacon);
+  }
 }
 
 function parseSensors(input: string[]): Sensor[] {
-  return input.map(line => {
+  let sensors: Sensor[] = input.map(line => {
     const m = line.match(SENSOR_PATTERN);
     if (!m) {
       throw new Error('No regex match');
     }
     return new Sensor(new Vector(parseInt(m[1]), parseInt(m[2])), new Vector(parseInt(m[3]), parseInt(m[4])));
   });
+
+  return sensors.sort((a, b) => a.distanceToBeacon() - b.distanceToBeacon());
 }
 
 export function countNonBeaconPositions(input: string[], row: number): number {
@@ -28,7 +35,7 @@ export function countNonBeaconPositions(input: string[], row: number): number {
   let nonPositions: Set<number> = new Set;
 
   for (const sensor of sensors) {
-    const distance: number = sensor.position.distance(sensor.closestBeacon);
+    const distance: number = sensor.distanceToBeacon();
     for (let i = 0; i <= distance - Math.abs(row - sensor.position.y); i++) {
       const rowPositionRight: Vector = new Vector(sensor.position.x + i, row);
       const rowPositionLeft: Vector = new Vector(sensor.position.x - i, row);
@@ -44,30 +51,53 @@ export function countNonBeaconPositions(input: string[], row: number): number {
   return nonPositions.size;
 }
 
-function advanceColumn(x: number, y: number, sensors: Sensor[]): [boolean, number] {
+function isPositionValid(position: Vector, sensors: Sensor[], bound: number): boolean {
+  if (position.x < 0 || position.x > bound || position.y < 0 || position.y > bound) {
+    return false;
+  }
+
   for (const sensor of sensors) {
-    const distance: number = sensor.position.distance(sensor.closestBeacon);
-    if (Math.abs(x - sensor.position.x) <= distance - Math.abs(y - sensor.position.y)) {
-      return [true, sensor.position.x + distance - Math.abs(y - sensor.position.y) + 1];
+    if (position.distance(sensor.position) <= sensor.distanceToBeacon()) {
+      return false;
     }
   }
-  return [false, x];
+
+  return true;
+}
+
+function checkSensorCouple(sensorA: Sensor, sensorB: Sensor, sensors: Sensor[], bound: number): Vector | null {
+  const middle: Vector = new Vector(
+    Math.floor((sensorB.distanceToBeacon() * sensorA.position.x + sensorA.distanceToBeacon() * sensorB.position.x) / (sensorA.distanceToBeacon() + sensorB.distanceToBeacon())),
+    Math.floor((sensorB.distanceToBeacon() * sensorA.position.y + sensorA.distanceToBeacon() * sensorB.position.y) / (sensorA.distanceToBeacon() + sensorB.distanceToBeacon())),
+  );
+
+  for (const direction of DIRECTIONS) {
+    let position: Vector = new Vector(middle.x, middle.y);
+    while (position.distance(sensorA.position) == sensorA.distanceToBeacon() + 1 && position.distance(sensorB.position) === sensorB.distanceToBeacon() + 1) {
+      if (isPositionValid(position, sensors, bound)) {
+        return position;
+      }
+      position.add(direction);
+    }
+  }
+
+  return null;
 }
 
 export function findTuningFrequency(input: string[], bound: number): number {
   const sensors: Sensor[] = parseSensors(input);
 
-  for (let y = 0; y <= bound; y++) {
-    let x: number = 0;
-    let shouldAdvance: boolean = true;
-    while (shouldAdvance) {
-      [shouldAdvance, x] = advanceColumn(x, y, sensors);
-    }
+  for (let i = 0; i < sensors.length; i++) {
+    for (let j = i + 1; j < sensors.length; j++) {
 
-    if (x <= bound) {
-      return x * TUNING_FREQUENCY_FACTOR + y;
+      if (sensors[i].position.distance(sensors[j].position) === sensors[i].distanceToBeacon() + sensors[j].distanceToBeacon() + 2) {
+        const beaconPosition: Vector | null = checkSensorCouple(sensors[i], sensors[j], sensors, bound);
+        if (beaconPosition) {
+          return beaconPosition.x * TUNING_FREQUENCY_FACTOR + beaconPosition.y;
+        }
+      }
     }
   }
 
-  throw new Error('Unable to find beacon position');
+  throw new Error('No valid beacon position found');
 }

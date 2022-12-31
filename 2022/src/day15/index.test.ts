@@ -13,6 +13,6 @@ describe('day15', () => {
 
   test('findTuningFrequency', () => {
     expect(findTuningFrequency(inputTest, 20)).toBe(56000011);
-    // expect(findTuningFrequency(input, 4000000)).toBe(12630143363767);
+    expect(findTuningFrequency(input, 4000000)).toBe(12630143363767);
   });
 });
