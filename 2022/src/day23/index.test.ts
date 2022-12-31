@@ -13,6 +13,6 @@ describe('day23', () => {
 
   test('countRoundsUntilNoMove', () => {
     expect(countRoundsUntilNoMove(inputTest)).toBe(20);
-    // expect(countRoundsUntilNoMove(input)).toBe(1036);
+    expect(countRoundsUntilNoMove(input)).toBe(1036);
   });
 });

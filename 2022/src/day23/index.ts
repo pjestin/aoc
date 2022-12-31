@@ -12,24 +12,14 @@ const NEIGHBORS: Vector[] = [
   new Vector(1, -1),
 ];
 
-class Elf {
-  position: Vector;
-  proposedPosition: Vector | null;
-
-  constructor(position: Vector) {
-    this.position = position;
-    this.proposedPosition = null;
-  }
-}
-
-function parseElves(input: string[]): { [s: string]: Elf } {
-  let elves: { [s: string]: Elf } = {};
+function parseElves(input: string[]): Set<string> {
+  let elves: Set<string> = new Set;
 
   for (let row = 0; row < input.length; row++) {
     for (let col = 0; col < input[0].length; col++) {
       if (input[row][col] === '#') {
         const position: Vector = new Vector(col, row);
-        elves[position.toString()] = new Elf(position);
+        elves.add(position.toString());
       }
     }
   }
@@ -37,17 +27,17 @@ function parseElves(input: string[]): { [s: string]: Elf } {
   return elves;
 }
 
-function hasNeighbors(position: Vector, elves: { [s: string]: Elf }): boolean {
+function hasNeighbors(position: Vector, elves: Set<string>): boolean {
   for (const neighbor of NEIGHBORS) {
     const neighborPosition: Vector = new Vector(position.x + neighbor.x, position.y + neighbor.y);
-    if (elves[neighborPosition.toString()]) {
+    if (elves.has(neighborPosition.toString())) {
       return true;
     }
   }
   return false;
 }
 
-function findFreeDirection(position: Vector, directions: Vector[], elves: { [s: string]: Elf }): Vector | null {
+function findFreeDirection(position: Vector, directions: Vector[], elves: Set<string>): Vector | null {
   for (const direction of directions) {
     let isValid: boolean = true;
     const directionsToCheck: Vector[] = direction.x === 0
@@ -56,7 +46,7 @@ function findFreeDirection(position: Vector, directions: Vector[], elves: { [s: 
 
     for (const directionToCheck of directionsToCheck) {
       const positionToCheck: Vector = new Vector(position.x + directionToCheck.x, position.y + directionToCheck.y);
-      if (elves[positionToCheck.toString()]) {
+      if (elves.has(positionToCheck.toString())) {
         isValid = false;
         break;
       }
@@ -70,60 +60,62 @@ function findFreeDirection(position: Vector, directions: Vector[], elves: { [s: 
   return null;
 }
 
-function isProposalValid(elfHash: string, elves: { [s: string]: Elf }): boolean {
-  const proposedPosition: Vector | null = elves[elfHash].proposedPosition;
-  if (!proposedPosition) {
-    return false;
-  }
-
-  for (const otherElfHash of Object.keys(elves)) {
-    const otherProposedPosition: Vector | null = elves[otherElfHash].proposedPosition;
-    if (otherElfHash !== elfHash && otherProposedPosition && otherProposedPosition.equals(proposedPosition)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function playRound(elves: { [s: string]: Elf }, directions: Vector[]): boolean {
+function confirmProposals(elfArray: string[], proposals: (string | null)[]): boolean {
   let hasMove: boolean = false;
-  let proposals: { [proposal: string]: string } = {};
 
-  for (const elfHash of Object.keys(elves)) {
-    const elf: Elf = elves[elfHash];
-    if (!hasNeighbors(elf.position, elves)) {
-      elf.proposedPosition = null;
+  for (let i = 0; i < proposals.length; i++) {
+    if (!proposals[i]) {
       continue;
     }
 
-    const direction: Vector | null = findFreeDirection(elf.position, directions, elves);
-    if (direction) {
-      const proposedPosition: Vector = new Vector(elf.position.x + direction.x, elf.position.y + direction.y);
-      if (proposals[proposedPosition.toString()]) {
-        const conflictingElf: string = proposals[proposedPosition.toString()];
-        elves[conflictingElf].proposedPosition = null;
-        continue;
+    const proposal: string = proposals[i] as string;
+    let toBeRemoved: boolean = false;
+
+    for (let j = i + 1; j < proposals.length; j++) {
+      if (proposals[j] === proposal) {
+        toBeRemoved = true;
+        break;
       }
-      proposals[proposedPosition.toString()] = elfHash;
-      elf.proposedPosition = proposedPosition;
-      continue;
     }
 
-    elf.proposedPosition = null;
-  }
-
-  for (const elfHash of Object.keys(elves)) {
-    if (isProposalValid(elfHash, elves)) {
-      const newPosition: Vector = elves[elfHash].proposedPosition as Vector;
-      delete elves[elfHash];
-      elves[newPosition.toString()] = new Elf(newPosition);
+    if (toBeRemoved) {
+      for (let j = i; j < proposals.length; j++) {
+        if (proposals[j] === proposal) {
+          proposals[j] = null;
+        }
+      }
+    } else {
+      elfArray[i] = proposal;
       hasMove = true;
     }
   }
 
-  for (const elfHash of Object.keys(elves)) {
-    elves[elfHash].proposedPosition = null;
+  return hasMove;
+}
+
+function playRound(elves: Set<string>, directions: Vector[]): boolean {
+  let elfArray: string[] = [...elves];
+  let proposals: (string | null)[] = new Array(elfArray.length).fill(null);
+
+  for (let i = 0; i < elfArray.length; i++) {
+    const elfHash: string = elfArray[i];
+    const position: Vector = Vector.fromString(elfHash);
+    if (!hasNeighbors(position, elves)) {
+      continue;
+    }
+
+    const direction: Vector | null = findFreeDirection(position, directions, elves);
+    if (direction) {
+      const proposedPosition: Vector = new Vector(position.x + direction.x, position.y + direction.y);
+      proposals[i] = proposedPosition.toString();
+      continue;
+    }
   }
+
+  const hasMove: boolean = confirmProposals(elfArray, proposals);
+
+  elves.clear();
+  elfArray.forEach(elf => elves.add(elf));
 
   directions.push(directions.shift() as Vector);
 
@@ -131,23 +123,23 @@ function playRound(elves: { [s: string]: Elf }, directions: Vector[]): boolean {
 }
 
 export function findElfArrangement(input: string[]): number {
-  let elves: { [s: string]: Elf } = parseElves(input);
+  let elves: Set<string> = parseElves(input);
   let directions: Vector[] = [new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)];
 
   for (let i = 0; i < N_ROUNDS; i++) {
     playRound(elves, directions);
   }
 
-  const minX: number = Object.values(elves).reduce((acc, elf) => Math.min(acc, elf.position.x), Infinity);
-  const maxX: number = Object.values(elves).reduce((acc, elf) => Math.max(acc, elf.position.x), -Infinity);
-  const minY: number = Object.values(elves).reduce((acc, elf) => Math.min(acc, elf.position.y), Infinity);
-  const maxY: number = Object.values(elves).reduce((acc, elf) => Math.max(acc, elf.position.y), -Infinity);
+  const minX: number = [...elves].reduce((acc, elfHash) => Math.min(acc, Vector.fromString(elfHash).x), Infinity);
+  const maxX: number = [...elves].reduce((acc, elfHash) => Math.max(acc, Vector.fromString(elfHash).x), -Infinity);
+  const minY: number = [...elves].reduce((acc, elfHash) => Math.min(acc, Vector.fromString(elfHash).y), Infinity);
+  const maxY: number = [...elves].reduce((acc, elfHash) => Math.max(acc, Vector.fromString(elfHash).y), -Infinity);
 
-  return (maxX - minX + 1) * (maxY - minY + 1) - Object.keys(elves).length;
+  return (maxX - minX + 1) * (maxY - minY + 1) - elves.size;
 }
 
 export function countRoundsUntilNoMove(input: string[]): number {
-  let elves: { [s: string]: Elf } = parseElves(input);
+  let elves: Set<string> = parseElves(input);
   let directions: Vector[] = [new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)];
 
   let count: number = 0;
