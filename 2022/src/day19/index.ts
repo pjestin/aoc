@@ -61,7 +61,17 @@ function parseBlueprints(input: string[]): Blueprint[] {
   });
 }
 
+function notEnoughGeodes(state: State, maxGeode: number): boolean {
+  return state.minerals.geode + state.robots.geode * state.remainingTime + Math.floor((state.remainingTime * (state.remainingTime + 1)) / 2) <= maxGeode;
+}
+
 function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
+  const maxRobotCost: RobotCost = new RobotCost(
+    Math.max(blueprint.cost.ore.ore, blueprint.cost.clay.ore, blueprint.cost.obsidian.ore, blueprint.cost.geode.ore),
+    Math.max(blueprint.cost.ore.clay, blueprint.cost.clay.clay, blueprint.cost.obsidian.clay, blueprint.cost.geode.clay),
+    Math.max(blueprint.cost.ore.obsidian, blueprint.cost.clay.obsidian, blueprint.cost.obsidian.obsidian, blueprint.cost.geode.obsidian),
+  );
+
   let maxGeode: number = 0;
   let visited: Set<string> = new Set;
   let queue: Queue<State> = new Queue(100000000);
@@ -73,7 +83,10 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
 
     maxGeode = Math.max(maxGeode, state.minerals.geode + state.robots.geode * state.remainingTime);
 
-    if (state.remainingTime <= 1 || visited.has(stateHash)) {
+    if (state.remainingTime <= 1
+      || visited.has(stateHash)
+      || notEnoughGeodes(state, maxGeode)
+    ) {
       continue;
     }
 
@@ -91,7 +104,11 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
       }
 
       const cost: RobotCost = blueprint.cost[mineral];
-      if (state.minerals.ore < cost.ore || state.minerals.clay < cost.clay || state.minerals.obsidian < cost.obsidian) {
+      if (state.minerals.ore < cost.ore
+        || state.minerals.clay < cost.clay
+        || state.minerals.obsidian < cost.obsidian
+        || (mineral !== 'geode' && state.robots[mineral] >= maxRobotCost[mineral])
+      ) {
         atLeastOneRobotTooExpensive = true;
         continue;
       }
@@ -111,7 +128,7 @@ function findMaxGeodes(blueprint: Blueprint, maxTime: number): number {
       ));
 
       robotContructionCount++;
-      if (robotContructionCount >= 2) {
+      if (robotContructionCount >= 2 || mineral === 'geode') {
         break;
       }
     }

@@ -8,11 +8,11 @@ describe('day19', () => {
 
   test('sumQualityLevels', () => {
     expect(sumQualityLevels(inputTest)).toBe(33);
-    // expect(sumQualityLevels(input)).toBe(1147);
+    expect(sumQualityLevels(input)).toBe(1147);
   });
 
-  // test('multiplyFirstGeodes', () => {
-  //   expect(multiplyFirstGeodes(inputTest)).toBe(3472);
-  //   expect(multiplyFirstGeodes(input)).toBe(3080);
-  // });
+  test('multiplyFirstGeodes', () => {
+    expect(multiplyFirstGeodes(inputTest)).toBe(3472);
+    expect(multiplyFirstGeodes(input)).toBe(3080);
+  });
 });
