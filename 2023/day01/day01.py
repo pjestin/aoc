@@ -1,3 +1,5 @@
+from typing import Optional
+
 DIGITS: list[str] = {
   "one": 1,
   "two": 2,
@@ -10,10 +12,9 @@ DIGITS: list[str] = {
   "nine": 9
 }
 
-
 def get_calibration_for_line(line: str) -> int:
-  first: optional[str] = None
-  last: optional[str] = None
+  first: Optional[str] = None
+  last: Optional[str] = None
 
   for i in range(len(line)):
     if line[i].isdigit():
@@ -27,7 +28,6 @@ def get_calibration_for_line(line: str) -> int:
 
   return int(first + last)
 
-
 def sum_calibration_values(lines: list[str]) -> int:
   result: int = 0
 
@@ -35,7 +35,6 @@ def sum_calibration_values(lines: list[str]) -> int:
     result += get_calibration_for_line(line)
 
   return result
-
 
 def get_digits_in_line(line: str) -> list[int]:
   digits: list[int] = []
@@ -51,7 +50,6 @@ def get_digits_in_line(line: str) -> list[int]:
         break
   
   return digits
-
 
 def sum_calibration_str_digits(lines: list[str]) -> int:
   result: int = 0
