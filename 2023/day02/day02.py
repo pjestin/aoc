@@ -1,8 +1,8 @@
 import re
 from typing import Optional
 
-GAME_PATTERN: str = "Game (\d+)"
-CUBE_PATTERN: str = "(\d+) (\w+)"
+GAME_PATTERN: str = "Game (\\d+)"
+CUBE_PATTERN: str = "(\\d+) (\\w+)"
 MAX_CUBES: dict[str, int] = {
   "red": 12,
   "green": 13,
