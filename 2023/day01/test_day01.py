@@ -1,7 +1,6 @@
 from unittest import TestCase
 from day01.day01 import sum_calibration_values, sum_calibration_str_digits
 
-
 class Day01Test(TestCase):
   def setUp(self) -> None:
     with open("day01/input.txt", "r") as file:

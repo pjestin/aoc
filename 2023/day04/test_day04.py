@@ -1,7 +1,7 @@
 from unittest import TestCase
 from day04.day04 import sum_points, count_cards
 
-class Day02Test(TestCase):
+class Day04Test(TestCase):
   def setUp(self) -> None:
     with open("day04/input.txt", "r") as file:
       self.inputFile = file.read().splitlines()

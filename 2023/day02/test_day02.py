@@ -1,7 +1,6 @@
 from unittest import TestCase
 from day02.day02 import sum_possible_ids, sum_game_powers
 
-
 class Day02Test(TestCase):
   def setUp(self) -> None:
     with open("day02/input.txt", "r") as file:

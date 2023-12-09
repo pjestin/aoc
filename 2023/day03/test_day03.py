@@ -1,7 +1,6 @@
 from unittest import TestCase
 from day03.day03 import sum_part_numbers, sum_gear_ratios
 
-
 class Day02Test(TestCase):
   def setUp(self) -> None:
     with open("day03/input.txt", "r") as file:
