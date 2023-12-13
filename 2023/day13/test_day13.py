@@ -9,5 +9,7 @@ class Day13Test(TestCase):
       self.inputTestFile = file.read().splitlines()
 
   def test_summarize_symmetries(self) -> None:
-    self.assertEqual(summarize_symmetries(self.inputTestFile), 405)
-    self.assertEqual(summarize_symmetries(self.inputFile), 36448)
+    self.assertEqual(summarize_symmetries(self.inputTestFile, 0), 405)
+    self.assertEqual(summarize_symmetries(self.inputFile, 0), 36448)
+    self.assertEqual(summarize_symmetries(self.inputTestFile, 1), 400)
+    self.assertEqual(summarize_symmetries(self.inputFile, 1), 35799)
