@@ -56,7 +56,6 @@ class HashMap:
   
     for box_id, box in enumerate(self.boxes):
       for lens_rank, label_focal_length in enumerate(box):
-        # print(f"Label: {label_focal_length[0]}; focal length: {label_focal_length[1]}; box: {box_id}; rank: {lens_rank}")
         power += (box_id + 1) * (lens_rank + 1) * label_focal_length[1]
 
     return power
