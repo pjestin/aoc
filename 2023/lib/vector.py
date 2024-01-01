@@ -24,6 +24,9 @@ class Vector:
   def __abs__(self) -> int:
     return self.distance(Vector(0, 0, 0))
 
+  def __rmul__(self, a: int) -> Vector:
+    return Vector(a * self.x, a * self.y, a * self.z)
+
   def __eq__(self, o: object) -> bool:
     return (
       isinstance(o, Vector) and self.x == o.x and self.y == o.y and self.z == o.z

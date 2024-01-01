@@ -34,6 +34,9 @@ class VectorTest(TestCase):
     def test_abs(self):
         self.assertEqual(6, abs(Vector(2, -4)))
 
+    def test_rmul(self):
+        self.assertEqual(Vector(9, -12), 3 * Vector(3, -4))
+
     def test_hash(self):
         self.assertEqual(hash(Vector(14, -2)), hash(Vector(14, -2)))
         self.assertNotEqual(hash(Vector(13, -2)), hash(Vector(14, -2)))
