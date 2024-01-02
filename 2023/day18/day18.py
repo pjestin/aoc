@@ -1,16 +1,16 @@
-from enum import Enum
+from enum import IntEnum
 import re
 from typing import Optional
 
 from lib.vector import Vector
 
-DIG_PATTERN: str = r"(\w) (\d+) \(#(\w+)\)"
+DIG_PATTERN: str = r"(\w) (\d+) \(#(\w+)(\w)\)"
 
-class DigDirection(Enum):
-  U = 1
-  R = 2
-  D = 3
-  L = 4
+class DigDirection(IntEnum):
+  R = 0
+  D = 1
+  L = 2
+  U = 3
 
   @property
   def vector(self) -> Vector:
@@ -25,53 +25,59 @@ class DigDirection(Enum):
         return Vector(-1, 0)
 
 class DigInstruction:
-  def __init__(self, direction: DigDirection, steps: int, color: str) -> None:
+  def __init__(self, direction: DigDirection, steps: int) -> None:
     self.direction = direction
     self.steps = steps
-    self.color = color
 
-def parse_dig_plan(lines: list[str]) -> list[DigInstruction]:
+  def __str__(self) -> str:
+    return f"{self.direction} {self.steps}"
+
+  def __repr__(self) -> str:
+    return str(self)
+
+  @property
+  def vector(self) -> Vector:
+    return self.steps * self.direction.vector
+
+def parse_dig_plan(lines: list[str], from_color: bool) -> list[DigInstruction]:
   plan: list[DigInstruction] = []
 
   for line in lines:
     dig_match: Optional[re.Match] = re.match(DIG_PATTERN, line)
     if not dig_match:
       raise RuntimeError(f"Line does not match pattern: {line}")
-    plan.append(DigInstruction(
-      DigDirection[dig_match.group(1)],
-      int(dig_match.group(2)),
-      dig_match.group(3),
-    ))
+    if from_color:
+      plan.append(DigInstruction(
+        DigDirection(int(dig_match.group(4))),
+        int(dig_match.group(3), 16),
+      ))
+    else:
+      plan.append(DigInstruction(
+        DigDirection[dig_match.group(1)],
+        int(dig_match.group(2)),
+      ))
 
   return plan
 
-def get_segment_positions(dig_plan: list[DigInstruction]) -> set[Vector]:
-  segment_positions: set[Vector] = set()
+def get_dig_points(dig_plan: list[DigInstruction]) -> list[Vector]:
   position: Vector = Vector(0, 0)
+  points: list[Vector] = [position]
 
   for instruction in dig_plan:
-    for i in range(instruction.steps):
-      segment_positions.add(position + i * instruction.direction.vector)
-    position = position + instruction.steps * instruction.direction.vector
+    next_position: Vector = position + instruction.vector
+    points.append(next_position)
+    position = next_position
 
-  return segment_positions
+  return points
 
-def find_lagoon_surface(lines: list[str]) -> int:
-  dig_plan: list[DigInstruction] = parse_dig_plan(lines)
-  segment_positions: set[Vector] = get_segment_positions(dig_plan)
-  surface: int = 0
-  stack: list[Vector] = [Vector(1, 1)]
-  visited: set[Vector] = set()
+def find_lagoon_surface(lines: list[str], from_color: bool) -> int:
+  dig_plan: list[DigInstruction] = parse_dig_plan(lines, from_color)
+  dig_points: list[Vector] = get_dig_points(dig_plan)
+  double_area: int = 0
 
-  while stack:
-    position: Vector = stack.pop()
-    if position in visited or position in segment_positions:
-      continue
-    visited.add(position)
+  for i in range(len(dig_points) - 1):
+    p1: Vector = dig_points[i]
+    p2: Vector = dig_points[i + 1]
+    double_area += p1.x * p2.y - p1.y * p2.x + abs(p2 - p1)
 
-    surface += 1
-
-    for neighbor in [Vector(1, 0), Vector(-1, 0), Vector(0, 1), Vector(0, -1)]:
-      stack.append(position + neighbor)
-
-  return surface + len(segment_positions)
+  return abs(double_area // 2) + 1

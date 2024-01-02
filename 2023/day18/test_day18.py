@@ -9,5 +9,7 @@ class Day18Test(TestCase):
       self.inputTestFile = file.read().splitlines()
 
   def test_find_lagoon_surface(self) -> None:
-    self.assertEqual(find_lagoon_surface(self.inputTestFile), 62)
-    self.assertEqual(find_lagoon_surface(self.inputFile), 47139)
+    self.assertEqual(find_lagoon_surface(self.inputTestFile, False), 62)
+    self.assertEqual(find_lagoon_surface(self.inputFile, False), 47139)
+    self.assertEqual(find_lagoon_surface(self.inputTestFile, True), 952408144115)
+    self.assertEqual(find_lagoon_surface(self.inputFile, True), 173152345887206)
