@@ -21,50 +21,43 @@ def parse_arrangements(lines: list[str]) -> list[Arrangement]:
 
   return result
 
-def is_valid(data: list[str], groups: list[int]) -> bool:
-  if "?" in data:
-    return False
+def min_length(arrangement: Arrangement, group_index: int) -> int:
+  length: int = 0
+  for group in arrangement.groups[group_index:]:
+    length += group + 1
+  return length - 1
 
-  current_group_size: int = 0
-  group_index: int = 0
-  for c in data:
-    if c == "#":
-      current_group_size += 1
-    elif current_group_size > 0:
-      if group_index >= len(groups) or current_group_size != groups[group_index]:
-        return False
-      current_group_size = 0
-      group_index += 1
-
-  if current_group_size > 0:
-    if group_index >= len(groups) or current_group_size != groups[group_index]:
-      return False
-    group_index += 1
-
-  return group_index == len(groups)
-
-def possibilities(arrangement: Arrangement, index: int, group_index: int) -> int:
-  if index == len(arrangement.data):
-    return 1 if is_valid(arrangement.data, arrangement.groups) else 0
-
-  if index > 0 and arrangement.data[index - 1] == "." and not is_valid(arrangement.data[:index], arrangement.groups[:group_index]):
+def possibilities(arrangement: Arrangement, data_index: int, group_index: int, cache: dict[int, int]) -> int:
+  if group_index >= len(arrangement.groups):
+    return 0 if "#" in arrangement.data[data_index:] else 1
+  
+  max_data_index: int = len(arrangement.data) - min_length(arrangement, group_index)
+  if data_index > max_data_index:
     return 0
 
-  if arrangement.data[index] == "?":
-    result: int = 0
-    arrangement.data[index] = "#"
-    result += possibilities(arrangement, index + 1, group_index)
-    arrangement.data[index] = "."
-    if index > 0 and arrangement.data[index - 1] == "#":
-      result += possibilities(arrangement, index + 1, group_index + 1)
-    else:
-      result += possibilities(arrangement, index + 1, group_index)
-    arrangement.data[index] = "?"
-    return result
-  elif index > 0 and arrangement.data[index - 1] == "#" and arrangement.data[index] == ".":
-    return possibilities(arrangement, index + 1, group_index + 1)
-  else:
-    return possibilities(arrangement, index + 1, group_index)
+  h: int = data_index + 1000 * group_index
+  if h in cache:
+    return cache[h]
+
+  result: int = 0
+
+  if arrangement.data[data_index] != "#":
+    result += possibilities(arrangement, data_index + 1, group_index, cache)
+
+  if data_index == 0 or arrangement.data[data_index - 1] != "#":
+    group: int = arrangement.groups[group_index]
+    count: int = 0
+    for index_to_check in range(data_index, data_index + group):
+      if arrangement.data[index_to_check] == ".":
+        break
+      else:
+        count += 1
+    if count == group \
+        and (data_index + group == len(arrangement.data) or arrangement.data[data_index + group] != "#"):
+      result += possibilities(arrangement, data_index + group + 1, group_index + 1, cache)
+
+  cache[h] = result
+  return result
 
 def unfold(arrangements: list[Arrangement], fold_factor: int) -> list[Arrangement]:
   unfolded_arrangements: list[Arrangement] = []
@@ -86,4 +79,10 @@ def sum_possibilities(lines: list[str], fold_factor: int) -> int:
   arrangements: list[Arrangement] = parse_arrangements(lines)
   arrangements: list[Arrangement] = unfold(arrangements, fold_factor)
 
-  return sum(map(lambda arrangement: possibilities(arrangement, 0, 0), arrangements))
+  result: int = 0
+  for arrangement in arrangements:
+    cache: dict[int, int] = {}
+    pos: int = possibilities(arrangement, 0, 0, cache)
+    result += pos
+
+  return result

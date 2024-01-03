@@ -11,5 +11,5 @@ class Day12Test(TestCase):
   def test_sum_possibilities(self) -> None:
    self.assertEqual(sum_possibilities(self.inputTestFile, 1), 21)
    self.assertEqual(sum_possibilities(self.inputFile, 1), 7792)
-  #  self.assertEqual(sum_possibilities(self.inputTestFile, 5), 525152)
-  #  self.assertEqual(sum_possibilities(self.inputFile, 5), 7792)
+   self.assertEqual(sum_possibilities(self.inputTestFile, 5), 525152)
+   self.assertEqual(sum_possibilities(self.inputFile, 5), 13012052341533)
