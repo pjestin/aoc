@@ -1,5 +1,5 @@
 from unittest import TestCase
-from day20.day20 import count_pulses
+from day20.day20 import count_pulses, find_fewest_rx_button
 
 class Day20Test(TestCase):
   def setUp(self) -> None:
@@ -14,3 +14,6 @@ class Day20Test(TestCase):
     self.assertEqual(count_pulses(self.inputTestFile), 32000000)
     self.assertEqual(count_pulses(self.inputTest2File), 11687500)
     self.assertEqual(count_pulses(self.inputFile), 703315117)
+
+  def test_find_fewest_rx_button(self) -> None:
+    self.assertEqual(find_fewest_rx_button(self.inputFile), 3) # 471863912295139328 too high, 471863912295139327 too high

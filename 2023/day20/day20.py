@@ -127,3 +127,43 @@ def count_pulses(lines: list[str]) -> int:
           nb_high_pulses += 1
 
   return (nb_low_pulses * 1000 // button_count) * (nb_high_pulses * 1000 // button_count)
+
+def find_fewest_rx_button(lines: list[str]) -> int:
+  modules: dict[str, Module] = parse_modules(lines)
+  button_count: int = 0
+  queue: list[tuple[str, PulseType]] = []
+  conjuctions: list[Module] = list(filter(lambda module: isinstance(module, Conjunction), modules.values()))
+  nb_conjunction_inputs: int = sum(len(conjuction.inputs) for conjuction in conjuctions)
+  print(conjuctions)
+  print(nb_conjunction_inputs)
+  conjunction_inputs_with_high: set[str] = set()
+  cycles: dict[str, int] = {}
+
+  while len(cycles) < nb_conjunction_inputs:# and button_count < 10000:
+    for conjunction in conjuctions:
+      for input_name, pulse_type in conjunction.input_pulses.items():
+        conjunction_and_input: str = f"{conjunction.name}:{input_name}"
+        # if pulse_type == PulseType.HIGH:
+        #   conjunction_inputs_with_high.add(conjunction_and_input)
+        # if conjunction_and_input in conjunction_inputs_with_high \
+        if pulse_type == PulseType.HIGH \
+            and conjunction_and_input not in cycles:
+          cycles[conjunction_and_input] = button_count
+          print(cycles)
+
+    queue.append(("button", PulseType.LOW, "broadcaster"))
+    button_count += 1
+
+    while queue:
+      module_name, pulse_type, destination = queue.pop(0)
+      if destination == "rx" and pulse_type == PulseType.LOW:
+        return button_count
+
+      module: Module = modules[destination]
+      module.send(module_name, pulse_type, queue)
+
+  return functools.reduce(
+    lambda previous, cycle_length: lcm(previous, cycle_length),
+    cycles.values(),
+    1,
+  )
