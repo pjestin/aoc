@@ -1,7 +1,8 @@
 from enum import Enum
-import functools
 
 from lib.math import lcm
+
+CONJUNCTIONS_TO_OBSERVE: list[str] = ["sk", "sd", "pl", "zv"]
 
 class PulseType(Enum):
   LOW = 0
@@ -132,24 +133,21 @@ def find_fewest_rx_button(lines: list[str]) -> int:
   modules: dict[str, Module] = parse_modules(lines)
   button_count: int = 0
   queue: list[tuple[str, PulseType]] = []
-  conjuctions: list[Module] = list(filter(lambda module: isinstance(module, Conjunction), modules.values()))
+  conjuctions: list[Module] = list(filter(lambda module: module.name in CONJUNCTIONS_TO_OBSERVE, modules.values()))
   nb_conjunction_inputs: int = sum(len(conjuction.inputs) for conjuction in conjuctions)
-  print(conjuctions)
-  print(nb_conjunction_inputs)
   conjunction_inputs_with_high: set[str] = set()
   cycles: dict[str, int] = {}
 
-  while len(cycles) < nb_conjunction_inputs:# and button_count < 10000:
+  while len(cycles) < nb_conjunction_inputs:
     for conjunction in conjuctions:
       for input_name, pulse_type in conjunction.input_pulses.items():
         conjunction_and_input: str = f"{conjunction.name}:{input_name}"
-        # if pulse_type == PulseType.HIGH:
-        #   conjunction_inputs_with_high.add(conjunction_and_input)
-        # if conjunction_and_input in conjunction_inputs_with_high \
-        if pulse_type == PulseType.HIGH \
+        if pulse_type == PulseType.HIGH:
+          conjunction_inputs_with_high.add(conjunction_and_input)
+        if conjunction_and_input in conjunction_inputs_with_high \
+            and pulse_type == PulseType.LOW \
             and conjunction_and_input not in cycles:
           cycles[conjunction_and_input] = button_count
-          print(cycles)
 
     queue.append(("button", PulseType.LOW, "broadcaster"))
     button_count += 1
@@ -162,8 +160,9 @@ def find_fewest_rx_button(lines: list[str]) -> int:
       module: Module = modules[destination]
       module.send(module_name, pulse_type, queue)
 
-  return functools.reduce(
-    lambda previous, cycle_length: lcm(previous, cycle_length),
-    cycles.values(),
-    1,
-  )
+  result: int = 1
+  for cycle_length in cycles.values():
+    if cycle_length % 2 == 1:
+      result = lcm(result, cycle_length)
+
+  return result

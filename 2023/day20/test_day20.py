@@ -16,4 +16,4 @@ class Day20Test(TestCase):
     self.assertEqual(count_pulses(self.inputFile), 703315117)
 
   def test_find_fewest_rx_button(self) -> None:
-    self.assertEqual(find_fewest_rx_button(self.inputFile), 3) # 471863912295139328 too high, 471863912295139327 too high
+    self.assertEqual(find_fewest_rx_button(self.inputFile), 230402300925361)
