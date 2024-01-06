@@ -4,8 +4,14 @@ Implementation of some questions from the [Advent of Code 2023 event](https://ad
 
 ## How to run
 
+Install dependencies:
+
+```
+pipenv install
+```
+
 To run all tests:
 
 ```
-python -m unittest
+pipenv run python -m unittest
 ```
