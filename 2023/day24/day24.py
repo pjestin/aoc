@@ -68,3 +68,27 @@ def count_intersection(lines: list[str], test_area: tuple[int, int]) -> int:
         nb_intersections += 1
 
   return nb_intersections
+
+def origin_all_collitions(lines: list[str]) -> int:
+  hailstones: list[Hailstone] = parse_hailstones(lines)
+
+  p1: Vector = hailstones[1].position - hailstones[0].position
+  p2: Vector = hailstones[2].position - hailstones[0].position
+  v1: Vector = hailstones[1].direction - hailstones[0].direction
+  v2: Vector = hailstones[2].direction - hailstones[0].direction
+
+  p1xp2 = Vector(p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z, p1.x * p2.y - p1.y * p2.x)
+  v1xp2 = Vector(v1.y * p2.z - v1.z * p2.y, v1.z * p2.x - v1.x * p2.z, v1.x * p2.y - v1.y * p2.x)
+  p1xv2 = Vector(p1.y * v2.z - p1.z * v2.y, p1.z * v2.x - p1.x * v2.z, p1.x * v2.y - p1.y * v2.x)
+
+  t1: int = - (p1xp2.x * v2.x + p1xp2.y * v2.y + p1xp2.z * v2.z) // (v1xp2.x * v2.x + v1xp2.y * v2.y + v1xp2.z * v2.z)
+  t2: int = - (p1xp2.x * v1.x + p1xp2.y * v1.y + p1xp2.z * v1.z) // (p1xv2.x * v1.x + p1xv2.y * v1.y + p1xv2.z * v1.z)
+
+  c1: Vector = p1 + t1 * v1
+  c2: Vector = p2 + t2 * v2
+
+  v = Vector((c2.x - c1.x) // (t2 - t1), (c2.y - c1.y) // (t2 - t1), (c2.z - c1.z) // (t2 - t1))
+  p: Vector = c1 - t1 * v
+  real_p: Vector = hailstones[0].position + p
+
+  return real_p.x + real_p.y + real_p.z

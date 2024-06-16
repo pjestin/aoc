@@ -76,7 +76,6 @@ def cut_three_wires(lines: list[str]) -> int:
 
   for i in range(len(wires)):
     for j in range(i + 1, len(wires)):
-      print(j)
       for k in range(j + 1, len(wires)):
         group_sizes: list[int] = get_graph_group_sizes(graph, [wires[i], wires[j], wires[k]])
         if len(group_sizes) == 2:
