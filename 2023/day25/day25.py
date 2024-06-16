@@ -1,3 +1,5 @@
+import random
+
 def parse_wires(lines: list[str]) -> list[tuple[str, str]]:
   wires: list[tuple[str, str]] = []
 
@@ -23,62 +25,65 @@ def build_graph(wires: list[tuple[str, str]]) -> dict[str, set[str]]:
 
   return graph
 
-def cut_wire(graph: dict[str, set[str]], wire: tuple[str, str]) -> None:
-  graph[wire[0]].remove(wire[1])
-  graph[wire[1]].remove(wire[0])
+def count_components(components: dict[str, int]) -> list[int]:
+  component_sizes: dict[int, int] = {}
 
-def restore_wire(graph: dict[str, set[str]], wire: tuple[str, str]) -> None:
-  graph[wire[0]].add(wire[1])
-  graph[wire[1]].add(wire[0])
+  for component_index in components.values():
+    if component_index not in component_sizes:
+      component_sizes[component_index] = 0
+    component_sizes[component_index] += 1
 
-def navigate_graph(graph: dict[str, set[str]], start: str, visited: set[str], wires_to_ignore: list[tuple[str, str]]) -> set[str]:
-  stack: list[str] = [start]
-  group_size: int = 0
+  return list(component_sizes.values())
 
-  while len(stack) > 0:
-    component: str = stack.pop()
+def karger(wires: list[tuple[str, str]], graph: dict[str, set[str]]) -> int:
+  components: dict[str, int] = {}
+  available_wires: list[int] = list(range(0, len(wires)))
+  component_index: int = 0
 
-    if component not in graph or component in visited:
-      continue
+  while len(available_wires) > 0 and (len(components) < len(graph) or len(set(components.values())) > 2):
+    wire_index: int = available_wires.pop(random.randrange(len(available_wires)))
+    wire: tuple[str, str] = wires[wire_index]
+    if wire[0] in components and wire[1] in components and components[wire[0]] != components[wire[1]]:
+      new_component: int = components[wire[0]]
+      component_to_replace: int = components[wire[1]]
+      for vertex in list(components.keys()):
+        if components[vertex] == component_to_replace:
+          components[vertex] = new_component
+    elif wire[0] in components:
+      components[wire[1]] = components[wire[0]]
+    elif wire[1] in components:
+      components[wire[0]] = components[wire[1]]
+    else:
+      components[wire[0]] = component_index
+      components[wire[1]] = component_index
+      component_index += 1
 
-    visited.add(component)
-    group_size += 1
+  component_sizes: list[int] = count_components(components)
+  if len(component_sizes) == 2 and 2 not in component_sizes:
+    return component_sizes[0] * component_sizes[1]
 
-    for neighbor in graph[component]:
-      ignore: bool = False
-      for wire_to_ignore in wires_to_ignore:
-        if sorted((component, neighbor)) == sorted(wire_to_ignore):
-          ignore = True
-
-      if not ignore:
-        stack.append(neighbor)
-
-  return group_size
-
-def get_graph_group_sizes(graph: dict[str, set[str]], wires_to_ignore: list[tuple[str, str]]) -> list[int]:
-  group_sizes: list[int] = []
-  visited: set[str] = set()
-
-  for component in graph.keys():
-    group_size: int = navigate_graph(graph, component, visited, wires_to_ignore)
-
-    if group_size > 0:
-      group_sizes.append(group_size)
-
-    if len(visited) == len(graph):
-      break
-
-  return group_sizes
+  return -1
 
 def cut_three_wires(lines: list[str]) -> int:
   wires: list[tuple[str, str]] = parse_wires(lines)
   graph: dict[str, set[str]] = build_graph(wires)
 
-  for i in range(len(wires)):
-    for j in range(i + 1, len(wires)):
-      for k in range(j + 1, len(wires)):
-        group_sizes: list[int] = get_graph_group_sizes(graph, [wires[i], wires[j], wires[k]])
-        if len(group_sizes) == 2:
-          return group_sizes[0] * group_sizes[1]
+  frequencies: dict[int, int] = {}
 
-  return -1
+  for _ in range(1000):
+    res: int = karger(wires, graph)
+    if res == -1:
+      continue
+    if res not in frequencies:
+      frequencies[res] = 0
+    frequencies[res] += 1
+
+  max_freq: int = 0
+  max_freq_res: int = 0
+
+  for res, freq in frequencies.items():
+    if freq > max_freq:
+      max_freq = freq
+      max_freq_res = res
+
+  return max_freq_res

@@ -10,4 +10,4 @@ class Day25Test(TestCase):
 
   def test_cut_three_wires(self) -> None:
     self.assertEqual(cut_three_wires(self.inputTestFile), 54)
-    # self.assertEqual(cut_three_wires(self.inputFile), 24627)
+    self.assertEqual(cut_three_wires(self.inputFile), 606062)
