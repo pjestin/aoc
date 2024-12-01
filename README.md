@@ -3,7 +3,7 @@ Implementations of the [Avent of Code](https://adventofcode.com) problems with v
 ## Language used each year
 
 | Year | Language   |
-| ---  | ---        |
+| ---- | ---------- |
 | 2015 | Rust       |
 | 2016 | Rust       |
 | 2017 | Python 3   |
@@ -13,3 +13,4 @@ Implementations of the [Avent of Code](https://adventofcode.com) problems with v
 | 2021 | Lua        |
 | 2022 | TypeScript |
 | 2023 | Python 3   |
+| 2024 | Go         |
