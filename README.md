@@ -14,3 +14,4 @@ Implementations of the [Avent of Code](https://adventofcode.com) problems with v
 | 2022 | TypeScript |
 | 2023 | Python 3   |
 | 2024 | Go         |
+| 2025 | Java       |
