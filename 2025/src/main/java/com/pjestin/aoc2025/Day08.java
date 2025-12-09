@@ -16,9 +16,9 @@ public class Day08 {
     private static List<Vector> parseJunctionBoxes(List<String> lines) {
         return lines.stream().map(line -> {
             String[] splitLine = line.split(",");
-            int x = Integer.parseInt(splitLine[0]);
-            int y = Integer.parseInt(splitLine[1]);
-            int z = Integer.parseInt(splitLine[2]);
+            long x = Long.parseLong(splitLine[0]);
+            long y = Long.parseLong(splitLine[1]);
+            long z = Long.parseLong(splitLine[2]);
             return new Vector(x, y, z);
         }).collect(Collectors.toList());
     }

@@ -2,25 +2,25 @@ package com.pjestin.lib;
 
 public class Vector implements Comparable<Vector> {
   public int dimension;
-  public int x = 0;
-  public int y = 0;
-  public int z = 0;
-  public int w = 0;
+  public long x = 0;
+  public long y = 0;
+  public long z = 0;
+  public long w = 0;
 
-  public Vector(int x, int y) {
+  public Vector(long x, long y) {
     this.x = x;
     this.y = y;
     this.dimension = 2;
   }
 
-  public Vector(int x, int y, int z) {
+  public Vector(long x, long y, long z) {
     this.x = x;
     this.y = y;
     this.z = z;
     this.dimension = 3;
   }
 
-  public Vector(int x, int y, int z, int w) {
+  public Vector(long x, long y, long z, long w) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -64,15 +64,15 @@ public class Vector implements Comparable<Vector> {
   @Override
   public int compareTo(Vector other) {
     if (this.w != other.w) {
-      return this.w - other.w;
+      return Long.compare(this.w, other.w);
     }
     if (this.z != other.z) {
-      return this.z - other.z;
+      return Long.compare(this.z, other.z);
     }
     if (this.y != other.y) {
-      return this.y - other.y;
+      return Long.compare(this.y, other.y);
     }
-    return this.x - other.x;
+    return Long.compare(this.x, other.x);
   }
 
   public Vector add(Vector other) {
@@ -83,7 +83,7 @@ public class Vector implements Comparable<Vector> {
     return this;
   }
 
-  public int distance(Vector other) {
+  public long distance(Vector other) {
     return Math.abs(other.x - this.x) + Math.abs(other.y - this.y) + Math.abs(other.z - this.z)
         + Math.abs(other.w - this.w);
   }
