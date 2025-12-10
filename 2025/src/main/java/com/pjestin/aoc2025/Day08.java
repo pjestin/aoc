@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -25,7 +26,7 @@ public class Day08 {
 
     private record JunctionBoxPair(int boxIndex1, int boxIndex2, double distance) {};
 
-    private static List<JunctionBoxPair> findClosestPairs(List<Vector> junctionBoxes, int nIterations) {
+    private static LinkedList<JunctionBoxPair> findClosestPairs(List<Vector> junctionBoxes, int nIterations) {
         PriorityQueue<JunctionBoxPair> maxHeap = new PriorityQueue<>(Comparator.comparing(pair -> pair.distance, (d1, d2) -> d2.compareTo(d1)));
 
         for (int i = 0; i < junctionBoxes.size() - 1; i++) {
@@ -42,7 +43,7 @@ public class Day08 {
             }
         }
 
-        List<JunctionBoxPair> result = new ArrayList<>();
+        LinkedList<JunctionBoxPair> result = new LinkedList<>();
         while (!maxHeap.isEmpty()) {
             result.addFirst(maxHeap.remove());
         }
