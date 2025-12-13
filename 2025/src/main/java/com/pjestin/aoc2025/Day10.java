@@ -52,6 +52,39 @@ public class Day10 {
             throw new RuntimeException("Could not reach target indicator lights");
         }
 
+        public List<Set<Integer>> buildLastMentions() {
+            List<Set<Integer>> lastMentions = new ArrayList<>();
+            for (int buttonIndex = 0; buttonIndex < this.buttons.size(); buttonIndex++) {
+                lastMentions.add(new HashSet<>());
+            }
+
+            for (int joltageIndex = 0; joltageIndex < this.joltageRequirements.size(); joltageIndex++) {
+                int lastMention = 0;
+
+                for (int buttonIndex = 0; buttonIndex < this.buttons.size(); buttonIndex++) {
+                    if (this.buttons.get(buttonIndex).contains(joltageIndex)) {
+                        lastMention = buttonIndex;
+                    }
+                }
+
+                lastMentions.get(lastMention).add(joltageIndex);
+            }
+
+            return lastMentions;
+        }
+
+        private Optional<Integer> getForcedPushCount(int buttonIndex, List<Integer> joltages, Set<Integer> lastMentions) {
+            Set<Integer> candidates = lastMentions.stream()
+                .map(lastMention -> this.joltageRequirements.get(lastMention) - joltages.get(lastMention))
+                .collect(Collectors.toSet());
+
+            if (candidates.size() != 1) {
+                return Optional.empty();
+            } else {
+                return Optional.of(candidates.iterator().next());
+            }
+        }
+
         private boolean isStillValid(List<Integer> joltages) {
             for (int joltageIndex = 0; joltageIndex < joltages.size(); joltageIndex++) {
                 if (joltages.get(joltageIndex) > this.joltageRequirements.get(joltageIndex)) {
@@ -62,12 +95,39 @@ public class Day10 {
             return true;
         }
 
-        public Optional<Integer> countJoltageFewestPushes(int buttonIndex, List<Integer> joltages) {
+        public Optional<Integer> countJoltageFewestPushes(int buttonIndex, List<Integer> joltages, List<Set<Integer>> lastMentions) {
             if (buttonIndex >= this.buttons.size()) {
                 if (joltages.equals(this.joltageRequirements)) {
                     return Optional.of(0);
                 } else {
                     return Optional.empty();
+                }
+            }
+
+            if (!lastMentions.get(buttonIndex).isEmpty()) {
+                Optional<Integer> forcedPushCount = this.getForcedPushCount(buttonIndex, joltages, lastMentions.get(buttonIndex));
+                if (forcedPushCount.isEmpty()) {
+                    return Optional.empty();
+                } else {
+                    for (int joltageIndex : this.buttons.get(buttonIndex)) {
+                        joltages.set(joltageIndex, joltages.get(joltageIndex) + forcedPushCount.get());
+                    }
+                    if (this.isStillValid(joltages)) {
+                        Optional<Integer> downstreamFewestPushes = this.countJoltageFewestPushes(buttonIndex + 1, joltages, lastMentions);
+                        for (int joltageIndex : this.buttons.get(buttonIndex)) {
+                            joltages.set(joltageIndex, joltages.get(joltageIndex) - forcedPushCount.get());
+                        }
+                        if (downstreamFewestPushes.isPresent()) {
+                            return Optional.of(downstreamFewestPushes.get() + forcedPushCount.get());
+                        } else {
+                            return Optional.empty();
+                        }
+                    } else {
+                        for (int joltageIndex : this.buttons.get(buttonIndex)) {
+                            joltages.set(joltageIndex, joltages.get(joltageIndex) - forcedPushCount.get());
+                        }
+                        return Optional.empty();
+                    }
                 }
             }
 
@@ -86,7 +146,7 @@ public class Day10 {
                     break;
                 }
 
-                Optional<Integer> downstreamFewestPushes = this.countJoltageFewestPushes(buttonIndex + 1, joltages);
+                Optional<Integer> downstreamFewestPushes = this.countJoltageFewestPushes(buttonIndex + 1, joltages, lastMentions);
 
                 if (downstreamFewestPushes.isPresent()) {
                     if (fewestPushes.isPresent()) {
@@ -146,7 +206,11 @@ public class Day10 {
         List<Machine> machines = parseMachines(lines);
 
         return machines.stream()
-            .map(machine -> machine.countJoltageFewestPushes(0, new ArrayList<>(Collections.nCopies(machine.joltageRequirements.size(), 0))).get())
-            .reduce(0, (acc, count) -> acc + count);
+            .map(machine -> {
+                int fewestPushes = machine.countJoltageFewestPushes(0, new ArrayList<>(Collections.nCopies(machine.joltageRequirements.size(), 0)), machine.buildLastMentions()).get();
+                System.out.println(fewestPushes);
+                return fewestPushes;
+            })
+            .reduce(0, (acc, fewestPushes) -> acc + fewestPushes);
     }
 }

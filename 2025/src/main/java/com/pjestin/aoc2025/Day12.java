@@ -152,17 +152,13 @@ public class Day12 {
         List<Region> regions = shapesAndRegions.regions;
 
         List<Set<Set<Vector>>> equivalentShapes = computeEquivalents(shapesAndRegions.shapes);
-        int count = 0;
+        long totalTries = 2000000L;
 
-        for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
-            Region region = regions.get(regionIndex);
-            long totalTries = 2000000L;
-            long[] nTries = {totalTries};
-            if (canFit(equivalentShapes, new boolean[region.length][region.width], new ArrayList<>(region.quantities), nTries)) {
-                count++;
-            }
-        }
-
-        return count;
+        return regions.stream()
+            .filter(region -> {
+                long[] nTries = {totalTries};
+                return canFit(equivalentShapes, new boolean[region.length][region.width], new ArrayList<>(region.quantities), nTries);
+            })
+            .count();
     }
 }
