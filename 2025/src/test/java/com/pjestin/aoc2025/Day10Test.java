@@ -30,6 +30,6 @@ public class Day10Test {
     @Test
     public void test_countJoltageFewestPushes() {
         assertEquals(33, Day10.countJoltageFewestPushes(inputTestLines));
-        // assertEquals(505, Day10.countJoltageFewestPushes(inputLines));
+        assertEquals(20002, Day10.countJoltageFewestPushes(inputLines));
     }
 }

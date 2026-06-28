@@ -10,6 +10,10 @@ repositories {
 }
 
 dependencies {
+    // Google OR-Tools for ILP
+    implementation 'com.google.ortools:ortools-java:9.12.4544'
+    implementation files('libs/native/or-tools_arm64_macOS-15.3.1_java_v9.12.4544/ortools-darwin-aarch64-9.12.4544.jar')
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
 }
 

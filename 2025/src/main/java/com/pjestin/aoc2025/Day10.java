@@ -2,13 +2,16 @@ package com.pjestin.aoc2025;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 
 public class Day10 {
     private static class Machine {
@@ -27,7 +30,7 @@ public class Day10 {
         public int countIndicatorLightFewestPushes() {
             LinkedList<IndicatorLightState> queue = new LinkedList<>();
             queue.add(new IndicatorLightState(0, 0));
-            Set<Integer> cache = new HashSet<>();
+            List<Integer> cache = new ArrayList<>();
 
             while (!queue.isEmpty()) {
                 IndicatorLightState state = queue.remove();
@@ -52,118 +55,61 @@ public class Day10 {
             throw new RuntimeException("Could not reach target indicator lights");
         }
 
-        public List<Set<Integer>> buildLastMentions() {
-            List<Set<Integer>> lastMentions = new ArrayList<>();
-            for (int buttonIndex = 0; buttonIndex < this.buttons.size(); buttonIndex++) {
-                lastMentions.add(new HashSet<>());
-            }
-
-            for (int joltageIndex = 0; joltageIndex < this.joltageRequirements.size(); joltageIndex++) {
-                int lastMention = 0;
-
-                for (int buttonIndex = 0; buttonIndex < this.buttons.size(); buttonIndex++) {
-                    if (this.buttons.get(buttonIndex).contains(joltageIndex)) {
-                        lastMention = buttonIndex;
+        private double[][] buildMatrix() {
+            int L = joltageRequirements.size();
+            int B = buttons.size();
+            double[][] A = new double[L][B];
+            for (int i = 0; i < L; i++) {
+                double[] row = new double[B];
+                for (int k = 0; k < B; k++) {
+                    if (buttons.get(k).contains(i)) {
+                        row[k] = 1.0;
                     }
                 }
-
-                lastMentions.get(lastMention).add(joltageIndex);
+                A[i] = row;
             }
 
-            return lastMentions;
+            return A;
         }
 
-        private Optional<Integer> getForcedPushCount(int buttonIndex, List<Integer> joltages, Set<Integer> lastMentions) {
-            Set<Integer> candidates = lastMentions.stream()
-                .map(lastMention -> this.joltageRequirements.get(lastMention) - joltages.get(lastMention))
-                .collect(Collectors.toSet());
+        public int countJoltageFewestPushes() {
+            double[][] A = buildMatrix();
+            double[] b = joltageRequirements.stream().mapToDouble(i -> i).toArray();
 
-            if (candidates.size() != 1) {
-                return Optional.empty();
-            } else {
-                return Optional.of(candidates.iterator().next());
-            }
-        }
+            MPSolver solver = new MPSolver("MinimalSumSolver", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
 
-        private boolean isStillValid(List<Integer> joltages) {
-            for (int joltageIndex = 0; joltageIndex < joltages.size(); joltageIndex++) {
-                if (joltages.get(joltageIndex) > this.joltageRequirements.get(joltageIndex)) {
-                    return false;
-                }
+            int numVars = A[0].length;
+            MPVariable[] x = new MPVariable[numVars];
+            for (int i = 0; i < numVars; i++) {
+                x[i] = solver.makeIntVar(0, solver.infinity(), "x" + i);
             }
 
-            return true;
-        }
+            MPObjective objective = solver.objective();
+            for (MPVariable var : x) {
+                objective.setCoefficient(var, 1);
+            }
+            objective.setMinimization();
 
-        public Optional<Integer> countJoltageFewestPushes(int buttonIndex, List<Integer> joltages, List<Set<Integer>> lastMentions) {
-            if (buttonIndex >= this.buttons.size()) {
-                if (joltages.equals(this.joltageRequirements)) {
-                    return Optional.of(0);
-                } else {
-                    return Optional.empty();
+            for (int i = 0; i < A.length; i++) {
+                MPConstraint constraint = solver.makeConstraint(b[i], b[i], "constraint" + i);
+                for (int j = 0; j < A[i].length; j++) {
+                    constraint.setCoefficient(x[j], A[i][j]);
                 }
             }
 
-            if (!lastMentions.get(buttonIndex).isEmpty()) {
-                Optional<Integer> forcedPushCount = this.getForcedPushCount(buttonIndex, joltages, lastMentions.get(buttonIndex));
-                if (forcedPushCount.isEmpty()) {
-                    return Optional.empty();
-                } else {
-                    for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                        joltages.set(joltageIndex, joltages.get(joltageIndex) + forcedPushCount.get());
-                    }
-                    if (this.isStillValid(joltages)) {
-                        Optional<Integer> downstreamFewestPushes = this.countJoltageFewestPushes(buttonIndex + 1, joltages, lastMentions);
-                        for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                            joltages.set(joltageIndex, joltages.get(joltageIndex) - forcedPushCount.get());
-                        }
-                        if (downstreamFewestPushes.isPresent()) {
-                            return Optional.of(downstreamFewestPushes.get() + forcedPushCount.get());
-                        } else {
-                            return Optional.empty();
-                        }
-                    } else {
-                        for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                            joltages.set(joltageIndex, joltages.get(joltageIndex) - forcedPushCount.get());
-                        }
-                        return Optional.empty();
-                    }
+            // Solve the problem
+            MPSolver.ResultStatus resultStatus = solver.solve();
+
+            // Print the solution
+            if (resultStatus == MPSolver.ResultStatus.OPTIMAL) {
+                System.out.println("Solution:");
+                for (MPVariable var : x) {
+                    System.out.print((int) var.solutionValue() + " ");
                 }
+                return (int) objective.value();
             }
 
-            Optional<Integer> fewestPushes = Optional.empty();
-            int pushCount = 0;
-
-            while (true) {
-                for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                    joltages.set(joltageIndex, joltages.get(joltageIndex) + pushCount);
-                }
-
-                if (!isStillValid(joltages)) {
-                    for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                        joltages.set(joltageIndex, joltages.get(joltageIndex) - pushCount);
-                    }
-                    break;
-                }
-
-                Optional<Integer> downstreamFewestPushes = this.countJoltageFewestPushes(buttonIndex + 1, joltages, lastMentions);
-
-                if (downstreamFewestPushes.isPresent()) {
-                    if (fewestPushes.isPresent()) {
-                        fewestPushes = Optional.of(Math.min(downstreamFewestPushes.get() + pushCount, fewestPushes.get()));
-                    } else {
-                        fewestPushes = Optional.of(downstreamFewestPushes.get() + pushCount);
-                    }
-                }
-
-                for (int joltageIndex : this.buttons.get(buttonIndex)) {
-                    joltages.set(joltageIndex, joltages.get(joltageIndex) - pushCount);
-                }
-
-                pushCount++;
-            }
-
-            return fewestPushes;
+            throw new RuntimeException("Could not reach target joltages");
         }
     }
 
@@ -198,19 +144,18 @@ public class Day10 {
         List<Machine> machines = parseMachines(lines);
 
         return machines.stream()
-            .map(machine -> machine.countIndicatorLightFewestPushes())
-            .reduce(0, (acc, count) -> acc + count);
+            .map(Machine::countIndicatorLightFewestPushes)
+            .mapToInt(i -> i)
+            .sum();
     }
 
     public static int countJoltageFewestPushes(List<String> lines) {
+        Loader.loadNativeLibraries();
         List<Machine> machines = parseMachines(lines);
 
         return machines.stream()
-            .map(machine -> {
-                int fewestPushes = machine.countJoltageFewestPushes(0, new ArrayList<>(Collections.nCopies(machine.joltageRequirements.size(), 0)), machine.buildLastMentions()).get();
-                System.out.println(fewestPushes);
-                return fewestPushes;
-            })
-            .reduce(0, (acc, fewestPushes) -> acc + fewestPushes);
+            .map(Machine::countJoltageFewestPushes)
+            .mapToInt(i -> i)
+            .sum();
     }
 }
